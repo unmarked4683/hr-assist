@@ -120,38 +120,34 @@ _Always visible below the tabs section regardless of the active top tab._
   - 6 Columns: `Dzień` | `Dzień tygodnia` | `Godziny pracy` | `Nominalny czas` | `Realny czas` | `Status`.
   - Statuses: `OB` (Present - Green), `NN` (Unexcused Absence - Red + row highlight), `USP` (Excused Absence / Leave - Orange).
 
-Day Editability Criteria & Attendance Dictionary:
-Day Editability Rules:
+##### Day Editability Criteria & Attendance Dictionary
+
+###### Day Editability Rules
 
 A day cell is clickable (cursor-pointer + hover effect) if and only if:
 
-The month is not locked.
-
-The day is not a Saturday or Sunday.
-
-The day is not a Statutory Public Holiday.
-
-The day is not a Company-wide Leave Day (stored under the hood as UW — Vacation Leave, protected from manual edit).
+- The month is not locked.
+- The day is not a Saturday or Sunday.
+- The day is not a Statutory Public Holiday.
+- The day is not a Company-wide Leave Day (stored under the hood as UW — Vacation Leave, protected from manual edit).
 
 Non-editable days enforce cursor: not-allowed.
 
-Attendance Dictionary (16 Statuses):
+###### Attendance Dictionary (16 Statuses)
 
 OB (Present - default, no DB entry), CH (Sick Leave), NN (Unexcused Absence), UB (Unpaid Leave), UW (Vacation Leave / Company-wide Leave), UM (Maternity Leave), NUN (Excused Unpaid Absence), NUP (Excused Paid Absence), UO (Paternity Leave), OP (Childcare Leave), REH (Rehabilitation Benefit), UR (Parental Leave), UŻ (Leave on Demand), UOK (Special Leave), WZS (Day off for Holiday), WYC (Child-rearing Leave).
 
-Attendance Edit Modal (<Modal />):
+###### Attendance Edit Modal (`<Modal />`)
 
 Header: Date formatted as D MONTH YYYY (e.g., 1 JULY 2026).
 
 UI Layout: 3 equal-width, vertically balanced elements:
 
-Attendance Select Dropdown: Formatted as Description (SHORT_CODE).
+- Attendance Select Dropdown: Formatted as Description (SHORT_CODE).
+- "Usuń frekwencję" Button: Removes the DB exception, reverting to default OB.
+- "Aktualizuj" Button: Saves the selected status in the DB.
 
-"Usuń frekwencję" Button: Removes the DB exception, reverting to default OB.
-
-"Aktualizuj" Button: Saves the selected status in the DB.
-
-## UX Guard: Modal closes automatically only after the backend responds and the grid re-renders.
+##### UX Guard: Modal closes automatically only after the backend responds and the grid re-renders
 
 #### Reusable Modal Component (`<Modal />`)
 
@@ -183,7 +179,3 @@ Features planned for subsequent iterations. **Out of scope for `v1.0.0 (MVP)`**:
 - **`v2.3.0` — Profile Management & Notifications**
   - Modals for employee data editing, archiving, and profile deletion.
   - Email / Slack notification integrations for monthly lockouts and unexcused absences.
-
-```
-
-```
