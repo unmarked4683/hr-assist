@@ -6,11 +6,9 @@ import { useParams } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
 import { CalendarModule } from "@/components/calendar/calendar-module";
-import { EmployeeDataTab } from "@/components/employees/employee-data-tab";
-import { LeaveTab } from "@/components/employees/leave-tab";
+import { EmployeeProfileSection } from "@/components/employees/employee-profile-section";
 import { ErrorMessage } from "@/components/ui/error-message";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ROUTES } from "@/lib/constants/navigation";
 import type { Employee } from "@/lib/types/employee";
 import { getEmployee } from "@/services/employees";
@@ -46,7 +44,7 @@ export default function EmployeeDetailPage() {
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-6">
       <Link
         href={ROUTES.employees}
-        className="mb-4 inline-flex shrink-0 items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="mb-6 inline-flex shrink-0 items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ChevronLeft className="size-4" />
         Lista pracowników
@@ -58,20 +56,7 @@ export default function EmployeeDetailPage() {
         <ErrorMessage message={error ?? "Nie znaleziono pracownika"} />
       ) : (
         <>
-          <div className="shrink-0">
-            <Tabs defaultValue="data">
-              <TabsList>
-                <TabsTrigger value="data">Dane pracownika</TabsTrigger>
-                <TabsTrigger value="leave">Urlopy</TabsTrigger>
-              </TabsList>
-              <TabsContent value="data" className="mt-4">
-                <EmployeeDataTab employee={employee} />
-              </TabsContent>
-              <TabsContent value="leave" className="mt-4">
-                <LeaveTab employee={employee} />
-              </TabsContent>
-            </Tabs>
-          </div>
+          <EmployeeProfileSection employee={employee} />
 
           <CalendarModule employeeId={employee.id} className="mt-6 min-h-0 flex-1" />
         </>
