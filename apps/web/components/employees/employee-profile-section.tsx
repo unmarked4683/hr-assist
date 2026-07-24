@@ -25,7 +25,7 @@ export function EmployeeProfileSection({ employee }: EmployeeProfileSectionProps
       <EmployeeProfileHeader employee={employee} />
 
       <Tabs defaultValue="data" className="gap-0">
-        <Card className="overflow-hidden p-0">
+        <Card className="overflow-hidden rounded-lg border border-slate-200 bg-white p-0 shadow-sm">
           <TabsList variant="line" className={profileTabsListClass}>
             <TabsTrigger value="data" className={profileTabTriggerClass}>
               Dane pracownika
@@ -36,7 +36,7 @@ export function EmployeeProfileSection({ employee }: EmployeeProfileSectionProps
           </TabsList>
 
           <div className={profileContentPanelClass}>
-            <TabsContent value="data" className="mt-0 h-full overflow-hidden p-4">
+            <TabsContent value="data" className="mt-0 overflow-hidden p-0">
               <EmployeeDataTab employee={employee} />
             </TabsContent>
             <TabsContent value="leave" className="mt-0 h-full overflow-hidden p-4">
