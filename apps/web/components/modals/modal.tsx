@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useId, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,20 @@ export function Modal({
     setConfirmOpen(false);
     onOpenChange(false);
   }, [isPending, onOpenChange]);
+
+  useEffect(() => {
+    if (!open || confirmOpen) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      handleClose();
+    };
+
+    document.addEventListener("keydown", handleEscape, true);
+    return () => document.removeEventListener("keydown", handleEscape, true);
+  }, [confirmOpen, handleClose, open]);
 
   const runPrimaryAction = async () => {
     if (!primaryAction || primaryAction.disabled || isSubmitDisabled || isPending) {

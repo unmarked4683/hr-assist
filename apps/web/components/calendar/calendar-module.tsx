@@ -114,7 +114,7 @@ export function CalendarModule({ employeeId, className }: CalendarModuleProps) {
     return (
       <section
         className={cn(
-          "flex min-h-0 flex-1 items-center justify-center rounded-md border bg-card",
+          "flex min-h-0 flex-1 items-center justify-center",
           className,
         )}
       >
@@ -127,7 +127,7 @@ export function CalendarModule({ employeeId, className }: CalendarModuleProps) {
     return (
       <section
         className={cn(
-          "flex min-h-0 flex-1 items-start rounded-md border bg-card p-4",
+          "flex min-h-0 flex-1 items-start p-4",
           className,
         )}
       >
@@ -139,7 +139,7 @@ export function CalendarModule({ employeeId, className }: CalendarModuleProps) {
   return (
     <section
       className={cn(
-        "flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border bg-card",
+        "flex min-h-0 flex-1 flex-col overflow-hidden",
         className,
       )}
     >

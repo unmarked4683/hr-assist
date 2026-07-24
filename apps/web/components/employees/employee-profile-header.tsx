@@ -1,4 +1,4 @@
-import { IconActionBar } from "@/components/ui/icon-action-bar";
+import { EmployeeHybridActions } from "@/components/employees/employee-hybrid-actions";
 import type { Employee } from "@/lib/types/employee";
 import { cn } from "@/lib/utils";
 
@@ -15,10 +15,8 @@ export function EmployeeProfileHeader({
 
   return (
     <div className={cn("flex items-center justify-between gap-4", className)}>
-      <p className="flex h-8 items-center text-sm font-semibold tracking-wide">
-        {fullName}
-      </p>
-      <IconActionBar />
+      <h1 className="text-2xl font-bold tracking-wide text-slate-900">{fullName}</h1>
+      <EmployeeHybridActions />
     </div>
   );
 }

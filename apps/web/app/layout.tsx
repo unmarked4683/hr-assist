@@ -21,8 +21,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl" className={`${inter.variable} h-full`}>
-      <body className="h-full overflow-hidden antialiased">
+    <html
+      lang="pl"
+      className={`${inter.variable} h-full`}
+      suppressHydrationWarning
+    >
+      <body
+        className="h-full overflow-hidden antialiased"
+        suppressHydrationWarning
+      >
         <TooltipProvider>{children}</TooltipProvider>
       </body>
     </html>

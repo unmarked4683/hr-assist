@@ -1,9 +1,12 @@
 "use client";
 
 import { Plus, Search } from "lucide-react";
+import { useId } from "react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { APP_SHELL_HEADER_BASE } from "@/lib/constants/layout";
+import { cn } from "@/lib/utils";
 
 interface EmployeeTopBarProps {
   query: string;
@@ -16,26 +19,50 @@ export function EmployeeTopBar({
   onQueryChange,
   onAddClick,
 }: EmployeeTopBarProps) {
+  const searchInputId = useId();
+
+  const handleAddZoneKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    onAddClick();
+  };
+
   return (
-    <div className="flex items-center gap-3 border-b px-6 py-4">
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={query}
-          onChange={(event) => onQueryChange(event.target.value)}
-          placeholder="Szukaj pracownika..."
-          className="h-10 pl-9"
-        />
-      </div>
-      <Button
-        type="button"
-        size="icon"
-        className="size-10 shrink-0"
-        aria-label="Dodaj pracownika"
-        onClick={onAddClick}
+    <div className={cn(APP_SHELL_HEADER_BASE, "gap-0")}>
+      <label
+        htmlFor={searchInputId}
+        className="flex h-full min-w-0 flex-1 cursor-text items-center pl-6"
       >
-        <Plus className="size-5" />
-      </Button>
+        <div className="relative w-full">
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id={searchInputId}
+            value={query}
+            onChange={(event) => onQueryChange(event.target.value)}
+            placeholder="Szukaj pracownika..."
+            className="h-8 pl-9"
+          />
+        </div>
+      </label>
+
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="Dodaj pracownika"
+        className="flex h-full shrink-0 cursor-pointer items-center pl-4 pr-6 outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+        onClick={onAddClick}
+        onKeyDown={handleAddZoneKeyDown}
+      >
+        <span
+          className={cn(
+            buttonVariants({ size: "icon" }),
+            "pointer-events-none",
+          )}
+          aria-hidden="true"
+        >
+          <Plus className="size-4" />
+        </span>
+      </div>
     </div>
   );
 }

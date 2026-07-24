@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Aside } from "@/components/layout/aside";
+import { AppKeyboardProvider } from "@/components/layout/app-keyboard-provider";
 import { AuthGuard } from "@/components/layout/auth-guard";
 import { MainStage } from "@/components/layout/main-stage";
 import { ProfileTile } from "@/components/layout/profile-tile";
@@ -33,10 +34,12 @@ export default function AppLayout({
 
   return (
     <AuthGuard>
-      <div className="app-shell">
-        <Aside footer={user ? <ProfileTile user={user} onLogout={handleLogout} /> : null} />
-        <MainStage>{children}</MainStage>
-      </div>
+      <AppKeyboardProvider>
+        <div className="app-shell">
+          <Aside footer={user ? <ProfileTile user={user} onLogout={handleLogout} /> : null} />
+          <MainStage>{children}</MainStage>
+        </div>
+      </AppKeyboardProvider>
     </AuthGuard>
   );
 }

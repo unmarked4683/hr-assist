@@ -11,12 +11,12 @@ export function LeaveTab({ employee }: LeaveTabProps) {
   const current = buildLeaveProgress("Aktualny", employee.leave.current);
 
   return (
-    <div className="grid h-full w-full grid-cols-2 gap-6">
-      <div className="flex h-full flex-col justify-start space-y-3 rounded-md border p-4">
+    <div className="grid h-full min-h-0 w-full grid-cols-2 gap-4">
+      <div className="flex h-full min-h-0 flex-col justify-start space-y-3 overflow-hidden rounded-md border border-slate-200 bg-slate-50/40 p-4">
         <p className="text-sm font-medium">{overdue.displayText}</p>
         <ProgressBar value={overdue.percentage} label={overdue.percentageLabel} />
       </div>
-      <div className="flex h-full flex-col justify-start space-y-3 rounded-md border p-4">
+      <div className="flex h-full min-h-0 flex-col justify-start space-y-3 overflow-hidden rounded-md border border-slate-200 bg-slate-50/40 p-4">
         <p className="text-sm font-medium">{current.displayText}</p>
         <ProgressBar value={current.percentage} label={current.percentageLabel} />
       </div>
