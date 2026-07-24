@@ -11,6 +11,7 @@ import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { CONFIRM_LOCK_MESSAGE } from "@/lib/constants/calendar";
 import type { AttendanceCode, CalendarDay, MonthCalendarData } from "@/lib/types/attendance";
 import { resolveMonthLockState } from "@/lib/utils/month-lock";
+import { cn } from "@/lib/utils";
 import {
   deleteDayAttendance,
   getMonthCalendar,
@@ -20,9 +21,10 @@ import {
 
 interface CalendarModuleProps {
   employeeId: string;
+  className?: string;
 }
 
-export function CalendarModule({ employeeId }: CalendarModuleProps) {
+export function CalendarModule({ employeeId, className }: CalendarModuleProps) {
   const now = useMemo(() => new Date(), []);
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
@@ -109,15 +111,38 @@ export function CalendarModule({ employeeId }: CalendarModuleProps) {
   };
 
   if (isLoading && !calendarData) {
-    return <LoadingSpinner label="Wczytywanie kalendarza..." />;
+    return (
+      <section
+        className={cn(
+          "flex min-h-0 flex-1 items-center justify-center rounded-md border bg-card",
+          className,
+        )}
+      >
+        <LoadingSpinner label="Wczytywanie kalendarza..." />
+      </section>
+    );
   }
 
   if (error) {
-    return <ErrorMessage message={error} />;
+    return (
+      <section
+        className={cn(
+          "flex min-h-0 flex-1 items-start rounded-md border bg-card p-4",
+          className,
+        )}
+      >
+        <ErrorMessage message={error} />
+      </section>
+    );
   }
 
   return (
-    <section className="mt-6 rounded-md border">
+    <section
+      className={cn(
+        "flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border bg-card",
+        className,
+      )}
+    >
       <CalendarHeader
         year={year}
         month={month}

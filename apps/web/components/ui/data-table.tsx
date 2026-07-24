@@ -15,11 +15,12 @@ export function DataTable({ children, className }: DataTableProps) {
 
 interface DataTableHeadProps {
   children: React.ReactNode;
+  className?: string;
 }
 
-export function DataTableHead({ children }: DataTableHeadProps) {
+export function DataTableHead({ children, className }: DataTableHeadProps) {
   return (
-    <thead className="sticky top-0 z-10 bg-card">
+    <thead className={cn("sticky top-0 z-10 bg-card", className)}>
       {children}
     </thead>
   );
@@ -37,7 +38,7 @@ export function DataTableHeaderCell({
   return (
     <th
       className={cn(
-        "border-b px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide",
+        "border-b px-4 py-3 text-center align-middle text-xs font-semibold uppercase tracking-wide",
         className,
       )}
     >
@@ -82,7 +83,7 @@ interface DataTableCellProps {
 
 export function DataTableCell({ children, className }: DataTableCellProps) {
   return (
-    <td className={cn("px-4 py-3 text-center align-middle", className)}>
+    <td className={cn("px-4 py-3 text-center align-middle text-sm", className)}>
       {children}
     </td>
   );

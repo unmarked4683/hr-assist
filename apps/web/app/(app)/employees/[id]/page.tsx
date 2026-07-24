@@ -48,8 +48,8 @@ export default function EmployeeDetailPage() {
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <div className="scroll-pane p-6">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-6">
+      <div className="shrink-0">
         <Tabs defaultValue="data">
           <TabsList>
             <TabsTrigger value="data">Dane pracownika</TabsTrigger>
@@ -62,9 +62,9 @@ export default function EmployeeDetailPage() {
             <LeaveTab employee={employee} />
           </TabsContent>
         </Tabs>
-
-        <CalendarModule employeeId={employee.id} />
       </div>
+
+      <CalendarModule employeeId={employee.id} className="mt-6 min-h-0 flex-1" />
     </div>
   );
 }

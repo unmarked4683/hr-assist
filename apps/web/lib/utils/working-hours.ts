@@ -18,6 +18,14 @@ function parseTime(value: string): number {
   return (hours ?? 0) * 60 + (minutes ?? 0);
 }
 
+export function computeWorkHoursDuration(workStart: string, workEnd: string): number {
+  return (parseTime(workEnd) - parseTime(workStart)) / 60;
+}
+
+export function formatDurationHours(hours: number): string {
+  return Number.isInteger(hours) ? `${hours}h` : `${hours.toFixed(1)}h`;
+}
+
 function formatTime(totalMinutes: number): string {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;

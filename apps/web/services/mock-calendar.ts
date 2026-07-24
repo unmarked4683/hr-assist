@@ -3,6 +3,10 @@ import type { AttendanceCode, CalendarDay } from "@/lib/types/attendance";
 import type { Employee } from "@/lib/types/employee";
 import { getDayEditability } from "@/lib/utils/calendar-editability";
 import { toIsoDate } from "@/lib/utils/date";
+import {
+  computeWorkHoursDuration,
+  formatDurationHours,
+} from "@/lib/utils/working-hours";
 
 const PUBLIC_HOLIDAYS = new Set(["2026-01-01", "2026-05-01", "2026-12-25"]);
 const COMPANY_LEAVE_DAYS = new Set(["2026-12-24"]);
@@ -32,14 +36,23 @@ export function buildCalendarDay(
     ? "UW"
     : override ?? (isWeekend || isPublicHoliday ? "OB" : "OB");
 
+  const workHours = `${employee.workStart} - ${employee.workEnd}`;
+  const nominalHours = computeWorkHoursDuration(employee.workStart, employee.workEnd);
+  const isWorkingDay = !isWeekend && !isPublicHoliday && !isCompanyWideLeave;
+  const realHours =
+    isWorkingDay && attendanceCode === "OB"
+      ? nominalHours
+      : isWorkingDay && attendanceCode === "NN"
+        ? 0
+        : 0;
+
   const dayData: CalendarDay = {
     date,
     dayOfMonth: day,
     weekdayLabel: POLISH_WEEKDAYS[weekday] ?? "",
-    workHours: `${employee.workStart} - ${employee.workEnd}`,
-    nominalTime: isWeekend || isPublicHoliday ? "0:00" : "8:00",
-    realTime:
-      attendanceCode === "OB" && !isWeekend && !isPublicHoliday ? "8:00" : "0:00",
+    workHours,
+    nominalTime: formatDurationHours(nominalHours),
+    realTime: formatDurationHours(realHours),
     displayStatus: mapAttendanceToDisplay(attendanceCode),
     attendanceCode,
     isWeekend,
