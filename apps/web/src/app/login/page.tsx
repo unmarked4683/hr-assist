@@ -1,21 +1,45 @@
-import { Eye, Mail, User, X } from "lucide-react";
+"use client";
+import { AuthState, useAuthStore } from "@/store/useAuthStore";
+import { Eye, EyeOff, Loader2, Mail, User } from "lucide-react";
+import { useState, type SubmitEvent } from "react";
+import { useShallow } from "zustand/react/shallow";
 
 export default function LoginPage() {
+  const { email, setEmail, password, setPassword } = useAuthStore(
+    useShallow((state: AuthState) => ({
+      email: state.email,
+      setEmail: state.setEmail,
+      password: state.password,
+      setPassword: state.setPassword,
+    })),
+  );
+
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [emailTouched, setEmailTouched] = useState<boolean>(false);
+  const [passwordTouched, setPasswordTouched] = useState<boolean>(false);
+
+  const isEmailValid: boolean = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const showEmailError = emailTouched && (email.length === 0 || !isEmailValid);
+
+  const showPasswordError: boolean = passwordTouched && password.length === 0;
+
+  const handleLogin = async (event: SubmitEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!email || !password || !isEmailValid) return;
+
+    setIsLoading(true);
+
+    setTimeout(() => {
+      console.log("LOGOWANIE:", { email, password });
+      setIsLoading(false);
+    }, 1500);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 w-full bg-background">
-      <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-400 opacity-100 translate-y-0">
-        <div className="flex items-center gap-3 bg-destructive/10 text-destructive border border-destructive/20 px-5 py-3 rounded-xl shadow-sm text-sm font-medium">
-          <span>Błędne dane logowania</span>
-          <button
-            type="button"
-            className="ml-1 hover:opacity-70 transition-opacity"
-            aria-label="Zamknij powiadomienie"
-          >
-            <X size={15} />
-          </button>
-        </div>
-      </div>
-
       <div className="w-full max-w-sm">
         <div className="bg-card border border-border rounded-2xl shadow-xl shadow-foreground/5 p-8">
           <div className="flex flex-col items-center mb-8">
@@ -30,7 +54,7 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form className="flex flex-col gap-4">
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
             <div className="relative">
               <Mail
                 size={16}
@@ -39,32 +63,49 @@ export default function LoginPage() {
               <input
                 type="email"
                 placeholder="email"
-                className="w-full h-11 pl-10 pr-4 rounded-lg border border-input bg-muted/50 text-foreground text-sm placeholder:text-muted-foreground hover:border-muted-foreground/40 focus:outline-none focus:bg-card focus:ring-2 focus:ring-ring/20 focus:border-primary transition"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => setEmailTouched(true)}
+                className={`w-full h-11 pl-10 pr-4 rounded-lg border bg-muted/50 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:bg-card focus:ring-2 transition ${
+                  showEmailError
+                    ? "border-destructive focus:ring-destructive/20"
+                    : "border-input hover:border-muted-foreground/40 focus:border-primary focus:ring-ring/20"
+                }`}
                 autoComplete="email"
               />
             </div>
 
             <div className="relative">
               <input
-                type="password"
+                type={isPasswordVisible ? "text" : "password"}
                 placeholder="hasło"
-                className="w-full h-11 pl-4 pr-11 rounded-lg border border-input bg-muted/50 text-foreground text-sm placeholder:text-muted-foreground hover:border-muted-foreground/40 focus:outline-none focus:bg-card focus:ring-2 focus:ring-ring/20 focus:border-primary transition"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => setPasswordTouched(true)}
+                className={`w-full h-11 pl-4 pr-11 rounded-lg border bg-muted/50 text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:bg-card focus:ring-2 transition ${
+                  showPasswordError
+                    ? "border-destructive focus:ring-destructive/20"
+                    : "border-input hover:border-muted-foreground/40 focus:border-primary focus:ring-ring/20"
+                }`}
                 autoComplete="current-password"
               />
               <button
                 type="button"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Pokaż hasło"
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
               >
-                <Eye size={16} />
+                {isPasswordVisible ? <Eye size={16} /> : <EyeOff size={16} />}
               </button>
             </div>
 
             <button
               type="submit"
-              className="mt-2 h-11 w-full rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm shadow-primary/20"
+              disabled={!email || !password || !isEmailValid || isLoading}
+              className="mt-2 h-11 w-full rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
             >
-              Zaloguj
+              <span>Zaloguj</span>
+              {isLoading && <Loader2 size={16} className="animate-spin" />}
             </button>
           </form>
         </div>
