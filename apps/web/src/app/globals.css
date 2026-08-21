@@ -1,1 +1,49 @@
 @import "tailwindcss";
+
+:root {
+  /* Screen — warm-neutral, never #fff */
+  --background: oklch(96.7% 0.004 90);
+  /* Cards — slightly broken white */
+  --card: oklch(98.6% 0.002 90);
+  /* Body copy — zinc-900, not #000 */
+  --foreground: oklch(21% 0.006 285.885);
+
+  --muted: oklch(96.7% 0.001 286.375);
+  --muted-foreground: oklch(55.2% 0.016 285.938);
+
+  --border: oklch(92% 0.004 286.32);
+  --input: oklch(87.1% 0.006 286.286);
+
+  --primary: oklch(51.1% 0.262 276.966);
+  --primary-foreground: oklch(98.5% 0 none);
+
+  --destructive: oklch(57.7% 0.245 27.325);
+
+  --ring: var(--primary);
+
+  --table-row-bg: var(--card);
+  --table-row-alt: oklch(96.2% 0.003 90);
+  --table-row-hover: oklch(94.8% 0.012 272);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-destructive: var(--destructive);
+  --color-ring: var(--ring);
+  --color-table-row-bg: var(--table-row-bg);
+  --color-table-row-alt: var(--table-row-alt);
+  --color-table-row-hover: var(--table-row-hover);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}

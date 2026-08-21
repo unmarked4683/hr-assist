@@ -2,9 +2,9 @@ import { Eye, Mail, User, X } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 w-full">
+    <div className="min-h-screen flex items-center justify-center p-4 w-full bg-background">
       <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 transition-all duration-400 opacity-100 translate-y-0">
-        <div className="flex items-center gap-3 bg-destructive text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium">
+        <div className="flex items-center gap-3 bg-destructive/10 text-destructive border border-destructive/20 px-5 py-3 rounded-xl shadow-sm text-sm font-medium">
           <span>Błędne dane logowania</span>
           <button
             type="button"
@@ -17,9 +17,9 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-sm">
-        <div className="bg-card border border-border rounded-2xl shadow-xl p-8">
+        <div className="bg-card border border-border rounded-2xl shadow-xl shadow-foreground/5 p-8">
           <div className="flex flex-col items-center mb-8">
-            <div className="w-20 h-20 rounded-full border-2 border-border bg-muted flex items-center justify-center mb-4">
+            <div className="w-20 h-20 rounded-full border border-border bg-muted flex items-center justify-center mb-4">
               <User size={36} className="text-muted-foreground" />
             </div>
             <h1 className="text-2xl font-semibold text-foreground tracking-tight">
@@ -39,7 +39,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 placeholder="email"
-                className="w-full h-11 pl-10 pr-4 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                className="w-full h-11 pl-10 pr-4 rounded-lg border border-input bg-muted/50 text-foreground text-sm placeholder:text-muted-foreground hover:border-muted-foreground/40 focus:outline-none focus:bg-card focus:ring-2 focus:ring-ring/20 focus:border-primary transition"
                 autoComplete="email"
               />
             </div>
@@ -48,7 +48,7 @@ export default function LoginPage() {
               <input
                 type="password"
                 placeholder="hasło"
-                className="w-full h-11 pl-4 pr-11 rounded-lg border border-input bg-background text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition"
+                className="w-full h-11 pl-4 pr-11 rounded-lg border border-input bg-muted/50 text-foreground text-sm placeholder:text-muted-foreground hover:border-muted-foreground/40 focus:outline-none focus:bg-card focus:ring-2 focus:ring-ring/20 focus:border-primary transition"
                 autoComplete="current-password"
               />
               <button
@@ -62,7 +62,7 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="mt-2 h-11 w-full rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 active:scale-[0.98] transition-all shadow-sm"
+              className="mt-2 h-11 w-full rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm shadow-primary/20"
             >
               Zaloguj
             </button>
