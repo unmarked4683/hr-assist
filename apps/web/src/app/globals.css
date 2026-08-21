@@ -1,29 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  /* Screen — warm-neutral, never #fff */
-  --background: oklch(96.7% 0.004 90);
-  /* Cards — slightly broken white */
-  --card: oklch(98.6% 0.002 90);
-  /* Body copy — zinc-900, not #000 */
-  --foreground: oklch(21% 0.006 285.885);
+  --background: #f5f5f4;
+  --card: #fafafa;
+  --foreground: #18181b;
 
-  --muted: oklch(96.7% 0.001 286.375);
-  --muted-foreground: oklch(55.2% 0.016 285.938);
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
 
-  --border: oklch(92% 0.004 286.32);
-  --input: oklch(87.1% 0.006 286.286);
+  --border: #e4e4e7;
+  --input: #d4d4d8;
 
-  --primary: oklch(51.1% 0.262 276.966);
-  --primary-foreground: oklch(98.5% 0 none);
+  --primary: #4f46e5;
+  --primary-foreground: #fafafa;
 
-  --destructive: oklch(57.7% 0.245 27.325);
+  --destructive: #dc2626;
 
   --ring: var(--primary);
 
   --table-row-bg: var(--card);
-  --table-row-alt: oklch(96.2% 0.003 90);
-  --table-row-hover: oklch(94.8% 0.012 272);
+  --table-row-alt: #f0f0ee;
+  --table-row-hover: #eceef5;
 }
 
 @theme inline {
