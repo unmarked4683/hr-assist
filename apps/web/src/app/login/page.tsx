@@ -1,16 +1,18 @@
 "use client";
+
 import { AuthState, useAuthStore } from "@/store/useAuthStore";
+import { useShallow } from "zustand/react/shallow";
 import { Eye, EyeOff, Loader2, Mail, User } from "lucide-react";
 import { useState, type SubmitEvent } from "react";
-import { useShallow } from "zustand/react/shallow";
 
 export default function LoginPage() {
-  const { email, setEmail, password, setPassword } = useAuthStore(
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+
+  const { accessToken, setAccessToken } = useAuthStore(
     useShallow((state: AuthState) => ({
-      email: state.email,
-      setEmail: state.setEmail,
-      password: state.password,
-      setPassword: state.setPassword,
+      accessToken: state.accessToken,
+      setAccessToken: state.setAccessToken,
     })),
   );
 
@@ -32,10 +34,29 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    setTimeout(() => {
-      console.log("LOGOWANIE:", { email, password });
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          method: "POST",
+          body: JSON.stringify({ email, password }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to login");
+      }
+
+      const { accessToken } = await response.json();
+      setAccessToken(accessToken);
+    } catch (error) {
+      console.error(error);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
