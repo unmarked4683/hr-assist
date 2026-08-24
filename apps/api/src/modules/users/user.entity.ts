@@ -20,6 +20,9 @@ export class UserEntity extends BaseEntity implements IUserEntity {
   @Column({ type: 'varchar', length: 100 })
   surname: string;
 
+  @Column({ type: 'varchar', length: 11, unique: true })
+  pesel: string;
+
   @Column({ type: 'varchar', length: 255, unique: true })
   email: string;
 
