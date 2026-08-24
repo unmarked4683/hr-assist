@@ -72,6 +72,20 @@ export class UsersService {
     await this.usersRepository.remove(user);
   }
 
+  findByEmail(email: string): Promise<UserEntity | null> {
+    return this.usersRepository.findOne({ where: { email } });
+  }
+
+  findByAccessToken(accessToken: string): Promise<UserEntity | null> {
+    return this.usersRepository.findOne({ where: { accessToken } }) ?? null;
+  }
+
+  async setAccessToken(id: string, accessToken: string | null): Promise<void> {
+    await this.usersRepository.update(id, {
+      accessToken: accessToken as unknown as string,
+    });
+  }
+
   private throwIfUniqueViolation(error: unknown): void {
     if (!(error instanceof QueryFailedError)) {
       return;
