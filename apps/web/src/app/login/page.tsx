@@ -1,20 +1,25 @@
 "use client";
 
 import { AuthState, useAuthStore } from "@/store/useAuthStore";
-import { useShallow } from "zustand/react/shallow";
 import { Eye, EyeOff, Loader2, Mail, User } from "lucide-react";
-import { useState, type SubmitEvent } from "react";
+import { useRouter } from "next/navigation";
+import { useState, type SubmitEvent, useEffect } from "react";
+import { toast } from "sonner";
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  const setAccessToken = useAuthStore(
+    (state: AuthState) => state.setAccessToken,
+  );
+  const isAuthorized = useAuthStore((state: AuthState) => !!state.accessToken);
+
+  useEffect(() => {
+    if (isAuthorized) router.push("/employees");
+  }, [isAuthorized, router]);
+
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
-  const { accessToken, setAccessToken } = useAuthStore(
-    useShallow((state: AuthState) => ({
-      accessToken: state.accessToken,
-      setAccessToken: state.setAccessToken,
-    })),
-  );
 
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -43,15 +48,19 @@ export default function LoginPage() {
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
         },
       );
 
       if (!response.ok) {
-        throw new Error("Failed to login");
+        const { message } = await response.json();
+        toast.error(message);
+        return;
       }
 
       const { accessToken } = await response.json();
       setAccessToken(accessToken);
+      router.push("/employees");
     } catch (error) {
       console.error(error);
     } finally {
