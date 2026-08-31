@@ -5,7 +5,8 @@ import { UserEntity } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './jwt.strategy';
-
+import type { Response } from 'express';
+import ms from 'ms';
 @Injectable()
 export class AuthService {
   constructor(
@@ -14,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(dto: LoginDto): Promise<{ accessToken: string }> {
+  async login(dto: LoginDto, res: Response): Promise<{ accessToken: string }> {
     const user = await this.usersService.findByEmail(dto.email);
 
     if (!user) {
@@ -35,10 +36,22 @@ export class AuthService {
 
     await this.usersService.setAccessToken(user.id, accessToken);
 
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: ms('30 days'),
+    });
+
     return { accessToken };
   }
 
-  async logout(user: UserEntity): Promise<void> {
+  async logout(user: UserEntity, res: Response): Promise<void> {
     await this.usersService.setAccessToken(user.id, null);
+
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+    });
   }
 }
