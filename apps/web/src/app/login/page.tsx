@@ -1,10 +1,14 @@
 "use client";
 
-import { AuthState, useAuthStore } from "@/store/useAuthStore";
+import { AuthState, UserProfile, useAuthStore } from "@/store/useAuthStore";
 import { Eye, EyeOff, Loader2, Mail, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, type SubmitEvent, useEffect } from "react";
 import { toast } from "sonner";
+
+interface LoginResponse extends UserProfile {
+  accessToken: string;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,11 +16,8 @@ export default function LoginPage() {
   const setAccessToken = useAuthStore(
     (state: AuthState) => state.setAccessToken,
   );
-  const isAuthorized = useAuthStore((state: AuthState) => !!state.accessToken);
 
-  useEffect(() => {
-    if (isAuthorized) router.push("/employees");
-  }, [isAuthorized, router]);
+  const setUser = useAuthStore((state: AuthState) => state.setUser);
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -58,8 +59,12 @@ export default function LoginPage() {
         return;
       }
 
-      const { accessToken } = await response.json();
+      const data: LoginResponse = await response.json();
+      const { accessToken, ...user } = data;
+
       setAccessToken(accessToken);
+      setUser(user);
+
       router.push("/employees");
     } catch (error) {
       console.error(error);
