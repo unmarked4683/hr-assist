@@ -5,8 +5,15 @@ import { UserEntity } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { JwtPayload } from './jwt.strategy';
-import type { Response } from 'express';
+import type { CookieOptions, Response } from 'express';
 import ms from 'ms';
+
+const COOKIE_OPTIONS: CookieOptions = {
+  secure: process.env.NODE_ENV === 'production',
+  path: '/',
+  sameSite: 'lax',
+  httpOnly: true,
+};
 @Injectable()
 export class AuthService {
   constructor(
@@ -37,8 +44,7 @@ export class AuthService {
     await this.usersService.setAccessToken(user.id, accessToken);
 
     res.cookie('accessToken', accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      ...COOKIE_OPTIONS,
       maxAge: ms('30 days'),
     });
 
@@ -49,9 +55,7 @@ export class AuthService {
     await this.usersService.setAccessToken(user.id, null);
 
     res.clearCookie('accessToken', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      path: '/',
+      ...COOKIE_OPTIONS,
     });
   }
 }
