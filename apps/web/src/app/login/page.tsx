@@ -55,11 +55,6 @@ export default function LoginPage() {
       }
 
       const user: LoginResponse = await response.json();
-      console.log("USER", user);
-
-      // const { accessToken, ...user } = data;
-
-      // setAccessToken(accessToken);
       setUser(user);
 
       router.replace("/employees");

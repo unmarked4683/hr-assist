@@ -30,6 +30,7 @@ export class UserEntity extends BaseEntity implements IUserEntity {
   @Column({ type: 'text' })
   password: string;
 
+  @Exclude()
   @Column({ type: 'varchar', length: 512, nullable: true })
   accessToken?: string;
 

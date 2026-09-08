@@ -11,22 +11,19 @@ export interface UserProfile {
 }
 
 export interface AuthState {
-  // accessToken: string | null;
   user: UserProfile | null;
-  // setAccessToken: (token: string | null) => void;
   setUser: (user: UserProfile | null) => void;
   logout: () => void;
+  isAuthorized: () => boolean;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       accessToken: null,
       user: null,
-      // setAccessToken: (token) => {
-      //   set({ accessToken: token });
-      // },
       setUser: (user) => set({ user }),
+      isAuthorized: () => !!get().user,
       logout: async () => {
         const response = await fetch(`/api/auth/logout`, {
           method: "POST",
@@ -35,8 +32,6 @@ export const useAuthStore = create<AuthState>()(
           },
           credentials: "include",
         });
-
-        console.log("RESPONSE", response);
 
         if (!response.ok) {
           throw new Error("Failed to logout");
@@ -49,10 +44,11 @@ export const useAuthStore = create<AuthState>()(
       name: "auth-storage",
       onRehydrateStorage: () => (state) => {
         if (state?.user) {
+          const { createdAt, updatedAt, ...user } = state.user;
           state.user = {
-            ...state.user,
-            createdAt: new Date(state.user.createdAt),
-            updatedAt: new Date(state.user.updatedAt),
+            ...user,
+            createdAt: new Date(createdAt),
+            updatedAt: new Date(updatedAt),
           };
         }
       },

@@ -2,22 +2,22 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function proxy(request: NextRequest) {
-  const token: string | null =
-    request.cookies.get("accessToken")?.value ?? null;
+  const isAuthorized: boolean = !!request.cookies.get("accessToken")?.value;
+
   const { pathname } = request.nextUrl;
 
   const isLoginPage: boolean = pathname === "/login";
   const isRootPage: boolean = pathname === "/";
 
-  if (token && (isLoginPage || isRootPage)) {
+  if (isAuthorized && (isLoginPage || isRootPage)) {
     return NextResponse.redirect(new URL("/employees", request.url));
   }
 
-  if (!token && isRootPage) {
+  if (!isAuthorized && isRootPage) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  if (!token && !isLoginPage) {
+  if (!isAuthorized && !isLoginPage) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("from", pathname);
     return NextResponse.redirect(loginUrl);
