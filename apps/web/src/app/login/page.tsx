@@ -2,6 +2,7 @@
 
 import { AuthState, UserProfile, useAuthStore } from "@/store/useAuthStore";
 import { Eye, EyeOff, Loader2, Mail, User } from "lucide-react";
+import { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useState, type SubmitEvent } from "react";
 import { toast } from "sonner";
@@ -57,7 +58,7 @@ export default function LoginPage() {
       const user: LoginResponse = await response.json();
       setUser(user);
 
-      router.replace("/employees");
+      router.replace("/employees" as Route);
     } catch (error) {
       console.error(error);
     } finally {
