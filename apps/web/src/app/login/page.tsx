@@ -6,16 +6,14 @@ import { useRouter } from "next/navigation";
 import { useState, type SubmitEvent } from "react";
 import { toast } from "sonner";
 
-interface LoginResponse extends UserProfile {
-  accessToken: string;
-}
+type LoginResponse = UserProfile;
 
 export default function LoginPage() {
   const router = useRouter();
 
-  const setAccessToken = useAuthStore(
-    (state: AuthState) => state.setAccessToken,
-  );
+  // const setAccessToken = useAuthStore(
+  //   (state: AuthState) => state.setAccessToken,
+  // );
 
   const setUser = useAuthStore((state: AuthState) => state.setUser);
 
@@ -56,16 +54,15 @@ export default function LoginPage() {
         return;
       }
 
-      const data: LoginResponse = await response.json();
+      const user: LoginResponse = await response.json();
+      console.log("USER", user);
 
-      console.log("DATA", data);
+      // const { accessToken, ...user } = data;
 
-      const { accessToken, ...user } = data;
-
-      setAccessToken(accessToken);
+      // setAccessToken(accessToken);
       setUser(user);
 
-      router.push("/employees");
+      router.replace("/employees");
     } catch (error) {
       console.error(error);
     } finally {

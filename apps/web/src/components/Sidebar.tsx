@@ -260,7 +260,7 @@ export const Sidebar = () => {
   const handleLogout = () => {
     logout();
     closeUserMenu();
-    router.push("/login");
+    router.replace("/login");
   };
 
   return (

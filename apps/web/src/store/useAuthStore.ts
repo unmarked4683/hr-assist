@@ -11,9 +11,9 @@ export interface UserProfile {
 }
 
 export interface AuthState {
-  accessToken: string | null;
+  // accessToken: string | null;
   user: UserProfile | null;
-  setAccessToken: (token: string | null) => void;
+  // setAccessToken: (token: string | null) => void;
   setUser: (user: UserProfile | null) => void;
   logout: () => void;
 }
@@ -23,9 +23,9 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       accessToken: null,
       user: null,
-      setAccessToken: (token) => {
-        set({ accessToken: token });
-      },
+      // setAccessToken: (token) => {
+      //   set({ accessToken: token });
+      // },
       setUser: (user) => set({ user }),
       logout: async () => {
         const response = await fetch(`/api/auth/logout`, {
@@ -36,11 +36,13 @@ export const useAuthStore = create<AuthState>()(
           credentials: "include",
         });
 
+        console.log("RESPONSE", response);
+
         if (!response.ok) {
           throw new Error("Failed to logout");
         }
 
-        set({ accessToken: null, user: null });
+        set({ user: null });
       },
     }),
     {
