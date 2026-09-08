@@ -1,4 +1,3 @@
-import ms from "ms";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -25,20 +24,25 @@ export const useAuthStore = create<AuthState>()(
       accessToken: null,
       user: null,
       setAccessToken: (token) => {
-        if (typeof window !== "undefined") {
-          if (token) {
-            document.cookie = `accessToken=${token}; path=/; max-age=${ms("30 days")}; SameSite=Lax`;
-          } else {
-            document.cookie = "accessToken=; path=/; max-age=0";
-          }
-        }
         set({ accessToken: token });
       },
       setUser: (user) => set({ user }),
-      logout: () => {
-        if (typeof window !== "undefined") {
-          document.cookie = "accessToken=; path=/; max-age=0";
+      logout: async () => {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to logout");
         }
+
         set({ accessToken: null, user: null });
       },
     }),

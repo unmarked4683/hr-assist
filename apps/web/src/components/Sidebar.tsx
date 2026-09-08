@@ -14,6 +14,7 @@ import {
 import { createPortal } from "react-dom";
 import { ChevronRight, LogOut, Users } from "lucide-react";
 import { useAuthStore, AuthState, UserProfile } from "@/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 type NavItem = "employees" | "holidays";
 
@@ -99,6 +100,8 @@ function SidebarUserProfile() {
   ) as UserProfile;
 
   if (!user) return null;
+
+  console.log("USER IN SIDEBAR", user);
 
   const { name, surname } = user;
 
@@ -234,8 +237,11 @@ function AnchoredFlyout({
 }
 
 export const Sidebar = () => {
+  const router = useRouter();
   const [activeNav, setActiveNav] = useState<NavItem>("employees");
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const logout = useAuthStore((state: AuthState) => state.logout);
 
   const userTriggerRef = useRef<HTMLButtonElement>(null);
 
@@ -252,9 +258,15 @@ export const Sidebar = () => {
   };
 
   const handleLogout = () => {
-    console.log("Kliknięto Wyloguj");
+    logout();
     closeUserMenu();
+    router.push("/login");
   };
+
+  useEffect(() => {
+    const cookies = document.cookie;
+    console.log("COOKIES", cookies);
+  });
 
   return (
     <aside className="w-60 shrink-0 h-screen flex flex-col bg-sidebar border-r border-sidebar-border overflow-visible">
@@ -276,17 +288,6 @@ export const Sidebar = () => {
           <Users size={17} />
           <span>Pracownicy</span>
         </a>
-        {/* <a
-          href="/holidays"
-          onClick={(event) => {
-            event.preventDefault();
-            handleNavClick("holidays", "Dni wolne");
-          }}
-          className={navLinkClassName(activeNav === "holidays")}
-        >
-          <CalendarDays size={17} />
-          <span>Dni wolne</span>
-        </a> */}
       </nav>
 
       <div className="px-3 pb-4 overflow-visible">

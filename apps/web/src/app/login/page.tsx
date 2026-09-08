@@ -3,7 +3,7 @@
 import { AuthState, UserProfile, useAuthStore } from "@/store/useAuthStore";
 import { Eye, EyeOff, Loader2, Mail, User } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, type SubmitEvent, useEffect } from "react";
+import { useState, type SubmitEvent } from "react";
 import { toast } from "sonner";
 
 interface LoginResponse extends UserProfile {
@@ -60,6 +60,9 @@ export default function LoginPage() {
       }
 
       const data: LoginResponse = await response.json();
+
+      console.log("DATA", data);
+
       const { accessToken, ...user } = data;
 
       setAccessToken(accessToken);
