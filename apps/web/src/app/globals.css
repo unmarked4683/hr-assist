@@ -34,6 +34,12 @@
   /* Stan zeby w tabelach i kalendarzach */
   --table-row-alt: #f4f4f5;
   --table-row-hover: #e4e4e7;
+
+  --sidebar: #f4f4f5;
+  --sidebar-foreground: #09090b;
+  --sidebar-primary: #09090b;
+  --sidebar-accent: #d4d4d8;
+  --sidebar-border: #e4e4e7;
 }
 
 @theme inline {
@@ -63,6 +69,12 @@
 
   --color-table-row-alt: var(--table-row-alt);
   --color-table-row-hover: var(--table-row-hover);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-border: var(--sidebar-border);
 }
 
 body {

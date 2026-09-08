@@ -12,17 +12,21 @@ import {
   type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
-import { ChevronRight, LogOut, Users } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { CalendarDays, ChevronRight, LogOut, Users } from "lucide-react";
 import { useAuthStore, AuthState, UserProfile } from "@/store/useAuthStore";
-import { useRouter } from "next/navigation";
 
-type NavItem = "employees" | "holidays";
+const NAV_ITEMS = [
+  { href: "/employees", label: "Pracownicy", icon: Users },
+  { href: "/holidays", label: "Dni wolne", icon: CalendarDays },
+] as const;
 
 const SIDEBAR_FLYOUT_TRIGGER =
   "group w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors hover:bg-sidebar-accent data-[state=open]:bg-secondary/80 data-[state=open]:text-secondary-foreground";
 
 const SIDEBAR_FLYOUT_CHEVRON =
-  "ml-auto transform text-muted-foreground opacity-60 transition-transform duration-200 ease-in-out data-[state=open]:-rotate-180 data-[state=open]:opacity-100";
+  "ml-auto transform text-primary transition-transform duration-200 ease-in-out data-[state=open]:-rotate-180";
 
 const SIDEBAR_FLYOUT_PROFILE_TEXT =
   "text-sm font-semibold text-sidebar-foreground group-data-[state=open]:text-secondary-foreground truncate";
@@ -31,10 +35,10 @@ const VIEWPORT_EDGE_MARGIN = 10;
 const SIDE_OFFSET = 8;
 
 const navLinkClassName = (isActive: boolean) =>
-  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+  `relative z-10 flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-300 ${
     isActive
-      ? "bg-sidebar-accent text-sidebar-primary cursor-default select-none"
-      : "text-sidebar-foreground hover:bg-sidebar-accent/70"
+      ? "text-sidebar-primary"
+      : "text-sidebar-foreground hover:bg-black/[0.04] hover:text-sidebar-primary"
   }`;
 
 const getSidebarFlyoutState = (open: boolean) => (open ? "open" : "closed");
@@ -100,8 +104,6 @@ function SidebarUserProfile() {
   ) as UserProfile;
 
   if (!user) return null;
-
-  console.log("USER IN SIDEBAR", user);
 
   const { name, surname } = user;
 
@@ -236,25 +238,29 @@ function AnchoredFlyout({
   );
 }
 
+const isNavItemActive = (pathname: string, href: string) =>
+  pathname === href || pathname.startsWith(`${href}/`);
+
 export const Sidebar = () => {
   const router = useRouter();
-  const [activeNav, setActiveNav] = useState<NavItem>("employees");
+  const pathname = usePathname();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [indicator, setIndicator] = useState({
+    top: 0,
+    height: 0,
+    ready: false,
+  });
 
   const logout = useAuthStore((state: AuthState) => state.logout);
 
   const userTriggerRef = useRef<HTMLButtonElement>(null);
+  const navListRef = useRef<HTMLDivElement>(null);
+  const navItemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
 
   const closeUserMenu = useCallback(() => setUserMenuOpen(false), []);
 
   const handleUserTriggerClick = () => {
-    console.log("Kliknięto element menu: Opcje użytkownika");
     setUserMenuOpen((current) => !current);
-  };
-
-  const handleNavClick = (item: NavItem, label: string) => {
-    console.log(`Kliknięto element menu: ${label}`);
-    setActiveNav(item);
   };
 
   const handleLogout = () => {
@@ -263,30 +269,85 @@ export const Sidebar = () => {
     router.replace("/login");
   };
 
+  const updateIndicator = useCallback(() => {
+    const activeIndex = NAV_ITEMS.findIndex((item) =>
+      isNavItemActive(pathname, item.href),
+    );
+    const activeItem = navItemRefs.current[activeIndex];
+    const navList = navListRef.current;
+
+    if (!activeItem || !navList) {
+      setIndicator((current) => ({ ...current, ready: false }));
+      return;
+    }
+
+    setIndicator({
+      top: activeItem.offsetTop,
+      height: activeItem.offsetHeight,
+      ready: true,
+    });
+  }, [pathname]);
+
+  useLayoutEffect(() => {
+    updateIndicator();
+  }, [updateIndicator]);
+
+  useEffect(() => {
+    const navList = navListRef.current;
+    if (!navList) return;
+
+    const resizeObserver = new ResizeObserver(updateIndicator);
+    resizeObserver.observe(navList);
+
+    return () => resizeObserver.disconnect();
+  }, [updateIndicator]);
+
   return (
     <aside className="w-60 shrink-0 h-screen flex flex-col bg-sidebar border-r border-sidebar-border overflow-visible">
-      <div className="px-5 pt-6 pb-4 flex justify-center">
-        <span className="text-lg font-bold text-sidebar-foreground tracking-tight bg-red-500">
+      <div className="px-5 pt-6 pb-4 flex justify-center bg-green-500">
+        <span className="text-lg font-bold text-destructive-foreground tracking-tight">
           HR Assist
         </span>
       </div>
 
-      <nav className="flex-1 px-3 py-2 space-y-1">
-        <a
-          href="/employees"
-          onClick={(event) => {
-            event.preventDefault();
-            handleNavClick("employees", "Pracownicy");
-          }}
-          className={navLinkClassName(activeNav === "employees")}
-        >
-          <Users size={17} />
-          <span>Pracownicy</span>
-        </a>
+      <nav className="flex-1 px-3 py-2">
+        <div ref={navListRef} className="relative space-y-1">
+          <div
+            aria-hidden
+            className={`pointer-events-none absolute inset-x-0 rounded-lg bg-sidebar-accent ${
+              indicator.ready
+                ? "opacity-100 transition-[transform,height,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+                : "opacity-0"
+            }`}
+            style={{
+              height: indicator.height,
+              transform: `translateY(${indicator.top}px)`,
+            }}
+          />
+          {NAV_ITEMS.map((item, index) => {
+            const Icon = item.icon;
+            const isActive = isNavItemActive(pathname, item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                ref={(node) => {
+                  navItemRefs.current[index] = node;
+                }}
+                aria-current={isActive ? "page" : undefined}
+                className={navLinkClassName(isActive)}
+              >
+                <Icon size={17} />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       <div className="px-3 pb-4 overflow-visible">
-        <div className="rounded-xl border border-sidebar-border">
+        <div className="rounded-xl border border-primary">
           <SidebarFlyoutTrigger
             ref={userTriggerRef}
             open={userMenuOpen}
