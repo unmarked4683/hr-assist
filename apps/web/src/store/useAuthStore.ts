@@ -28,16 +28,13 @@ export const useAuthStore = create<AuthState>()(
       },
       setUser: (user) => set({ user }),
       logout: async () => {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
+        const response = await fetch(`/api/auth/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
-        );
+          credentials: "include",
+        });
 
         if (!response.ok) {
           throw new Error("Failed to logout");

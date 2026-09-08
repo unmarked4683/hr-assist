@@ -41,17 +41,14 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
-        {
-          method: "POST",
-          body: JSON.stringify({ email, password }),
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
+      const response = await fetch(`/api/auth/login`, {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        credentials: "include",
+      });
 
       if (!response.ok) {
         const { message } = await response.json();

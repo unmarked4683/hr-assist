@@ -263,11 +263,6 @@ export const Sidebar = () => {
     router.push("/login");
   };
 
-  useEffect(() => {
-    const cookies = document.cookie;
-    console.log("COOKIES", cookies);
-  });
-
   return (
     <aside className="w-60 shrink-0 h-screen flex flex-col bg-sidebar border-r border-sidebar-border overflow-visible">
       <div className="px-5 pt-6 pb-4 flex justify-center">
