@@ -15,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(dto: LoginDto, res: Response): Promise<{ accessToken: string }> {
+  async login(dto: LoginDto, res: Response): Promise<UserEntity> {
     const user = await this.usersService.findByEmail(dto.email);
 
     if (!user) {
@@ -42,7 +42,7 @@ export class AuthService {
       maxAge: ms('30 days'),
     });
 
-    return { accessToken };
+    return user;
   }
 
   async logout(user: UserEntity, res: Response): Promise<void> {

@@ -22,7 +22,7 @@ export class AuthController {
   login(
     @Body() dto: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<{ accessToken: string }> {
+  ): Promise<UserEntity> {
     return this.authService.login(dto, res);
   }
 
