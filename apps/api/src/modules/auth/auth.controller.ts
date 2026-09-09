@@ -10,7 +10,7 @@ import {
 import { UserEntity } from '../users/user.entity';
 import { AuthService } from './auth.service';
 import { Auth } from './decorators/auth.decorator';
-import { CurrentUser } from './decorators/current-user.decorator';
+import { User } from './decorators/user.decorator';
 import { LoginDto } from './dto/login.dto';
 import type { Response } from 'express';
 
@@ -30,7 +30,7 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   logout(
-    @CurrentUser() user: UserEntity,
+    @User() user: UserEntity,
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
     return this.authService.logout(user, res);
@@ -38,7 +38,7 @@ export class AuthController {
 
   @Auth()
   @Get('/me')
-  me(@CurrentUser() user: UserEntity): UserEntity {
+  me(@User() user: UserEntity): UserEntity {
     return user;
   }
 }

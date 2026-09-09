@@ -1,8 +1,6 @@
 ---
-description: Use pnpm instead of npm for all package manager commands
 alwaysApply: true
 ---
-
 # Package manager
 
 This project uses **pnpm**, never npm.

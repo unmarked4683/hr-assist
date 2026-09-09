@@ -11,6 +11,11 @@ import { APP_INTERCEPTOR, APP_PIPE, Reflector } from '@nestjs/core';
 import { HashModule } from './common/hash/hash.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { EmployeesModule } from './modules/employees/employees.module';
+import { CompaniesModule } from './modules/companies/companies.module';
+import { UserEntity } from './modules/users/user.entity';
+import { CompanyEntity } from './modules/companies/entities/company.entity';
+import { AddressEntity } from './modules/companies/entities/address.entity';
 
 @Module({
   imports: [
@@ -23,13 +28,15 @@ import { AuthModule } from './modules/auth/auth.module';
         type: 'postgres',
         url: configService.get('DATABASE_URL'),
         autoLoadEntities: true,
-        entities: [],
+        entities: [UserEntity, CompanyEntity, AddressEntity],
         logging: true,
         synchronize: true,
       }),
     }),
     UsersModule,
     AuthModule,
+    EmployeesModule,
+    CompaniesModule,
   ],
   controllers: [AppController],
   providers: [
