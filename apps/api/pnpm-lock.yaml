@@ -44,6 +44,9 @@ importers:
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
+      lodash:
+        specifier: ^4.18.1
+        version: 4.18.1
       ms:
         specifier: ^2.1.3
         version: 2.1.3
@@ -90,6 +93,9 @@ importers:
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
+      '@types/lodash':
+        specifier: ^4.17.25
+        version: 4.17.25
       '@types/ms':
         specifier: ^2.1.0
         version: 2.1.0
@@ -919,6 +925,9 @@ packages:
 
   '@types/jsonwebtoken@9.0.10':
     resolution: {integrity: sha512-asx5hIG9Qmf/1oStypjanR7iKTv0gXQ1Ov/jfrX6kS/EO0OFni8orbmGCn0672NHR3kXHwpAwR+B368ZGN/2rA==}
+
+  '@types/lodash@4.17.25':
+    resolution: {integrity: sha512-+K1NIO8I+F9/wNulfVvu23QYd0Pe9/OCqRrim4NoYIf1VoEDL90Ve4ClzpyqBLc7NpGGWRvYNCKZ1BE/Jpf8dQ==}
 
   '@types/methods@1.1.4':
     resolution: {integrity: sha512-ymXWVrDiCxTBE3+RIrrP533E70eA+9qu7zdWoHuOmGujkYtzf4HQF96b8nwHLqhuf4ykX61IGRIB38CC6/sImQ==}
@@ -4338,6 +4347,8 @@ snapshots:
     dependencies:
       '@types/ms': 2.1.0
       '@types/node': 24.13.3
+
+  '@types/lodash@4.17.25': {}
 
   '@types/methods@1.1.4': {}
 

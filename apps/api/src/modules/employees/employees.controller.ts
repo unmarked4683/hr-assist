@@ -14,7 +14,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { User } from '../auth/decorators/user.decorator';
 import { UserEntity } from '../users/user.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { EmployeeEntity } from './employee.entity';
+import { EmployeeEntity } from './entities/employee.entity';
 import { EmployeesService } from './employees.service';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 
@@ -33,12 +33,12 @@ export class EmployeesController {
     return this.employeesService.findOne(id);
   }
 
-  @Post()
+  @Post('/')
   create(@Body() dto: CreateEmployeeDto): Promise<EmployeeEntity> {
     return this.employeesService.create(dto);
   }
 
-  @Put(':id')
+  @Put('/:id')
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateEmployeeDto,
@@ -46,13 +46,13 @@ export class EmployeesController {
     return this.employeesService.update(id, dto);
   }
 
-  @Delete(':id')
+  @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', ParseUUIDPipe) id: string): Promise<EmployeeEntity> {
     return this.employeesService.remove(id);
   }
 
-  @Post(':id/fire')
+  @Post('/:id/fire')
   fire(
     @Param('id', ParseUUIDPipe) id: string,
     @User() user: UserEntity,

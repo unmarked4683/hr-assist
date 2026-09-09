@@ -1,3 +1,4 @@
+import { ICompanyEntity } from '../companies/company.types';
 import { IUserEntity } from '../users/user.types';
 
 export enum Location {
@@ -14,16 +15,12 @@ export enum ContractType {
 //   startTime: string;
 //   endTime: string;
 // }
+export interface IWorkScheduleEntity {
+  start: string;
+  end: string;
+}
 
-// export interface ICompanyEntity {
-//   id: string;
-//   name: string;
-//   nip: string;
-//   city: string;
-//   number: string;
-//   postCity: string;
-//   postCode: string;
-// }
+export type IWorkScheduleDto = IWorkScheduleEntity;
 
 export interface IEmployeeEntity {
   id: string;
@@ -34,11 +31,9 @@ export interface IEmployeeEntity {
   updatedAt: Date;
   position: string;
   location: Location;
-  // company: ICompanyEntity;
-  company: string;
+  company: ICompanyEntity;
   workHours: number;
-  // workSchedule: IWorkScheduleEntity;
-  workSchedule: string;
+  workSchedule: IWorkScheduleEntity;
   employmentDate: Date;
   contractType: ContractType;
   firedAt: Date | null;
@@ -47,5 +42,13 @@ export interface IEmployeeEntity {
 
 export type ICreateEmployeeDto = Omit<
   IEmployeeEntity,
-  'id' | 'createdAt' | 'updatedAt' | 'firedBy' | 'createdBy' | 'firedAt'
->;
+  | 'id'
+  | 'createdAt'
+  | 'updatedAt'
+  | 'firedBy'
+  | 'createdBy'
+  | 'firedAt'
+  | 'company'
+> & {
+  company: string;
+};

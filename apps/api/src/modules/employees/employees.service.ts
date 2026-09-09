@@ -1,15 +1,26 @@
 import {
+  BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   NotFoundException,
+  forwardRef,
 } from '@nestjs/common';
 import { UserEntity } from '../users/user.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
-import { EmployeeEntity } from './employee.entity';
+import { EmployeeEntity } from './entities/employee.entity';
+import { WorkScheduleDto } from './dto/work-schedule.dto';
+import { CompaniesService } from '../companies/companies.service';
+import { CompanyEntity } from '../companies/entities/company.entity';
+import { merge } from 'lodash';
 
 @Injectable()
 export class EmployeesService {
+  constructor(
+    @Inject(forwardRef(() => CompaniesService))
+    private readonly companiesService: CompaniesService,
+  ) {}
   async findAll(): Promise<EmployeeEntity[]> {
     return await EmployeeEntity.find();
   }
@@ -22,18 +33,36 @@ export class EmployeesService {
     return employee;
   }
 
-  async create({ pesel, ...rest }: CreateEmployeeDto): Promise<EmployeeEntity> {
+  async create({
+    pesel,
+    workSchedule,
+    workHours,
+    company: companyId,
+    ...rest
+  }: CreateEmployeeDto): Promise<EmployeeEntity> {
     const isPeselTaken: boolean = await EmployeeEntity.existsBy({ pesel });
     if (isPeselTaken) throw new ConflictException('Pesel is already taken');
 
-    const employee: EmployeeEntity = EmployeeEntity.create({ pesel, ...rest });
+    const company: CompanyEntity =
+      await this.companiesService.findOne(companyId);
+
+    this.validateWorkSchedule(workSchedule, workHours);
+
+    const employee: EmployeeEntity = EmployeeEntity.create({
+      pesel,
+      workSchedule,
+      workHours,
+      company,
+      ...rest,
+    });
 
     return await employee.save();
   }
 
   async update(id: string, dto: UpdateEmployeeDto): Promise<EmployeeEntity> {
     const employee = await this.findOne(id);
-    Object.assign(employee, dto);
+    const merged = merge({}, employee, dto);
+    Object.assign(employee, merged);
     return await employee.save();
   }
 
@@ -47,5 +76,37 @@ export class EmployeesService {
     employee.firedBy = firedBy;
     await employee.softRemove();
     return employee;
+  }
+
+  private validateWorkSchedule(
+    { start, end }: WorkScheduleDto,
+    workHours: number,
+  ): void {
+    if (workHours < 1 || workHours > 8)
+      throw new BadRequestException('Work hours must be between 1 and 8');
+
+    const [startHour, startMinute] = start.split(':').map(Number);
+    const [endHour, endMinute] = end.split(':').map(Number);
+
+    if (startMinute || endMinute)
+      throw new BadRequestException('Time must be in aligned to full hours');
+
+    if (startHour >= endHour)
+      throw new BadRequestException('Start time must be before end time');
+
+    if (startHour < 6 || startHour > 15) {
+      throw new BadRequestException('Start time must be between 6 and 15');
+    }
+
+    if (endHour < 7 || endHour > 16) {
+      throw new BadRequestException('End time must be between 7 and 16');
+    }
+
+    if (endHour - startHour !== workHours)
+      throw new BadRequestException(
+        `Work hours must be equal to ${workHours} hours`,
+      );
+
+    return;
   }
 }

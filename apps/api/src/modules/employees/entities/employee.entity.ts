@@ -9,9 +9,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ContractType, IEmployeeEntity, Location } from './employee.types';
+import { ContractType, IEmployeeEntity, Location } from '../employee.types';
 import { Max, Min } from 'class-validator';
-import { UserEntity } from '../users/user.entity';
+import { UserEntity } from '../../users/user.entity';
+import { CompanyEntity } from 'src/modules/companies/entities/company.entity';
+import { WorkScheduleEntity } from './work-schedule.entity';
 
 @Entity('employees')
 export class EmployeeEntity extends BaseEntity implements IEmployeeEntity {
@@ -33,16 +35,18 @@ export class EmployeeEntity extends BaseEntity implements IEmployeeEntity {
   @Column({ type: 'enum', enum: Location })
   location: Location;
 
-  @Column({ type: 'text' }) // TODO: change to CompanyEntity
-  company: string;
+  @ManyToOne(() => CompanyEntity, (company) => company.employees, {
+    eager: true,
+  })
+  company: CompanyEntity;
 
   @Min(1)
   @Max(8)
   @Column({ type: 'int' })
   workHours: number;
 
-  @Column({ type: 'text' }) // TODO: change to WorkScheduleEntity
-  workSchedule: string;
+  @Column(() => WorkScheduleEntity)
+  workSchedule: WorkScheduleEntity;
 
   @Column({ type: 'date' })
   employmentDate: Date;

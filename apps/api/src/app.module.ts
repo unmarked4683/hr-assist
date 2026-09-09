@@ -16,6 +16,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
 import { UserEntity } from './modules/users/user.entity';
 import { CompanyEntity } from './modules/companies/entities/company.entity';
 import { AddressEntity } from './modules/companies/entities/address.entity';
+import { EmployeeEntity } from './modules/employees/entities/employee.entity';
 
 @Module({
   imports: [
@@ -28,7 +29,7 @@ import { AddressEntity } from './modules/companies/entities/address.entity';
         type: 'postgres',
         url: configService.get('DATABASE_URL'),
         autoLoadEntities: true,
-        entities: [UserEntity, CompanyEntity, AddressEntity],
+        entities: [UserEntity, CompanyEntity, AddressEntity, EmployeeEntity],
         logging: true,
         synchronize: true,
       }),

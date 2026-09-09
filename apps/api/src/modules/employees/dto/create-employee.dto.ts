@@ -3,14 +3,17 @@ import {
   IsDate,
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsString,
   Length,
-  Matches,
   Max,
   Min,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 import { ContractType, ICreateEmployeeDto, Location } from '../employee.types';
+import { WorkScheduleDto } from './work-schedule.dto';
+import { IsPesel } from 'src/common/validators/is-pesel.validator';
 
 export class CreateEmployeeDto implements ICreateEmployeeDto {
   @IsString()
@@ -23,7 +26,7 @@ export class CreateEmployeeDto implements ICreateEmployeeDto {
 
   @IsString()
   @Length(11, 11)
-  @Matches(/^\d{11}$/, { message: 'pesel must contain exactly 11 digits' })
+  @IsPesel()
   pesel: string;
 
   @IsString()
@@ -42,9 +45,10 @@ export class CreateEmployeeDto implements ICreateEmployeeDto {
   @Max(8)
   workHours: number;
 
-  @IsString()
-  @MinLength(1)
-  workSchedule: string;
+  @IsNotEmpty()
+  @ValidateNested()
+  @Type(() => WorkScheduleDto)
+  workSchedule: WorkScheduleDto;
 
   @Type(() => Date)
   @IsDate()
