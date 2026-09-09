@@ -17,6 +17,8 @@ import { UserEntity } from './modules/users/user.entity';
 import { CompanyEntity } from './modules/companies/entities/company.entity';
 import { AddressEntity } from './modules/companies/entities/address.entity';
 import { EmployeeEntity } from './modules/employees/entities/employee.entity';
+import { AttendanceModule } from './modules/attendance/attendance.module';
+import { AbsenceEntity } from './modules/attendance/entities/absence.entity';
 
 @Module({
   imports: [
@@ -29,15 +31,22 @@ import { EmployeeEntity } from './modules/employees/entities/employee.entity';
         type: 'postgres',
         url: configService.get('DATABASE_URL'),
         autoLoadEntities: true,
-        entities: [UserEntity, CompanyEntity, AddressEntity, EmployeeEntity],
-        logging: true,
-        synchronize: true,
+        entities: [
+          UserEntity,
+          CompanyEntity,
+          AddressEntity,
+          EmployeeEntity,
+          AbsenceEntity,
+        ],
+        logging: configService.get('NODE_ENV') === 'development',
+        synchronize: configService.get('NODE_ENV') === 'development',
       }),
     }),
     UsersModule,
     AuthModule,
     EmployeesModule,
     CompaniesModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
   providers: [

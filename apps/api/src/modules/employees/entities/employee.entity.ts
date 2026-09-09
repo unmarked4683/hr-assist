@@ -6,6 +6,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -14,6 +15,7 @@ import { Max, Min } from 'class-validator';
 import { UserEntity } from '../../users/user.entity';
 import { CompanyEntity } from 'src/modules/companies/entities/company.entity';
 import { WorkScheduleEntity } from './work-schedule.entity';
+import { AbsenceEntity } from 'src/modules/attendance/entities/absence.entity';
 
 @Entity('employees')
 export class EmployeeEntity extends BaseEntity implements IEmployeeEntity {
@@ -34,11 +36,6 @@ export class EmployeeEntity extends BaseEntity implements IEmployeeEntity {
 
   @Column({ type: 'enum', enum: Location })
   location: Location;
-
-  @ManyToOne(() => CompanyEntity, (company) => company.employees, {
-    eager: true,
-  })
-  company: CompanyEntity;
 
   @Min(1)
   @Max(8)
@@ -66,4 +63,12 @@ export class EmployeeEntity extends BaseEntity implements IEmployeeEntity {
   @ManyToOne(() => UserEntity, { nullable: true })
   @JoinColumn({ name: 'fired_by_id' })
   firedBy: UserEntity | null;
+
+  @OneToMany(() => AbsenceEntity, (absence) => absence.employee)
+  absences: AbsenceEntity[];
+
+  @ManyToOne(() => CompanyEntity, (company) => company.employees, {
+    eager: true,
+  })
+  company: CompanyEntity;
 }

@@ -1,3 +1,4 @@
+import { IAbsenceEntity } from '../attendance/attendance.types';
 import { ICompanyEntity } from '../companies/company.types';
 import { IUserEntity } from '../users/user.types';
 
@@ -10,11 +11,6 @@ export enum ContractType {
   EMPLOYMENT_CONTRACT = 1,
 }
 
-// export interface IWorkScheduleEntity {
-//   id: string;
-//   startTime: string;
-//   endTime: string;
-// }
 export interface IWorkScheduleEntity {
   start: string;
   end: string;
@@ -38,6 +34,7 @@ export interface IEmployeeEntity {
   contractType: ContractType;
   firedAt: Date | null;
   firedBy: IUserEntity | null;
+  absences: IAbsenceEntity[];
 }
 
 export type ICreateEmployeeDto = Omit<
