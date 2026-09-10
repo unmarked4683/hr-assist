@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate:types": "pnpm dlx openapi-typescript http://localhost:3001/docs-json -o src/types/api.types.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.102.8",
