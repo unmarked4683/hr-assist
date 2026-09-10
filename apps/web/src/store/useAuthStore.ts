@@ -13,7 +13,6 @@ export interface UserProfile {
 export interface AuthState {
   user: UserProfile | null;
   setUser: (user: UserProfile | null) => void;
-  logout: () => void;
   isAuthorized: () => boolean;
 }
 
@@ -24,21 +23,6 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       setUser: (user) => set({ user }),
       isAuthorized: () => !!get().user,
-      logout: async () => {
-        const response = await fetch(`/api/auth/logout`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to logout");
-        }
-
-        set({ user: null });
-      },
     }),
     {
       name: "auth-storage",
