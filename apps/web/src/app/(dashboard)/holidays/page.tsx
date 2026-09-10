@@ -1,7 +1,7 @@
 export default function HolidaysPage() {
   return (
     <>
-      <h1>Dni wolne</h1>
+      <h1>Widok dni wolnych</h1>
     </>
   );
 }
