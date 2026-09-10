@@ -11,10 +11,10 @@ async function bootstrap() {
   app.use(cookieParser());
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: process.env.WEB_URL,
     credentials: true,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    allowedHeaders: 'Content-Type, Accept, Authorization',
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
   });
 
   const config = new DocumentBuilder()

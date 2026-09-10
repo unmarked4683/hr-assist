@@ -1,4 +1,5 @@
 import { UserProfile } from "@/store/useAuthStore";
+import { ResponseWrapper } from "@/types/response-wrapper.types";
 
 export class ApiService {
   static async login(email: string, password: string): Promise<UserProfile> {
@@ -55,22 +56,37 @@ export const apiRequest = async <T>(
     throw error;
   }
 
-  if (response.ok) {
-    if (response.status === 204) return undefined as T;
+  const { data, ok, errors, statusCode }: ResponseWrapper<T> =
+    await response.json();
 
-    const text = await response.text();
-    return text ? (JSON.parse(text) as T) : (undefined as T);
+  console.log("DATA", data);
+  console.log("OK", ok);
+  console.log("ERRORS", errors);
+  console.log("STATUS CODE", statusCode);
+
+  if (ok) {
+    return data;
+    // if (response.status === 204) return undefined as T;
+    // const text = await response.text();
+    // return text ? (JSON.parse(text) as T) : (undefined as T);
+    // if (!ok) {
+    //   console.error("ERRORS", errors);
+    //   throw new Error(errors.join(", "));
+    // }
+    // return data;
+  } else {
+    throw new Error(errors.join(", "));
   }
 
-  let errorData: { message: string };
-  try {
-    errorData = await response.json();
-  } catch {
-    errorData = { message: `Błąd serwera: ${response.status}` };
-  }
+  // let errorData: { message: string };
+  // try {
+  //   errorData = await response.json();
+  // } catch {
+  //   errorData = { message: `Błąd serwera: ${response.status}` };
+  // }
 
-  const errorMessage = errorData.message || `Błąd serwera: ${response.status}`;
-  throw new Error(
-    Array.isArray(errorMessage) ? errorMessage.join(", ") : errorMessage,
-  );
+  // const errorMessage = errorData.message || `Błąd serwera: ${response.status}`;
+  // throw new Error(
+  //   Array.isArray(errorMessage) ? errorMessage.join(", ") : errorMessage,
+  // );
 };

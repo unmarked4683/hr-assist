@@ -24,12 +24,11 @@ export class ResponseWrapperInterceptor<T> implements NestInterceptor<
 
     return next.handle().pipe(
       map((data: T) => {
-        let statusCode = response.statusCode;
+        const { statusCode } = response;
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         if (statusCode === HttpStatus.NO_CONTENT) {
-          statusCode = HttpStatus.OK;
-          response.status(statusCode);
+          response.status(HttpStatus.OK);
         }
 
         return {
