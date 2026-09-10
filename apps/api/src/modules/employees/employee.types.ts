@@ -46,6 +46,7 @@ export type ICreateEmployeeDto = Omit<
   | 'createdBy'
   | 'firedAt'
   | 'company'
+  | 'absences'
 > & {
   company: string;
 };

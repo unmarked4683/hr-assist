@@ -1,10 +1,11 @@
 "use client";
+import { apiRequest } from "@/services/api-request";
 import { UserProfile, useAuthStore } from "@/store/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, Loader2, Mail, User } from "lucide-react";
 import { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, type SyntheticEvent } from "react";
 import { toast } from "sonner";
 
 export default function LoginPage() {
@@ -23,44 +24,11 @@ export default function LoginPage() {
   const showPasswordError: boolean = passwordTouched && password.length === 0;
 
   const loginFn = async () => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email, password }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error(`Błąd serwera: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log("DATA", data);
-      return data as UserProfile;
-    } catch (error: unknown) {
-      if (!(error instanceof Error)) {
-        console.error("UNKNOWN ERROR WHICH IS NOT AN INSTANCE OF ERROR", error);
-        throw error;
-      }
-      if (!(error instanceof TypeError)) {
-        console.error("UNKNOWN ERROR", error);
-        throw error;
-      }
-
-      const { message } = error;
-      if (
-        message.includes("Failed to fetch") ||
-        message.includes("NetworkError")
-      ) {
-        throw new Error(
-          "Brak połączenia z serwerem (backend wyłączony lub zablokowany przez sieć).",
-        );
-      }
-    }
+    const data = await apiRequest<UserProfile>("/auth/login", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+    return data;
   };
 
   const loginMutation = useMutation({
@@ -69,12 +37,12 @@ export default function LoginPage() {
       setUser(user as UserProfile);
       router.replace("/employees" as Route);
     },
-    onError: (error: Error) => {
-      toast.error(error.message);
+    onError: ({ message }: Error) => {
+      toast.error(message);
     },
   });
 
-  const handleLogin = (event: FormEvent<HTMLFormElement>) => {
+  const handleLogin = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!email || !password || !isEmailValid) {
       toast.error("Wprowadź dane logowania");
