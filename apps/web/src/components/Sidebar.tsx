@@ -16,6 +16,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { CalendarDays, ChevronRight, LogOut, Users } from "lucide-react";
 import { useAuthStore, AuthState, UserProfile } from "@/store/useAuthStore";
+import { ApiService } from "@/services/api.service";
 
 const NAV_ITEMS = [
   { href: "/employees", label: "Pracownicy", icon: Users },
@@ -251,8 +252,6 @@ export const Sidebar = () => {
     ready: false,
   });
 
-  const logout = useAuthStore((state: AuthState) => state.logout);
-
   const userTriggerRef = useRef<HTMLButtonElement>(null);
   const navListRef = useRef<HTMLDivElement>(null);
   const navItemRefs = useRef<Array<HTMLAnchorElement | null>>([]);
@@ -264,7 +263,7 @@ export const Sidebar = () => {
   };
 
   const handleLogout = () => {
-    logout();
+    ApiService.logout();
     closeUserMenu();
     router.replace("/login");
   };

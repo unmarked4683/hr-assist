@@ -8,6 +8,12 @@ export class ApiService {
     });
     return data;
   }
+
+  static async logout(): Promise<void> {
+    await apiRequest<void>("/auth/logout", {
+      method: "POST",
+    });
+  }
 }
 
 export const apiRequest = async <T>(
@@ -49,7 +55,12 @@ export const apiRequest = async <T>(
     throw error;
   }
 
-  if (response.ok) return response.json() as Promise<T>;
+  if (response.ok) {
+    if (response.status === 204) return undefined as T;
+
+    const text = await response.text();
+    return text ? (JSON.parse(text) as T) : (undefined as T);
+  }
 
   let errorData: { message: string };
   try {
