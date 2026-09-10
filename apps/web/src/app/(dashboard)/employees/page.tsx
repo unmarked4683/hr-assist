@@ -1,42 +1,53 @@
-// "use client";
-
-// import { useState } from "react";
-// import { Plus, Search } from "lucide-react";
-// import EmployeesList from "@/components/EmployeesList";
-
-// export default function EmployeesPage() {
-//   const [searchQuery, setSearchQuery] = useState("");
-
-//   return (
-//     <div className="flex h-full min-h-0 flex-col">
-//       <header className="flex max-w-full shrink-0 items-center gap-3 border-b border-border bg-card px-6 py-4">
-//         <div className="relative flex-1 grow">
-//           <Search
-//             size={15}
-//             className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
-//           />
-//           <input
-//             type="text"
-//             placeholder="Szukaj pracowników..."
-//             value={searchQuery}
-//             onChange={(event) => setSearchQuery(event.target.value)}
-//             className="h-9 w-full rounded-lg border border-input bg-background pr-4 pl-9 text-sm text-foreground placeholder:text-muted-foreground transition focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none"
-//           />
-//         </div>
-//         <button
-//           type="button"
-//           onClick={() => console.log("dodawanie pracownika")}
-//           className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm transition-all hover:opacity-90 active:scale-95"
-//           aria-label="Dodaj pracownika"
-//         >
-//           <Plus size={18} />
-//         </button>
-//       </header>
-//       <EmployeesList />
-//     </div>
-//   );
-// }
 "use client";
+
+import { Plus, Search } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Route } from "next";
+import { useDebouncedCallback } from "use-debounce";
+
 export default function EmployeesPage() {
-  return <div>EmployeesPage</div>;
+  const SEARCH_QUERY_PARAM: string = "search";
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const { replace } = useRouter();
+
+  const handleSearch = useDebouncedCallback((term: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (term) {
+      params.set(SEARCH_QUERY_PARAM, term);
+    } else {
+      params.delete(SEARCH_QUERY_PARAM);
+    }
+    replace(`${pathname}?${params.toString()}` as Route);
+  }, 300);
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
+      <header className="flex max-w-full shrink-0 items-center gap-3 border-b border-border bg-card px-6 py-4">
+        <div className="relative flex-1 grow">
+          <Search
+            size={15}
+            className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+          />
+          <input
+            type="text"
+            placeholder="Szukaj pracowników..."
+            onChange={(event) => handleSearch(event.target.value)}
+            defaultValue={
+              searchParams.get(SEARCH_QUERY_PARAM)?.toString() ?? ""
+            }
+            className="h-9 w-full rounded-lg border border-input bg-background pr-4 pl-9 text-sm text-foreground placeholder:text-muted-foreground transition focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={() => console.log("dodawanie pracownika")}
+          className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm transition-all hover:opacity-90 active:scale-95"
+          aria-label="Dodaj pracownika"
+        >
+          <Plus size={18} />
+        </button>
+      </header>
+    </div>
+  );
 }
