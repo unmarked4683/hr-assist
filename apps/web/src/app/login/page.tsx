@@ -1,5 +1,5 @@
 "use client";
-import { apiRequest } from "@/services/api-request";
+import { ApiService } from "@/services/api.service";
 import { UserProfile, useAuthStore } from "@/store/useAuthStore";
 import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, Loader2, Mail, User } from "lucide-react";
@@ -23,18 +23,12 @@ export default function LoginPage() {
   const showEmailError = emailTouched && (email.length === 0 || !isEmailValid);
   const showPasswordError: boolean = passwordTouched && password.length === 0;
 
-  const loginFn = async () => {
-    const data = await apiRequest<UserProfile>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
-    return data;
-  };
+  const loginFn = async () => await ApiService.login(email, password);
 
   const loginMutation = useMutation({
     mutationFn: loginFn,
-    onSuccess: (user) => {
-      setUser(user as UserProfile);
+    onSuccess: (user: UserProfile) => {
+      setUser(user);
       router.replace("/employees" as Route);
     },
     onError: ({ message }: Error) => {
