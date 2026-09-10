@@ -4,6 +4,7 @@ import { Plus, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Route } from "next";
 import { useDebouncedCallback } from "use-debounce";
+import EmployeesList from "@/components/EmployeesList";
 
 export default function EmployeesPage() {
   const SEARCH_QUERY_PARAM: string = "search";
@@ -48,6 +49,7 @@ export default function EmployeesPage() {
           <Plus size={18} />
         </button>
       </header>
+      <EmployeesList />
     </div>
   );
 }
