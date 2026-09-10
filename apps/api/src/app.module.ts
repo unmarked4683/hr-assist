@@ -7,7 +7,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { APP_INTERCEPTOR, APP_PIPE, Reflector } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE, Reflector } from '@nestjs/core';
 import { HashModule } from './common/hash/hash.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -19,6 +19,7 @@ import { AddressEntity } from './modules/companies/entities/address.entity';
 import { EmployeeEntity } from './modules/employees/entities/employee.entity';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { AbsenceEntity } from './modules/attendance/entities/absence.entity';
+import { GlobalExceptionFilter } from './common/filters/global-exception/global-exception.filter';
 
 @Module({
   imports: [
@@ -70,6 +71,10 @@ import { AbsenceEntity } from './modules/attendance/entities/absence.entity';
         new ClassSerializerInterceptor(reflector, {
           enableCircularCheck: true,
         }),
+    },
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
     },
   ],
 })

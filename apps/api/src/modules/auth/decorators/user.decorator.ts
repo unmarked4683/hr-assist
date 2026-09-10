@@ -1,6 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { UserEntity } from '../../users/user.entity';
-import { RemoveFunctions } from 'src/types/remove-functions.types';
+import { RemoveFunctions } from 'src/types/generic/remove-functions.types';
 
 export const User = createParamDecorator(
   <K extends keyof RemoveFunctions<UserEntity>>(
