@@ -5,9 +5,9 @@ import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
-  const isAuthorized = useAuthStore((state: AuthState) => !!state.accessToken);
+  const isAuthorized = useAuthStore((state: AuthState) => state.isAuthorized());
 
   useEffect(() => {
-    router.push(isAuthorized ? "/employees" : "/login");
+    router.replace(isAuthorized ? "/employees" : "/login");
   });
 }

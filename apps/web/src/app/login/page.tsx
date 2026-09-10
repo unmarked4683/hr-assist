@@ -1,69 +1,87 @@
 "use client";
-
-import { AuthState, UserProfile, useAuthStore } from "@/store/useAuthStore";
+import { UserProfile, useAuthStore } from "@/store/useAuthStore";
+import { useMutation } from "@tanstack/react-query";
 import { Eye, EyeOff, Loader2, Mail, User } from "lucide-react";
 import { Route } from "next";
 import { useRouter } from "next/navigation";
-import { useState, type SubmitEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { toast } from "sonner";
-
-type LoginResponse = UserProfile;
 
 export default function LoginPage() {
   const router = useRouter();
-
-  // const setAccessToken = useAuthStore(
-  //   (state: AuthState) => state.setAccessToken,
-  // );
-
-  const setUser = useAuthStore((state: AuthState) => state.setUser);
+  const setUser = useAuthStore((state) => state.setUser);
 
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const [emailTouched, setEmailTouched] = useState<boolean>(false);
   const [passwordTouched, setPasswordTouched] = useState<boolean>(false);
 
   const isEmailValid: boolean = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const showEmailError = emailTouched && (email.length === 0 || !isEmailValid);
-
   const showPasswordError: boolean = passwordTouched && password.length === 0;
 
-  const handleLogin = async (event: SubmitEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!email || !password || !isEmailValid) return;
-
-    setIsLoading(true);
-
+  const loginFn = async () => {
     try {
-      const response = await fetch(`/api/auth/login`, {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
         },
-        credentials: "include",
-      });
+      );
 
       if (!response.ok) {
-        const { message } = await response.json();
-        toast.error(message);
-        return;
+        throw new Error(`Błąd serwera: ${response.status}`);
       }
 
-      const user: LoginResponse = await response.json();
-      setUser(user);
+      const data = await response.json();
+      console.log("DATA", data);
+      return data as UserProfile;
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) {
+        console.error("UNKNOWN ERROR WHICH IS NOT AN INSTANCE OF ERROR", error);
+        throw error;
+      }
+      if (!(error instanceof TypeError)) {
+        console.error("UNKNOWN ERROR", error);
+        throw error;
+      }
 
-      router.replace("/employees" as Route);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsLoading(false);
+      const { message } = error;
+      if (
+        message.includes("Failed to fetch") ||
+        message.includes("NetworkError")
+      ) {
+        throw new Error(
+          "Brak połączenia z serwerem (backend wyłączony lub zablokowany przez sieć).",
+        );
+      }
     }
+  };
+
+  const loginMutation = useMutation({
+    mutationFn: loginFn,
+    onSuccess: (user) => {
+      setUser(user as UserProfile);
+      router.replace("/employees" as Route);
+    },
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const handleLogin = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!email || !password || !isEmailValid) {
+      toast.error("Wprowadź dane logowania");
+      return;
+    }
+
+    loginMutation.mutate();
   };
 
   return (
@@ -129,11 +147,15 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={!email || !password || !isEmailValid || isLoading}
+              disabled={
+                !email || !password || !isEmailValid || loginMutation.isPending
+              }
               className="mt-2 h-11 w-full rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 active:scale-[0.98] transition-all shadow-sm shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
             >
               <span>Zaloguj</span>
-              {isLoading && <Loader2 size={16} className="animate-spin" />}
+              {loginMutation.isPending && (
+                <Loader2 size={16} className="animate-spin" />
+              )}
             </button>
           </form>
         </div>
