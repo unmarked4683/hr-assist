@@ -2,7 +2,7 @@ import { UserProfile } from "@/store/useAuthStore";
 
 export class ApiService {
   static async login(email: string, password: string): Promise<UserProfile> {
-    const data = await apiRequest<UserProfile>("/auth/login", {
+    const data = await apiRequest<UserProfile>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
     });
@@ -10,7 +10,7 @@ export class ApiService {
   }
 
   static async logout(): Promise<void> {
-    await apiRequest<void>("/auth/logout", {
+    await apiRequest<void>("/api/auth/logout", {
       method: "POST",
     });
   }
