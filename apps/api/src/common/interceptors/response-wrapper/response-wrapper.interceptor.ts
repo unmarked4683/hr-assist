@@ -1,14 +1,44 @@
 import {
   CallHandler,
   ExecutionContext,
+  HttpStatus,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { Response } from 'express';
+import { SuccessResponse } from './response-wrapper.types';
 
 @Injectable()
-export class ResponseWrapperInterceptor implements NestInterceptor {
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    return next.handle();
+export class ResponseWrapperInterceptor<T> implements NestInterceptor<
+  T,
+  SuccessResponse<T | null>
+> {
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler<T>,
+  ): Observable<SuccessResponse<T | null>> {
+    const ctx = context.switchToHttp();
+    const response: Response = ctx.getResponse<Response>();
+
+    return next.handle().pipe(
+      map((data: T) => {
+        let statusCode = response.statusCode;
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
+        if (statusCode === HttpStatus.NO_CONTENT) {
+          statusCode = HttpStatus.OK;
+          response.status(statusCode);
+        }
+
+        return {
+          ok: true as const,
+          data: data ?? null,
+          statusCode,
+          errors: null,
+        };
+      }),
+    );
   }
 }

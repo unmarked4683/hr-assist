@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ErrorResponse } from 'src/common/interceptors/response-wrapper/response-wrapper.types';
+import { ErrorResponse } from '../../interceptors/response-wrapper/response-wrapper.types';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {

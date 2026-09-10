@@ -20,6 +20,7 @@ import { EmployeeEntity } from './modules/employees/entities/employee.entity';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { AbsenceEntity } from './modules/attendance/entities/absence.entity';
 import { GlobalExceptionFilter } from './common/filters/global-exception/global-exception.filter';
+import { ResponseWrapperInterceptor } from './common/interceptors/response-wrapper/response-wrapper.interceptor';
 
 @Module({
   imports: [
@@ -52,6 +53,10 @@ import { GlobalExceptionFilter } from './common/filters/global-exception/global-
   controllers: [AppController],
   providers: [
     AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: ResponseWrapperInterceptor,
+    },
     {
       provide: APP_PIPE,
       useFactory: () =>
