@@ -5,8 +5,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useState, useMemo } from "react";
 import { polishName } from "./holidays-translations";
+import Fuse from "fuse.js";
 
-const COLUMNS = ["Data", "Nazwa święta"] as const;
+const COLUMNS = ["Data", "Dzień tygodnia", "Nazwa święta"] as const;
 
 export default function HolidaysPage() {
   const [search, setSearch] = useState("");
@@ -33,15 +34,40 @@ export default function HolidaysPage() {
     }
   };
 
-  const filteredHolidays = useMemo(() => {
+  const getWeekday = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat("pl-PL", {
+        weekday: "long",
+      })
+        .format(date)
+        .toLowerCase();
+    } catch {
+      return "";
+    }
+  };
+
+  const enrichedHolidays = useMemo(() => {
     if (!holidays) return [];
-    return holidays.filter(
-      (h) =>
-        h.name.toLowerCase().includes(search.toLowerCase()) ||
-        h.date.includes(search) ||
-        formatDate(h.date).toLowerCase().includes(search.toLowerCase()),
-    );
-  }, [holidays, search]);
+    return holidays.map((holiday) => ({
+      ...holiday,
+      formattedDate: formatDate(holiday.date),
+      weekday: getWeekday(holiday.date),
+      translatedName: polishName(holiday.name),
+    }));
+  }, [holidays]);
+
+  const fuse = useMemo(() => {
+    return new Fuse(enrichedHolidays, {
+      keys: ["date", "formattedDate", "weekday", "translatedName"],
+      threshold: 0.3,
+    });
+  }, [enrichedHolidays]);
+
+  const filteredHolidays = useMemo(() => {
+    if (!search.trim()) return enrichedHolidays;
+    return fuse.search(search).map((result) => result.item);
+  }, [search, fuse, enrichedHolidays]);
 
   if (isLoading) {
     return (
@@ -81,8 +107,9 @@ export default function HolidaysPage() {
         <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
           <table className="w-full shrink-0 table-fixed text-sm">
             <colgroup>
+              <col className="w-[30%]" />
+              <col className="w-[30%]" />
               <col className="w-[40%]" />
-              <col className="w-[60%]" />
             </colgroup>
             <thead>
               <tr className="border-b border-border bg-muted/50">
@@ -101,14 +128,15 @@ export default function HolidaysPage() {
           <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
             <table className="w-full table-fixed text-sm">
               <colgroup>
+                <col className="w-[30%]" />
+                <col className="w-[30%]" />
                 <col className="w-[40%]" />
-                <col className="w-[60%]" />
               </colgroup>
               <tbody className="divide-y divide-border">
                 {filteredHolidays.length === 0 ? (
                   <tr>
                     <td
-                      colSpan={2}
+                      colSpan={3}
                       className="py-12 text-center text-sm text-muted-foreground"
                     >
                       Brak świąt pasujących do kryteriów wyszukiwania
@@ -123,10 +151,13 @@ export default function HolidaysPage() {
                       }`}
                     >
                       <td className="px-3 py-2.5 text-center font-medium text-foreground">
-                        {formatDate(holiday.date)}
+                        {holiday.formattedDate}
+                      </td>
+                      <td className="px-3 py-2.5 text-center text-muted-foreground capitalize">
+                        {holiday.weekday}
                       </td>
                       <td className="px-3 py-2.5 text-center text-muted-foreground">
-                        {polishName(holiday.name)}
+                        {holiday.translatedName}
                       </td>
                     </tr>
                   ))
