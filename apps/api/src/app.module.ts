@@ -21,6 +21,9 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
 import { AbsenceEntity } from './modules/attendance/entities/absence.entity';
 import { GlobalExceptionFilter } from './common/filters/global-exception/global-exception.filter';
 import { ResponseWrapperInterceptor } from './common/interceptors/response-wrapper/response-wrapper.interceptor';
+import { HolidaysModule } from './modules/holidays/holidays.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { HolidayEntity } from './modules/holidays/entities/holiday.entity';
 
 @Module({
   imports: [
@@ -39,16 +42,19 @@ import { ResponseWrapperInterceptor } from './common/interceptors/response-wrapp
           AddressEntity,
           EmployeeEntity,
           AbsenceEntity,
+          HolidayEntity,
         ],
         logging: configService.get('NODE_ENV') === 'development',
         synchronize: configService.get('NODE_ENV') === 'development',
       }),
     }),
+    ScheduleModule.forRoot(),
     UsersModule,
     AuthModule,
     EmployeesModule,
     CompaniesModule,
     AttendanceModule,
+    HolidaysModule,
   ],
   controllers: [AppController],
   providers: [

@@ -1,5 +1,5 @@
 import { ValidationOptions, registerDecorator } from 'class-validator';
-import { isPeselValid } from 'src/utils/is-pesel-valid.util';
+import { isPeselValid } from 'src/common/utils/is-pesel-valid.util';
 
 export function IsPesel(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
