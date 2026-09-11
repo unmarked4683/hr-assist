@@ -1,3 +1,4 @@
+import { isValidUrl } from "@/common/utils/is-valid-url.util";
 import { ResponseWrapper } from "@/types/response-wrapper.types";
 import { toast } from "sonner";
 
@@ -6,12 +7,17 @@ export interface ApiRequestOptions extends RequestInit {
 }
 
 export const apiRequest = async <T>(
-  endpoint: string,
+  endpointOrUrl: string,
   options: ApiRequestOptions = {},
 ): Promise<T> => {
   const { hideToastOnNetworkError = false, ...fetchOptions } = options;
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-  const url = new URL(endpoint, baseUrl).toString();
+
+  const isUrl: boolean = isValidUrl(endpointOrUrl);
+  const baseUrl: string = process.env.NEXT_PUBLIC_API_URL!;
+
+  const url: string = isUrl
+    ? endpointOrUrl
+    : new URL(endpointOrUrl, baseUrl).toString();
 
   let response: Response;
   try {
