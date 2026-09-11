@@ -4,6 +4,9 @@ import { ApiService } from "@/services/api.service";
 import { useQuery } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useState, useMemo } from "react";
+import { polishName } from "./holidays-translations";
+
+const COLUMNS = ["Data", "Nazwa święta"] as const;
 
 export default function HolidaysPage() {
   const [search, setSearch] = useState("");
@@ -42,13 +45,15 @@ export default function HolidaysPage() {
 
   if (isLoading) {
     return (
-      <div className="p-6 text-sm text-muted-foreground">Ładowanie...</div>
+      <div className="p-6 text-center text-sm text-muted-foreground">
+        Ładowanie dni wolnych...
+      </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="p-6 text-sm text-destructive">
+      <div className="p-6 text-center text-sm text-destructive">
         Błąd podczas ładowania dni wolnych
       </div>
     );
@@ -72,42 +77,63 @@ export default function HolidaysPage() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-auto p-6">
-        <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
-          <table className="w-full border-collapse text-sm">
+      <div className="min-h-0 flex-1 overflow-hidden px-6 py-5">
+        <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+          <table className="w-full shrink-0 table-fixed text-sm">
+            <colgroup>
+              <col className="w-[40%]" />
+              <col className="w-[60%]" />
+            </colgroup>
             <thead>
               <tr className="border-b border-border bg-muted/50">
-                <th className="px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                  Data
-                </th>
-                <th className="px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-                  Nazwa święta
-                </th>
+                {COLUMNS.map((label) => (
+                  <th
+                    key={label}
+                    className="px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+                  >
+                    {label}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
-              {filteredHolidays.map((holiday) => (
-                <tr key={holiday.date} className="hover:bg-muted/30 transition">
-                  <td className="py-3 px-4 font-medium text-foreground text-center">
-                    {formatDate(holiday.date)}
-                  </td>
-                  <td className="py-3 px-4 text-muted-foreground text-center">
-                    {holiday.name}
-                  </td>
-                </tr>
-              ))}
-              {filteredHolidays.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={2}
-                    className="py-6 text-center text-muted-foreground"
-                  >
-                    Brak świąt pasujących do kryteriów wyszukiwania
-                  </td>
-                </tr>
-              )}
-            </tbody>
           </table>
+
+          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+            <table className="w-full table-fixed text-sm">
+              <colgroup>
+                <col className="w-[40%]" />
+                <col className="w-[60%]" />
+              </colgroup>
+              <tbody className="divide-y divide-border">
+                {filteredHolidays.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={2}
+                      className="py-12 text-center text-sm text-muted-foreground"
+                    >
+                      Brak świąt pasujących do kryteriów wyszukiwania
+                    </td>
+                  </tr>
+                ) : (
+                  filteredHolidays.map((holiday, index) => (
+                    <tr
+                      key={holiday.date}
+                      className={`border-b border-border transition hover:bg-muted/30 ${
+                        index % 2 === 1 ? "bg-table-row-alt" : ""
+                      }`}
+                    >
+                      <td className="px-3 py-2.5 text-center font-medium text-foreground">
+                        {formatDate(holiday.date)}
+                      </td>
+                      <td className="px-3 py-2.5 text-center text-muted-foreground">
+                        {polishName(holiday.name)}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
