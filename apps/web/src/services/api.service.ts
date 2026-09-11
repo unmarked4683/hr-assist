@@ -7,6 +7,7 @@ export class ApiService {
     const data = await apiRequest<UserProfile>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
+      hideToastOnNetworkError: true,
     });
     return data;
   }
