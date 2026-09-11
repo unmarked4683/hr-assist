@@ -3,10 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { ApiService } from "@/services/api.service";
 import { MapPin } from "lucide-react";
+import { Employee } from "@/types";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import Fuse from "fuse.js";
-import { Employee } from "@/types";
 
 const COLUMNS = [
   "Imię",
@@ -30,24 +30,38 @@ export default function EmployeesList() {
   });
 
   const enrichedEmployees = useMemo(() => {
-    return employees.map((employee) => ({
-      ...employee,
-      status: "ok",
-      locationName: employee.location === 1 ? "Hala" : "Biuro",
-    }));
+    return employees.map((employee) => {
+      const locationName = employee.location === 1 ? "Hala" : "Biuro";
+      return {
+        ...employee,
+        status: "ok",
+        locationName,
+        searchIndex: `${employee.name} ${employee.surname} ${employee.position} ${locationName}`,
+      };
+    });
   }, [employees]);
 
   const fuse = useMemo(() => {
     return new Fuse(enrichedEmployees, {
-      keys: ["name", "surname", "position", "locationName"],
-      threshold: 0.3,
+      keys: ["searchIndex"],
+      threshold: 0.35,
+      ignoreLocation: true,
       useExtendedSearch: true,
     });
   }, [enrichedEmployees]);
 
   const filteredEmployees = useMemo(() => {
     if (!searchQuery.trim()) return enrichedEmployees;
-    return fuse.search(searchQuery).map((result) => result.item);
+
+    const terms = searchQuery.trim().split(/\s+/).filter(Boolean);
+
+    const query = {
+      $and: terms.map((term) => ({
+        searchIndex: term,
+      })),
+    };
+
+    return fuse.search(query).map((result) => result.item);
   }, [searchQuery, fuse, enrichedEmployees]);
 
   if (isLoading) {
