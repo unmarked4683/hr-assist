@@ -1,4 +1,4 @@
-import { isValidUrl } from "@/common/utils/is-valid-url.util";
+import { isValidUrl } from "@/utils/is-valid-url.util";
 import { ResponseWrapper } from "@/types/response-wrapper.types";
 import { toast } from "sonner";
 

@@ -6,15 +6,12 @@ import { MapPin } from "lucide-react";
 import { Employee } from "@/types";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import Fuse from "fuse.js";
-
-const COLUMNS = [
-  "Imię",
-  "Nazwisko",
-  "Stanowisko",
-  "Lokalizacja",
-  "Status",
-] as const;
+import {
+  COLUMNS,
+  enrichEmployees,
+  createEmployeeFuse,
+  performSearch,
+} from "@/utils/employees.utils";
 
 export default function EmployeesList() {
   const searchParams = useSearchParams();
@@ -29,40 +26,20 @@ export default function EmployeesList() {
     queryFn: () => ApiService.getEmployees(),
   });
 
-  const enrichedEmployees = useMemo(() => {
-    return employees.map((employee) => {
-      const locationName = employee.location === 1 ? "Hala" : "Biuro";
-      return {
-        ...employee,
-        status: "ok",
-        locationName,
-        searchIndex: `${employee.name} ${employee.surname} ${employee.position} ${locationName}`,
-      };
-    });
-  }, [employees]);
+  const enrichedEmployees = useMemo(
+    () => enrichEmployees(employees),
+    [employees],
+  );
 
-  const fuse = useMemo(() => {
-    return new Fuse(enrichedEmployees, {
-      keys: ["searchIndex"],
-      threshold: 0.35,
-      ignoreLocation: true,
-      useExtendedSearch: true,
-    });
-  }, [enrichedEmployees]);
+  const fuse = useMemo(
+    () => createEmployeeFuse(enrichedEmployees),
+    [enrichedEmployees],
+  );
 
-  const filteredEmployees = useMemo(() => {
-    if (!searchQuery.trim()) return enrichedEmployees;
-
-    const terms = searchQuery.trim().split(/\s+/).filter(Boolean);
-
-    const query = {
-      $and: terms.map((term) => ({
-        searchIndex: term,
-      })),
-    };
-
-    return fuse.search(query).map((result) => result.item);
-  }, [searchQuery, fuse, enrichedEmployees]);
+  const filteredEmployees = useMemo(
+    () => performSearch(fuse, searchQuery, enrichedEmployees),
+    [searchQuery, fuse, enrichedEmployees],
+  );
 
   if (isLoading) {
     return (

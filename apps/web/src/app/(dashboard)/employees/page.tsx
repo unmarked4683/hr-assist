@@ -20,7 +20,7 @@ export default function EmployeesPage() {
       params.delete(SEARCH_QUERY_PARAM);
     }
     replace(`${pathname}?${params.toString()}` as Route);
-  }, 100);
+  }, 50);
 
   return (
     <div className="flex h-full min-h-0 flex-col">
