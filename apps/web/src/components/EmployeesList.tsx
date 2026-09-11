@@ -18,7 +18,6 @@ export default function EmployeesList() {
     data: employees = [],
     isLoading,
     isError,
-    isSuccess,
   } = useQuery({
     queryKey: ["employees"],
     queryFn: () => ApiService.getEmployees(),
@@ -38,10 +37,6 @@ export default function EmployeesList() {
         Nie udało się pobrać listy pracowników.
       </div>
     );
-  }
-
-  if (isSuccess) {
-    console.log("EMPLOYEES", employees);
   }
 
   return (
