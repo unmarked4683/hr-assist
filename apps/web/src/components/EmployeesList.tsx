@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
-import { IEmployeeEntity as Employee } from "../../../api/src/modules/employees/employee.types";
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { ApiService } from "@/services/api.service";
 import { MapPin } from "lucide-react";
+import { Employee } from "@/types";
 
 const COLUMNS = [
   "Imię",
@@ -11,35 +14,35 @@ const COLUMNS = [
 ] as const;
 
 export default function EmployeesList() {
-  const [employees, setEmployees] = useState<
-    Array<Employee & { status: string }>
-  >([]);
+  const {
+    data: employees = [],
+    isLoading,
+    isError,
+    isSuccess,
+  } = useQuery({
+    queryKey: ["employees"],
+    queryFn: () => ApiService.getEmployees(),
+  });
 
-  const fetchEmployees = async (): Promise<
-    Array<Employee & { status: string }>
-  > => {
-    const response = await fetch("/api/employees", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to fetch employees");
-    }
-
-    const data = await response.json();
-    const employees: Array<Employee & { status: string }> = data.map(
-      (employee: Employee) => ({ ...employee, status: "ok" }),
+  if (isLoading) {
+    return (
+      <div className="p-6 text-center text-muted-foreground">
+        Ładowanie pracowników...
+      </div>
     );
-    return employees;
-  };
+  }
 
-  useEffect(() => {
-    fetchEmployees().then(setEmployees);
-  }, []);
+  if (isError) {
+    return (
+      <div className="p-6 text-center text-destructive">
+        Nie udało się pobrać listy pracowników.
+      </div>
+    );
+  }
+
+  if (isSuccess) {
+    console.log("EMPLOYEES", employees);
+  }
 
   return (
     <div className="min-h-0 flex-1 overflow-hidden px-6 py-5">
@@ -86,41 +89,53 @@ export default function EmployeesList() {
                   </td>
                 </tr>
               ) : (
-                employees.map((employee, index) => (
-                  <tr
-                    key={employee.id}
-                    className={`border-b border-border ${
-                      index % 2 === 1 ? "bg-table-row-alt" : ""
-                    }`}
-                  >
-                    <td className="px-3 py-2.5 text-center font-medium text-foreground">
-                      {employee.name}
-                    </td>
-                    <td className="px-3 py-2.5 text-center text-foreground">
-                      {employee.surname}
-                    </td>
-                    <td className="px-3 py-2.5 text-center text-muted-foreground">
-                      {employee.position}
-                    </td>
-                    <td className="px-3 py-2.5 text-center">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
-                        <MapPin size={10} />
-                        {employee.location}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-center">
-                      {employee.status === "alert" ? (
-                        <span className="inline-flex items-center rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
-                          Do uzupełnienia
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full border border-border bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
-                          OK
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))
+                employees
+                  .map((employee: Employee): Employee & { status: string } => {
+                    return {
+                      ...employee,
+                      status: "ok",
+                    };
+                  })
+                  .map(
+                    (
+                      employee: Employee & { status: string },
+                      index: number,
+                    ) => (
+                      <tr
+                        key={employee.id}
+                        className={`border-b border-border ${
+                          index % 2 === 1 ? "bg-table-row-alt" : ""
+                        }`}
+                      >
+                        <td className="px-3 py-2.5 text-center font-medium text-foreground">
+                          {employee.name}
+                        </td>
+                        <td className="px-3 py-2.5 text-center text-foreground">
+                          {employee.surname}
+                        </td>
+                        <td className="px-3 py-2.5 text-center text-muted-foreground">
+                          {employee.position}
+                        </td>
+                        <td className="px-3 py-2.5 text-center">
+                          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+                            <MapPin size={10} />
+                            {employee.location === 1 ? "Hala" : "Biuro"}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 text-center">
+                          {employee.status === "alert" ? (
+                            <span className="inline-flex items-center rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+                              Do uzupełnienia
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full border border-border bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+                              OK
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ),
+                  )
               )}
             </tbody>
           </table>
