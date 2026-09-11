@@ -29,3 +29,7 @@ export interface IAbsenceEntity {
   type: AbsenceType;
   date: Date;
 }
+
+export type IAddAbsenceDto = Omit<IAbsenceEntity, 'id' | 'employee'> & {
+  employee: string;
+};
