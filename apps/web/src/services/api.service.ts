@@ -1,5 +1,5 @@
 import { UserProfile } from "@/store/useAuthStore";
-import { Employee } from "@/types";
+import { Employee, Holiday } from "@/types";
 import { apiRequest } from "./api-request";
 
 export class ApiService {
@@ -20,6 +20,11 @@ export class ApiService {
 
   static async getEmployees(): Promise<Employee[]> {
     const data = await apiRequest<Employee[]>("/api/employees");
+    return data;
+  }
+
+  static async getHolidays(): Promise<Holiday[]> {
+    const data = await apiRequest<Holiday[]>("/api/holidays");
     return data;
   }
 }

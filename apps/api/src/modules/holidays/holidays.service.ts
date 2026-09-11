@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import { HolidayEntity } from './entities/holiday.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource, EntityManager } from 'typeorm';
+import { Between, DataSource, EntityManager } from 'typeorm';
 
 @Injectable()
 export class HolidaysService implements OnModuleInit {
@@ -74,5 +74,19 @@ export class HolidaysService implements OnModuleInit {
         },
       );
     }
+  }
+
+  async findHolidays(
+    year: number = new Date().getFullYear(),
+  ): Promise<HolidayEntity[]> {
+    const currentYear = new Date().getFullYear();
+
+    if (year < 2026 || year > currentYear + 5) {
+      throw new Error(`Year ${year} is out of allowed range.`);
+    }
+
+    return await HolidayEntity.findBy({
+      date: Between(new Date(`${year}-01-01`), new Date(`${year}-12-31`)),
+    });
   }
 }

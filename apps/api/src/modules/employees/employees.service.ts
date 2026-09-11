@@ -22,9 +22,7 @@ export class EmployeesService {
     private readonly companiesService: CompaniesService,
   ) {}
   async findAll(): Promise<EmployeeEntity[]> {
-    return await EmployeeEntity.find({
-      relations: { absences: true },
-    });
+    return await EmployeeEntity.find();
   }
 
   async findOne(id: string): Promise<EmployeeEntity> {
