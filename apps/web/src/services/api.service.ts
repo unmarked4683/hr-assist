@@ -13,8 +13,12 @@ export class ApiService {
   }
 
   static async logout(): Promise<void> {
-    await apiRequest<void>("/api/auth/logout", {
+    // await apiRequest<void>("/api/auth/logout", {
+    //   method: "POST",
+    // });
+    await fetch("/api/auth/logout", {
       method: "POST",
+      credentials: "include",
     });
   }
 
