@@ -13,7 +13,7 @@ import {
   performSearch,
 } from "@/utils/employees.utils";
 
-export default function EmployeesList() {
+export default function List() {
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
 
