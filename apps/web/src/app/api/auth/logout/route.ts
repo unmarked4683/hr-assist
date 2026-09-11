@@ -1,5 +1,5 @@
 import { apiRequest } from "@/services/api-request";
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 interface SuccessLogoutResponse {
   ok: true;

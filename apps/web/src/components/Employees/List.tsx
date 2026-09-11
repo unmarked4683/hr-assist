@@ -12,6 +12,7 @@ import {
   createEmployeeFuse,
   performSearch,
 } from "@/utils/employees.utils";
+import ms from "ms";
 
 export default function List() {
   const searchParams = useSearchParams();
@@ -23,7 +24,10 @@ export default function List() {
     isError,
   } = useQuery<Employee[]>({
     queryKey: ["employees"],
-    queryFn: () => ApiService.getEmployees(),
+    queryFn: async () => await ApiService.getEmployees(),
+    staleTime: ms("5 minutes"),
+    gcTime: ms("1 hour"),
+    retry: 1,
   });
 
   const enrichedEmployees = useMemo(
@@ -41,7 +45,7 @@ export default function List() {
     [searchQuery, fuse, enrichedEmployees],
   );
 
-  if (isLoading) {
+  if (isLoading && employees.length === 0) {
     return (
       <div className="p-6 text-center text-muted-foreground">
         Ładowanie pracowników...
@@ -49,7 +53,7 @@ export default function List() {
     );
   }
 
-  if (isError) {
+  if (isError && employees.length === 0) {
     return (
       <div className="p-6 text-center text-destructive">
         Nie udało się pobrać listy pracowników.
