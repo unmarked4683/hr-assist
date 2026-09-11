@@ -1,3 +1,4 @@
+import { apiRequest } from "@/services/api-request";
 import { NextResponse, NextRequest } from "next/server";
 
 interface SuccessLogoutResponse {
@@ -7,17 +8,11 @@ interface SuccessLogoutResponse {
   errors: null;
 }
 
-export async function POST(request: NextRequest) {
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
-  //   const token = request.cookies.get("accessToken")?.value;
-  console.log("COOOKIES", request.cookies.get("accessToken")?.value);
+export async function POST() {
   try {
-    await fetch(`${backendUrl}/api/auth/logout`, {
+    await apiRequest<null>("/api/auth/logout", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
+      hideToastOnNetworkError: true,
     });
   } catch {}
 
