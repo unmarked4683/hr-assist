@@ -44,7 +44,7 @@ export interface IEmployeeEntity {
   leave: ILeaveEntity;
 }
 
-export type ILeaveDto = ILeaveEntity;
+export type ILeaveDto = Pick<ILeaveEntity, 'base'>;
 
 export type ICreateEmployeeDto = Omit<
   IEmployeeEntity,
@@ -59,5 +59,5 @@ export type ICreateEmployeeDto = Omit<
   | 'leave'
 > & {
   company: string;
-  leave: ILeaveDto;
+  leave: number;
 };

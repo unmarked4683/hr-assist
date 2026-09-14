@@ -46,6 +46,12 @@ export class EmployeesController {
     return this.employeesService.update(id, dto);
   }
 
+  @Delete('/')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeAll(): Promise<void> {
+    return this.employeesService.removeAll();
+  }
+
   @Delete('/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', ParseUUIDPipe) id: string): Promise<EmployeeEntity> {

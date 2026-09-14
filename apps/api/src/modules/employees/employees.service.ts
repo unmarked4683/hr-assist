@@ -38,6 +38,7 @@ export class EmployeesService {
     workSchedule,
     workHours,
     company: companyId,
+    leave,
     ...rest
   }: CreateEmployeeDto): Promise<EmployeeEntity> {
     const isPeselTaken: boolean = await EmployeeEntity.existsBy({ pesel });
@@ -53,6 +54,10 @@ export class EmployeesService {
       workSchedule,
       workHours,
       company,
+      leave: {
+        base: leave,
+        current: leave,
+      },
       ...rest,
     });
 
@@ -108,5 +113,9 @@ export class EmployeesService {
       );
 
     return;
+  }
+
+  async removeAll(): Promise<void> {
+    await EmployeeEntity.createQueryBuilder().delete().execute();
   }
 }

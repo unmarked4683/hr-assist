@@ -5,7 +5,7 @@ export class LeaveEntity implements ILeaveEntity {
   @Column({ type: 'smallint', unsigned: true })
   base: number;
 
-  @Column({ type: 'smallint', unsigned: true })
+  @Column({ type: 'smallint', unsigned: true, default: 0 })
   overdue: number;
 
   @Column({ type: 'smallint', unsigned: true })
