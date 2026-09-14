@@ -18,6 +18,12 @@ export interface IWorkScheduleEntity {
 
 export type IWorkScheduleDto = IWorkScheduleEntity;
 
+export interface ILeaveEntity {
+  base: number;
+  overdue: number;
+  current: number;
+}
+
 export interface IEmployeeEntity {
   id: string;
   name: string;
@@ -35,7 +41,10 @@ export interface IEmployeeEntity {
   firedAt: Date | null;
   firedBy: IUserEntity | null;
   absences: IAbsenceEntity[];
+  leave: ILeaveEntity;
 }
+
+export type ILeaveDto = ILeaveEntity;
 
 export type ICreateEmployeeDto = Omit<
   IEmployeeEntity,
@@ -47,6 +56,8 @@ export type ICreateEmployeeDto = Omit<
   | 'firedAt'
   | 'company'
   | 'absences'
+  | 'leave'
 > & {
   company: string;
+  leave: ILeaveDto;
 };

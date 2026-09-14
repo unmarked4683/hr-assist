@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsInt,
   IsNotEmpty,
+  IsNotEmptyObject,
   IsString,
   Length,
   Max,
@@ -14,6 +15,8 @@ import {
 import { ContractType, ICreateEmployeeDto, Location } from '../employee.types';
 import { WorkScheduleDto } from './work-schedule.dto';
 import { IsPesel } from 'src/common/validators/is-pesel.validator';
+import { LeaveDto } from './leave.dto';
+import { IsLeaveValid } from './validators/is-leave-valid.validator';
 
 export class CreateEmployeeDto implements ICreateEmployeeDto {
   @IsString()
@@ -56,4 +59,10 @@ export class CreateEmployeeDto implements ICreateEmployeeDto {
 
   @IsEnum(ContractType)
   contractType: ContractType;
+
+  @ValidateNested()
+  @Type(() => LeaveDto)
+  @IsNotEmptyObject({}, { message: 'Leave is required' })
+  @IsLeaveValid()
+  leave: LeaveDto;
 }
