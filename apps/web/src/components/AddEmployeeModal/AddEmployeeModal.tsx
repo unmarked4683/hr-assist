@@ -16,7 +16,7 @@ import {
 import { EmployeeFormValues, employeeSchema } from "./employee.schema";
 import { useForm } from "react-hook-form";
 import { ConfirmModal } from "../ConfirmModal/ConfirmModal";
-import { AddEmployeeForm } from "./AddEmployeeForm";
+import { AddEmployeeForm } from "./AddEmployeeForm/AddEmployeeForm";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;

@@ -28,7 +28,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Location } from "@/types";
-import { EmployeeFormValues } from "./employee.schema";
+import { EmployeeFormValues } from "../employee.schema";
 
 interface Company {
   id: string;
@@ -61,16 +61,22 @@ export function AddEmployeeForm({
   const scheduleErrors = errors.workSchedule as Record<string, any> | undefined;
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6 mt-2">
-      {/* Rząd 1 */}
+    <form
+      onSubmit={handleSubmit(handleFormSubmit)}
+      className="space-y-6 mt-2"
+      noValidate
+    >
+      {/* Rząd 1: Imię, Nazwisko, PESEL */}
       <div className="grid grid-cols-3 gap-4">
         <Field data-invalid={!!errors.name}>
-          <FieldLabel className="text-xs text-zinc-600">Imię</FieldLabel>
+          <FieldLabel className="text-xs text-zinc-600">
+            Imię <span className="text-red-500">*</span>
+          </FieldLabel>
           <Input
             placeholder="Imię"
             {...register("name")}
             aria-invalid={!!errors.name}
-            className="border-zinc-300"
+            className="border-zinc-300 data-[invalid=true]:border-red-500"
           />
           {errors.name && (
             <FieldDescription className="text-[11px] text-red-500 font-medium">
@@ -80,12 +86,14 @@ export function AddEmployeeForm({
         </Field>
 
         <Field data-invalid={!!errors.surname}>
-          <FieldLabel className="text-xs text-zinc-600">Nazwisko</FieldLabel>
+          <FieldLabel className="text-xs text-zinc-600">
+            Nazwisko <span className="text-red-500">*</span>
+          </FieldLabel>
           <Input
             placeholder="Nazwisko"
             {...register("surname")}
             aria-invalid={!!errors.surname}
-            className="border-zinc-300"
+            className="border-zinc-300 data-[invalid=true]:border-red-500"
           />
           {errors.surname && (
             <FieldDescription className="text-[11px] text-red-500 font-medium">
@@ -95,12 +103,19 @@ export function AddEmployeeForm({
         </Field>
 
         <Field data-invalid={!!errors.pesel}>
-          <FieldLabel className="text-xs text-zinc-600">PESEL</FieldLabel>
+          <FieldLabel className="text-xs text-zinc-600">
+            PESEL <span className="text-red-500">*</span>
+          </FieldLabel>
           <Input
-            placeholder="PESEL"
-            {...register("pesel")}
+            placeholder="11 cyfr"
+            maxLength={11}
+            {...register("pesel", {
+              onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+                e.target.value = e.target.value.replace(/\D/g, "").slice(0, 11);
+              },
+            })}
             aria-invalid={!!errors.pesel}
-            className="border-zinc-300"
+            className="border-zinc-300 font-mono data-[invalid=true]:border-red-500"
           />
           {errors.pesel && (
             <FieldDescription className="text-[11px] text-red-500 font-medium">
@@ -110,15 +125,17 @@ export function AddEmployeeForm({
         </Field>
       </div>
 
-      {/* Rząd 2 */}
+      {/* Rząd 2: Stanowisko, Lokalizacja, Firma */}
       <div className="grid grid-cols-3 gap-4 items-start">
         <Field data-invalid={!!errors.position}>
-          <FieldLabel className="text-xs text-zinc-600">Stanowisko</FieldLabel>
+          <FieldLabel className="text-xs text-zinc-600">
+            Stanowisko <span className="text-red-500">*</span>
+          </FieldLabel>
           <Input
             placeholder="Stanowisko"
             {...register("position")}
             aria-invalid={!!errors.position}
-            className="border-zinc-300"
+            className="border-zinc-300 data-[invalid=true]:border-red-500"
           />
           {errors.position && (
             <FieldDescription className="text-[11px] text-red-500 font-medium">
@@ -128,12 +145,17 @@ export function AddEmployeeForm({
         </Field>
 
         <Field data-invalid={!!errors.location}>
-          <FieldLabel className="text-xs text-zinc-600">Lokalizacja</FieldLabel>
+          <FieldLabel className="text-xs text-zinc-600">
+            Lokalizacja <span className="text-red-500">*</span>
+          </FieldLabel>
           <Controller
             control={control}
             name="location"
             render={({ field }) => (
-              <div className="flex h-10 w-full items-center rounded-md bg-zinc-100 p-1 border border-zinc-200">
+              <div
+                aria-invalid={!!errors.location}
+                className="flex h-10 w-full items-center rounded-md bg-zinc-100 p-1 border border-zinc-200 data-[invalid=true]:border-red-500"
+              >
                 <button
                   type="button"
                   onClick={() => field.onChange(Location.OFFICE)}
@@ -169,7 +191,9 @@ export function AddEmployeeForm({
         </Field>
 
         <Field data-invalid={!!errors.company}>
-          <FieldLabel className="text-xs text-zinc-600">Firma</FieldLabel>
+          <FieldLabel className="text-xs text-zinc-600">
+            Firma <span className="text-red-500">*</span>
+          </FieldLabel>
           <Controller
             control={control}
             name="company"
@@ -181,7 +205,7 @@ export function AddEmployeeForm({
                 <Select onValueChange={field.onChange} value={field.value}>
                   <SelectTrigger
                     aria-invalid={!!errors.company}
-                    className="border-zinc-300 text-zinc-900 w-full overflow-hidden"
+                    className="border-zinc-300 text-zinc-900 w-full overflow-hidden data-[invalid=true]:border-red-500"
                   >
                     <SelectValue
                       placeholder={
@@ -212,11 +236,11 @@ export function AddEmployeeForm({
         </Field>
       </div>
 
-      {/* Rząd 3 */}
+      {/* Rząd 3: Wymiar etatu, Start, Koniec */}
       <div className="grid grid-cols-3 gap-4 items-start">
         <Field data-invalid={!!errors.workHours}>
           <FieldLabel className="text-xs text-zinc-600">
-            Wymiar etatu
+            Wymiar etatu <span className="text-red-500">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -226,7 +250,10 @@ export function AddEmployeeForm({
                 onValueChange={(val) => field.onChange(Number(val))}
                 value={field.value?.toString()}
               >
-                <SelectTrigger className="border-zinc-300 text-zinc-900 w-full">
+                <SelectTrigger
+                  aria-invalid={!!errors.workHours}
+                  className="border-zinc-300 text-zinc-900 w-full data-[invalid=true]:border-red-500"
+                >
                   <SelectValue placeholder="Wybierz etat..." />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-zinc-200 text-zinc-900">
@@ -247,7 +274,8 @@ export function AddEmployeeForm({
 
         <Field data-invalid={!!scheduleErrors?.start}>
           <FieldLabel className="text-xs text-zinc-600">
-            Godzina startu (6:00 - 15:00)
+            Godzina startu (6:00 - 15:00){" "}
+            <span className="text-red-500">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -256,7 +284,7 @@ export function AddEmployeeForm({
               <Select onValueChange={field.onChange} value={field.value}>
                 <SelectTrigger
                   aria-invalid={!!scheduleErrors?.start}
-                  className="border-zinc-300 text-zinc-900 w-full"
+                  className="border-zinc-300 text-zinc-900 w-full data-[invalid=true]:border-red-500"
                 >
                   <SelectValue placeholder="Wybierz start..." />
                 </SelectTrigger>
@@ -279,7 +307,7 @@ export function AddEmployeeForm({
 
         <Field data-invalid={!!scheduleErrors?.end}>
           <FieldLabel className="text-xs text-zinc-600">
-            Godzina końcowa
+            Godzina końcowa <span className="text-red-500">*</span>
           </FieldLabel>
           <Input
             type="text"
@@ -296,11 +324,11 @@ export function AddEmployeeForm({
         </Field>
       </div>
 
-      {/* Rząd 4 */}
+      {/* Rząd 4: Data rozpoczęcia, Typ umowy, Urlop */}
       <div className="grid grid-cols-3 gap-4 items-start">
         <Field data-invalid={!!errors.employmentDate}>
           <FieldLabel className="text-xs text-zinc-600">
-            Data rozpoczęcia
+            Data rozpoczęcia <span className="text-red-500">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -311,7 +339,7 @@ export function AddEmployeeForm({
                   <div
                     aria-invalid={!!errors.employmentDate}
                     className={cn(
-                      "w-full justify-start text-left font-normal bg-white border border-zinc-300 rounded-md h-10 px-3 text-sm text-zinc-900 hover:bg-zinc-50 flex items-center cursor-pointer",
+                      "w-full justify-start text-left font-normal bg-white border border-zinc-300 rounded-md h-10 px-3 text-sm text-zinc-900 hover:bg-zinc-50 flex items-center cursor-pointer data-[invalid=true]:border-red-500",
                       !field.value && "text-muted-foreground",
                     )}
                   >
@@ -353,13 +381,16 @@ export function AddEmployeeForm({
 
         <Field data-invalid={!!errors.leave}>
           <FieldLabel className="text-xs text-zinc-600">
-            Urlop roczny
+            Urlop roczny <span className="text-red-500">*</span>
           </FieldLabel>
           <Controller
             control={control}
             name="leave"
             render={({ field }) => (
-              <div className="flex h-10 w-full items-center rounded-md bg-zinc-100 p-1 border border-zinc-200">
+              <div
+                aria-invalid={!!errors.leave}
+                className="flex h-10 w-full items-center rounded-md bg-zinc-100 p-1 border border-zinc-200 data-[invalid=true]:border-red-500"
+              >
                 <button
                   type="button"
                   onClick={() => field.onChange(20)}
