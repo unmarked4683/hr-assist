@@ -537,12 +537,7 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
             >
               Nie
             </Button>
-            <Button
-              onClick={confirmAddEmployee}
-              className="bg-indigo-600 text-white hover:bg-indigo-500"
-            >
-              Tak, dodaj
-            </Button>
+            <Button onClick={confirmAddEmployee}>Tak, dodaj</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
