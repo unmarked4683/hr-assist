@@ -41,4 +41,9 @@ export class ApiService {
     });
     return data;
   }
+
+  static async getPositions(): Promise<string[]> {
+    const data = await apiRequest<string[]>("/api/employees/positions");
+    return data;
+  }
 }

@@ -29,6 +29,7 @@ import { DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Location } from "@/types";
 import { EmployeeFormValues } from "../employee.schema";
+import { PositionInput } from "../Inputs/PositionInput";
 
 interface Company {
   id: string;
@@ -47,6 +48,13 @@ interface AddEmployeeFormProps {
   availableStartHours: string[];
 }
 
+// ==========================================
+// WYDZIELONY KOMPONENT: PositionInput
+// ==========================================
+
+// ==========================================
+// GŁÓWNY KOMPONENT FORMULARZA
+// ==========================================
 export function AddEmployeeForm({
   register,
   control,
@@ -125,17 +133,23 @@ export function AddEmployeeForm({
         </Field>
       </div>
 
-      {/* Rząd 2: Stanowisko, Lokalizacja, Firma */}
+      {/* Rząd 2: Stanowisko (z PositionInput), Lokalizacja, Firma */}
       <div className="grid grid-cols-3 gap-4 items-start">
+        {/* ZASTĄPIENIE ZWYKŁEGO INPUTA WYDZIELONYM KOMPONENTEM */}
         <Field data-invalid={!!errors.position}>
           <FieldLabel className="text-xs text-zinc-600">
             Stanowisko <span className="text-red-500">*</span>
           </FieldLabel>
-          <Input
-            placeholder="Stanowisko"
-            {...register("position")}
-            aria-invalid={!!errors.position}
-            className="border-zinc-300 data-[invalid=true]:border-red-500"
+          <Controller
+            control={control}
+            name="position"
+            render={({ field }) => (
+              <PositionInput
+                value={field.value}
+                onChange={field.onChange}
+                isInvalid={!!errors.position}
+              />
+            )}
           />
           {errors.position && (
             <FieldDescription className="text-[11px] text-red-500 font-medium">

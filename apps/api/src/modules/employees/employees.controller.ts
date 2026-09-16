@@ -28,6 +28,11 @@ export class EmployeesController {
     return this.employeesService.findAll();
   }
 
+  @Get('/positions')
+  findAllPositions(): Promise<string[]> {
+    return this.employeesService.findAllPositions();
+  }
+
   @Get('/:id')
   findOne(@Param('id', ParseUUIDPipe) id: string): Promise<EmployeeEntity> {
     return this.employeesService.findOne(id);

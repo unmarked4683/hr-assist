@@ -14,12 +14,16 @@ import { WorkScheduleDto } from './dto/work-schedule.dto';
 import { CompaniesService } from '../companies/companies.service';
 import { CompanyEntity } from '../companies/entities/company.entity';
 import { merge } from 'lodash';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class EmployeesService {
   constructor(
     @Inject(forwardRef(() => CompaniesService))
     private readonly companiesService: CompaniesService,
+
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
   async findAll(): Promise<EmployeeEntity[]> {
     return await EmployeeEntity.find();
@@ -117,5 +121,17 @@ export class EmployeesService {
 
   async removeAll(): Promise<void> {
     await EmployeeEntity.createQueryBuilder().delete().execute();
+  }
+
+  async findAllPositions(): Promise<string[]> {
+    const result: string[] = (
+      await this.dataSource
+        .createQueryBuilder()
+        .select('DISTINCT position')
+        .from(EmployeeEntity, 'employee')
+        .getRawMany<{ position: string }>()
+    ).map(({ position }: Pick<EmployeeEntity, 'position'>) => position);
+
+    return result;
   }
 }
