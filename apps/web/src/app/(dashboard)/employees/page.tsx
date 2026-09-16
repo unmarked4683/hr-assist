@@ -1,5 +1,6 @@
 "use client";
 
+import { AddEmployeeModal } from "@/components/AddEmployeeModal/AddEmployeeModal";
 import List from "@/components/Employees/List";
 import { Search } from "@/components/Employees/Search";
 import { useState } from "react";
@@ -14,7 +15,7 @@ export default function EmployeesPage() {
     <div className="flex h-full min-h-0 flex-col">
       <Search onAddClick={handleAddEmployee} />
       <List />
-      {isAddingEmployee && <p>AddEmployeeModal</p>}
+      {isAddingEmployee && <AddEmployeeModal />}
     </div>
   );
 }

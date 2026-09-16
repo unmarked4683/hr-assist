@@ -5,3 +5,19 @@ export type Employee =
 
 export type Holiday =
   paths["/api/holidays/{year}"]["get"]["responses"]["200"]["content"]["application/json"][number];
+
+export type AddEmployeeDto = Omit<
+  paths["/api/employees"]["post"]["requestBody"]["content"]["application/json"],
+  "location"
+> & {
+  location: Location;
+};
+
+export enum Location {
+  PRODUCTION = 1,
+  OFFICE = 2,
+}
+
+export enum ContractType {
+  EMPLOYMENT_CONTRACT = 1,
+}
