@@ -33,4 +33,12 @@ export class ApiService {
     const data = await apiRequest<Company[]>("/api/companies");
     return data;
   }
+
+  static async addEmployee(employee: Employee): Promise<Employee> {
+    const data = await apiRequest<Employee>("/api/employees", {
+      method: "POST",
+      body: JSON.stringify(employee),
+    });
+    return data;
+  }
 }
