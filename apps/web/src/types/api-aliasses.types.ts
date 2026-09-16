@@ -21,3 +21,6 @@ export enum Location {
 export enum ContractType {
   EMPLOYMENT_CONTRACT = 1,
 }
+
+export type Company =
+  paths["/api/companies"]["get"]["responses"]["200"]["content"]["application/json"][number];

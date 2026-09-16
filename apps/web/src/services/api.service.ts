@@ -1,5 +1,5 @@
 import { UserProfile } from "@/store/useAuthStore";
-import { Employee, Holiday } from "@/types";
+import { Company, Employee, Holiday } from "@/types";
 import { apiRequest } from "./api-request";
 
 export class ApiService {
@@ -13,9 +13,6 @@ export class ApiService {
   }
 
   static async logout(): Promise<void> {
-    // await apiRequest<void>("/api/auth/logout", {
-    //   method: "POST",
-    // });
     await fetch("/api/auth/logout", {
       method: "POST",
       credentials: "include",
@@ -29,6 +26,11 @@ export class ApiService {
 
   static async getHolidays(): Promise<Holiday[]> {
     const data = await apiRequest<Holiday[]>("/api/holidays");
+    return data;
+  }
+
+  static async getCompanies(): Promise<Company[]> {
+    const data = await apiRequest<Company[]>("/api/companies");
     return data;
   }
 }

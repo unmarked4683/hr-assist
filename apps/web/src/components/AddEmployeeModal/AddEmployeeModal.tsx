@@ -5,6 +5,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format, addHours, parse } from "date-fns";
 import { CalendarIcon } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 import { ContractType, Location } from "@/types";
 import { EmployeeFormValues, employeeSchema } from "./employee.schema";
@@ -32,13 +33,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-
-interface CompanyOption {
-  id: string;
-  name: string;
-}
+import { ApiService } from "@/services/api.service";
 
 interface AddEmployeeModalProps {
   isOpen: boolean;
@@ -46,31 +42,16 @@ interface AddEmployeeModalProps {
 }
 
 export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
-  const [companies, setCompanies] = useState<CompanyOption[]>([]);
-  const [isLoadingCompanies, setIsLoadingCompanies] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingData, setPendingData] = useState<EmployeeFormValues | null>(
     null,
   );
 
-  useEffect(() => {
-    if (!isOpen) return;
-
-    async function fetchCompanies() {
-      setIsLoadingCompanies(true);
-      try {
-        const res = await fetch("/api/companies");
-        const data = await res.json();
-        setCompanies(data);
-      } catch (err) {
-        console.error("Błąd pobierania firm:", err);
-      } finally {
-        setIsLoadingCompanies(false);
-      }
-    }
-
-    fetchCompanies();
-  }, [isOpen]);
+  const { data: companies = [], isLoading: isLoadingCompanies } = useQuery({
+    queryKey: ["companies"],
+    queryFn: async () => await ApiService.getCompanies(),
+    enabled: isOpen,
+  });
 
   const { register, handleSubmit, control, watch, setValue, reset } =
     useForm<EmployeeFormValues>({
@@ -130,7 +111,7 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
         open={isOpen}
         onOpenChange={(open) => !open && handleModalClose()}
       >
-        <DialogContent className="sm:max-w-175 bg-zinc-950 text-zinc-100 border-zinc-800">
+        <DialogContent className="sm:max-w-4xl bg-white text-zinc-900 border-zinc-200">
           <DialogHeader>
             <DialogTitle className="text-xl font-semibold tracking-wide">
               Dodawanie pracownika
@@ -139,107 +120,129 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
 
           <form
             onSubmit={handleSubmit(handleFormSubmit)}
-            className="space-y-6 mt-4"
+            className="space-y-5 mt-2"
           >
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">Imię</Label>
+                <Label className="text-xs text-zinc-600">Imię</Label>
                 <Input
                   placeholder="Imię"
                   {...register("name")}
-                  className="bg-zinc-900 border-zinc-800"
+                  className="border-zinc-300"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">Nazwisko</Label>
+                <Label className="text-xs text-zinc-600">Nazwisko</Label>
                 <Input
                   placeholder="Nazwisko"
                   {...register("surname")}
-                  className="bg-zinc-900 border-zinc-800"
+                  className="border-zinc-300"
                 />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">PESEL</Label>
+                <Label className="text-xs text-zinc-600">PESEL</Label>
                 <Input
                   placeholder="PESEL"
                   {...register("pesel")}
-                  className="bg-zinc-900 border-zinc-800"
+                  className="border-zinc-300"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4 items-end">
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">Stanowisko</Label>
+                <Label className="text-xs text-zinc-600">Stanowisko</Label>
                 <Input
                   placeholder="Stanowisko"
                   {...register("position")}
-                  className="bg-zinc-900 border-zinc-800"
+                  className="border-zinc-300"
                 />
               </div>
 
+              {/* Poprawiony Segmented Control dla lokalizacji */}
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">Lokalizacja</Label>
+                <Label className="text-xs text-zinc-600">Lokalizacja</Label>
                 <Controller
                   control={control}
                   name="location"
                   render={({ field }) => (
-                    <Tabs
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      className="w-full"
-                    >
-                      <TabsList className="grid grid-cols-2 bg-zinc-900 h-10 p-1 border border-zinc-800">
-                        <TabsTrigger
-                          value={Location.OFFICE}
-                          className="text-xs data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
-                        >
-                          Biuro
-                        </TabsTrigger>
-                        <TabsTrigger
-                          value={"HALL" as unknown as Location}
-                          className="text-xs data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
-                        >
-                          Hala
-                        </TabsTrigger>
-                      </TabsList>
-                    </Tabs>
+                    <div className="flex h-10 w-full items-center rounded-md bg-zinc-100 p-1 border border-zinc-200">
+                      <button
+                        type="button"
+                        onClick={() => field.onChange(Location.OFFICE)}
+                        className={cn(
+                          "flex-1 h-full rounded text-xs font-medium transition-all flex items-center justify-center",
+                          field.value === Location.OFFICE
+                            ? "bg-white text-zinc-900 shadow-sm"
+                            : "text-zinc-500 hover:text-zinc-900",
+                        )}
+                      >
+                        Biuro
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => field.onChange(Location.PRODUCTION)}
+                        className={cn(
+                          "flex-1 h-full rounded text-xs font-medium transition-all flex items-center justify-center",
+                          field.value === Location.PRODUCTION
+                            ? "bg-white text-zinc-900 shadow-sm"
+                            : "text-zinc-500 hover:text-zinc-900",
+                        )}
+                      >
+                        Hala
+                      </button>
+                    </div>
                   )}
                 />
               </div>
 
+              {/* Firma - z bezpiecznym obcinaniem długich nazw */}
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">Firma</Label>
+                <Label className="text-xs text-zinc-600">Firma</Label>
                 <Controller
                   control={control}
                   name="company"
-                  render={({ field }) => (
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100">
-                        <SelectValue
-                          placeholder={
-                            isLoadingCompanies
-                              ? "Ładowanie..."
-                              : "Wybierz firmę..."
-                          }
-                        />
-                      </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
-                        {companies.map((comp) => (
-                          <SelectItem key={comp.id} value={comp.id}>
-                            {comp.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                  render={({ field }) => {
+                    const selectedCompany = companies.find(
+                      (c) => c.id === field.value,
+                    );
+                    return (
+                      <Select
+                        onValueChange={field.onChange}
+                        value={field.value}
+                      >
+                        <SelectTrigger className="border-zinc-300 text-zinc-900 w-full overflow-hidden">
+                          <SelectValue
+                            placeholder={
+                              isLoadingCompanies
+                                ? "Ładowanie..."
+                                : "Wybierz firmę..."
+                            }
+                          >
+                            <span className="block truncate">
+                              {selectedCompany
+                                ? selectedCompany.name
+                                : field.value}
+                            </span>
+                          </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border-zinc-200 text-zinc-900">
+                          {companies.map((comp) => (
+                            <SelectItem key={comp.id} value={comp.id}>
+                              {comp.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    );
+                  }}
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4 items-end">
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">Wymiar etatu</Label>
+                <Label className="text-xs text-zinc-600">Wymiar etatu</Label>
                 <Controller
                   control={control}
                   name="workHours"
@@ -248,10 +251,10 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
                       onValueChange={(val) => field.onChange(Number(val))}
                       value={field.value?.toString()}
                     >
-                      <SelectTrigger className="bg-zinc-900 border-zinc-800 text-zinc-100">
+                      <SelectTrigger className="border-zinc-300 text-zinc-900">
                         <SelectValue placeholder="Wybierz..." />
                       </SelectTrigger>
-                      <SelectContent className="bg-zinc-900 border-zinc-800 text-zinc-100">
+                      <SelectContent className="bg-white border-zinc-200 text-zinc-900">
                         <SelectItem value="4">4 godziny</SelectItem>
                         <SelectItem value="7">7 godzin</SelectItem>
                         <SelectItem value="8">8 godzin</SelectItem>
@@ -262,30 +265,30 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">Godzina startu</Label>
+                <Label className="text-xs text-zinc-600">Godzina startu</Label>
                 <Input
                   type="time"
                   {...register("workSchedule.start")}
-                  className="bg-zinc-900 border-zinc-800 text-zinc-100 block w-full"
+                  className="border-zinc-300 text-zinc-900 block w-full"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">
+                <Label className="text-xs text-zinc-600">
                   Godzina końca (Auto)
                 </Label>
                 <Input
                   type="time"
                   disabled
                   {...register("workSchedule.end")}
-                  className="bg-zinc-950 border-zinc-800 text-zinc-500 cursor-not-allowed"
+                  className="bg-zinc-100 border-zinc-200 text-zinc-400 cursor-not-allowed"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4 items-end">
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">
+                <Label className="text-xs text-zinc-600">
                   Data rozpoczęcia
                 </Label>
                 <Controller
@@ -295,14 +298,14 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
                     <Popover>
                       <PopoverTrigger
                         className={cn(
-                          "w-full justify-start text-left font-normal bg-zinc-900 border border-zinc-800 rounded-md h-10 px-3 text-sm text-zinc-100 hover:bg-zinc-800 flex items-center",
+                          "w-full justify-start text-left font-normal bg-white border border-zinc-300 rounded-md h-10 px-3 text-sm text-zinc-900 hover:bg-zinc-50 flex items-center",
                           !field.value && "text-muted-foreground",
                         )}
                       >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        <CalendarIcon className="mr-2 h-4 w-4 text-zinc-500" />
                         {field.value ? field.value : <span>Wybierz datę</span>}
                       </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0 bg-zinc-900 border-zinc-800 text-zinc-100">
+                      <PopoverContent className="w-auto p-0 bg-white border-zinc-200 text-zinc-900 shadow-md">
                         <Calendar
                           mode="single"
                           selected={
@@ -321,33 +324,33 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">Typ umowy</Label>
+                <Label className="text-xs text-zinc-600">Typ umowy</Label>
                 <Select
                   disabled
-                  defaultValue={ContractType.EMPLOYMENT_CONTRACT}
+                  defaultValue={String(ContractType.EMPLOYMENT_CONTRACT)}
                 >
-                  <SelectTrigger className="bg-zinc-950 border-zinc-800 text-zinc-500 cursor-not-allowed">
+                  <SelectTrigger className="bg-zinc-100 border-zinc-200 text-zinc-400 cursor-not-allowed">
                     <SelectValue placeholder="UoP" />
                   </SelectTrigger>
                 </Select>
               </div>
 
               <div className="space-y-1.5">
-                <Label className="text-xs text-zinc-400">Urlop roczny</Label>
-                <div className="flex bg-zinc-900 border border-zinc-800 rounded-md p-1 h-10 items-center justify-around text-xs font-medium text-zinc-300">
+                <Label className="text-xs text-zinc-600">Urlop roczny</Label>
+                <div className="flex bg-white border border-zinc-300 rounded-md p-1 h-10 items-center justify-around text-xs font-medium text-zinc-700">
                   <span>20 dni</span>
-                  <span className="text-zinc-600">|</span>
+                  <span className="text-zinc-300">|</span>
                   <span>26 dni</span>
                 </div>
               </div>
             </div>
 
-            <DialogFooter className="flex justify-end gap-3 pt-4 border-t border-zinc-800">
+            <DialogFooter className="flex justify-end gap-3 pt-4 border-t border-zinc-200 bg-transparent">
               <Button
                 type="button"
                 variant="outline"
                 onClick={handleModalClose}
-                className="bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
+                className="bg-transparent border-zinc-300 text-zinc-700 hover:bg-zinc-100 hover:text-zinc-900"
               >
                 Anuluj
               </Button>
@@ -363,18 +366,18 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
       </Dialog>
 
       <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-        <DialogContent className="sm:max-w-100 bg-zinc-950 text-zinc-100 border-zinc-800">
+        <DialogContent className="sm:max-w-100 bg-white text-zinc-900 border-zinc-200 shadow-lg">
           <DialogHeader>
             <DialogTitle>Potwierdzenie</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-zinc-400 py-2">
+          <p className="text-sm text-zinc-600 py-2">
             Czy na pewno chcesz dodać tego pracownika do systemu?
           </p>
           <DialogFooter className="flex gap-2">
             <Button
               variant="outline"
               onClick={() => setIsConfirmOpen(false)}
-              className="border-zinc-700 text-zinc-300 bg-transparent hover:bg-zinc-800"
+              className="border-zinc-300 text-zinc-700 bg-transparent hover:bg-zinc-100"
             >
               Nie
             </Button>
