@@ -1,10 +1,4 @@
-import {
-  UseFormRegister,
-  Control,
-  FieldErrors,
-  UseFormHandleSubmit,
-  Controller,
-} from "react-hook-form";
+import { Controller } from "react-hook-form";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
@@ -28,9 +22,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { DialogFooter } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { Location } from "@/types";
-import { EmployeeFormValues } from "../employee.schema";
 import { PositionInput } from "../Inputs/PositionInput";
 import { AddEmployeeFormProps } from "./AddEmployeeForm.types";
+import { WorkHoursSelect } from "../Inputs/WorkHoursSelect";
 
 export function AddEmployeeForm({
   register,
@@ -233,29 +227,11 @@ export function AddEmployeeForm({
             control={control}
             name="workHours"
             render={({ field }) => (
-              <Select
-                onValueChange={(val) => field.onChange(Number(val))}
-                value={field.value?.toString()}
-              >
-                <SelectTrigger
-                  aria-invalid={!!errors.workHours}
-                  className="border-zinc-300 text-zinc-900 w-full data-[invalid=true]:border-red-500"
-                >
-                  <SelectValue placeholder="Wybierz etat..." />
-                </SelectTrigger>
-                <SelectContent className="bg-white border-zinc-200 text-zinc-900">
-                  {[
-                    { value: 4, label: "1/2 (4h)" },
-                    { value: 6, label: "3/4 (6h)" },
-                    { value: 7, label: "7/8 (7h)" },
-                    { value: 8, label: "Pełen etat" },
-                  ].map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <WorkHoursSelect
+                value={field.value}
+                onChange={field.onChange}
+                isInvalid={!!errors.workHours}
+              />
             )}
           />
           {errors.workHours && (
@@ -317,7 +293,6 @@ export function AddEmployeeForm({
         </Field>
       </div>
 
-      {/* Rząd 4: Data rozpoczęcia, Typ umowy, Urlop */}
       <div className="grid grid-cols-3 gap-4 items-start">
         <Field data-invalid={!!errors.employmentDate}>
           <FieldLabel className="text-xs text-zinc-600">
