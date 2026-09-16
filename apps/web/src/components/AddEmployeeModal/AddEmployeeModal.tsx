@@ -401,7 +401,6 @@ export function AddEmployeeModal({ isOpen, onClose }: AddEmployeeModalProps) {
               </Field>
             </div>
 
-            {/* Rząd 4 */}
             <div className="grid grid-cols-3 gap-4 items-start">
               <Field data-invalid={!!errors.employmentDate}>
                 <FieldLabel className="text-xs text-zinc-600">
