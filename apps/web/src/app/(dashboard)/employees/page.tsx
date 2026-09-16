@@ -14,7 +14,7 @@ export default function EmployeesPage() {
     <div className="flex h-full min-h-0 flex-col">
       <Search onAddClick={handleAddEmployee} />
       <List />
-      {isAddingEmployee && <AddEmployeeModal />}
+      {isAddingEmployee && <p>AddEmployeeModal</p>}
     </div>
   );
 }
