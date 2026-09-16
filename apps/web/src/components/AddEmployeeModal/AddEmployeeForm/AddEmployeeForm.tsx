@@ -30,31 +30,8 @@ import { cn } from "@/lib/utils";
 import { Location } from "@/types";
 import { EmployeeFormValues } from "../employee.schema";
 import { PositionInput } from "../Inputs/PositionInput";
+import { AddEmployeeFormProps } from "./AddEmployeeForm.types";
 
-interface Company {
-  id: string;
-  name: string;
-}
-
-interface AddEmployeeFormProps {
-  register: UseFormRegister<EmployeeFormValues>;
-  control: Control<EmployeeFormValues>;
-  errors: FieldErrors<EmployeeFormValues>;
-  handleSubmit: UseFormHandleSubmit<EmployeeFormValues>;
-  handleFormSubmit: (data: EmployeeFormValues) => void;
-  handleModalClose: () => void;
-  companies: Company[];
-  isLoadingCompanies: boolean;
-  availableStartHours: string[];
-}
-
-// ==========================================
-// WYDZIELONY KOMPONENT: PositionInput
-// ==========================================
-
-// ==========================================
-// GŁÓWNY KOMPONENT FORMULARZA
-// ==========================================
 export function AddEmployeeForm({
   register,
   control,
@@ -74,7 +51,6 @@ export function AddEmployeeForm({
       className="space-y-6 mt-2"
       noValidate
     >
-      {/* Rząd 1: Imię, Nazwisko, PESEL */}
       <div className="grid grid-cols-3 gap-4">
         <Field data-invalid={!!errors.name}>
           <FieldLabel className="text-xs text-zinc-600">
@@ -133,9 +109,7 @@ export function AddEmployeeForm({
         </Field>
       </div>
 
-      {/* Rząd 2: Stanowisko (z PositionInput), Lokalizacja, Firma */}
       <div className="grid grid-cols-3 gap-4 items-start">
-        {/* ZASTĄPIENIE ZWYKŁEGO INPUTA WYDZIELONYM KOMPONENTEM */}
         <Field data-invalid={!!errors.position}>
           <FieldLabel className="text-xs text-zinc-600">
             Stanowisko <span className="text-red-500">*</span>
@@ -250,7 +224,6 @@ export function AddEmployeeForm({
         </Field>
       </div>
 
-      {/* Rząd 3: Wymiar etatu, Start, Koniec */}
       <div className="grid grid-cols-3 gap-4 items-start">
         <Field data-invalid={!!errors.workHours}>
           <FieldLabel className="text-xs text-zinc-600">
@@ -271,10 +244,16 @@ export function AddEmployeeForm({
                   <SelectValue placeholder="Wybierz etat..." />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-zinc-200 text-zinc-900">
-                  <SelectItem value="4">1/2 (4h)</SelectItem>
-                  <SelectItem value="6">3/4 (6h)</SelectItem>
-                  <SelectItem value="7">7/8 (7h)</SelectItem>
-                  <SelectItem value="8">Pełen etat</SelectItem>
+                  {[
+                    { value: 4, label: "1/2 (4h)" },
+                    { value: 6, label: "3/4 (6h)" },
+                    { value: 7, label: "7/8 (7h)" },
+                    { value: 8, label: "Pełen etat" },
+                  ].map((item) => (
+                    <SelectItem key={item.value} value={item.value}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             )}

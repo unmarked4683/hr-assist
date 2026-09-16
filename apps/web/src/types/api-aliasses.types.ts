@@ -24,3 +24,6 @@ export enum ContractType {
 
 export type Company =
   paths["/api/companies"]["get"]["responses"]["200"]["content"]["application/json"][number];
+
+export type Position =
+  paths["/api/employees/positions"]["get"]["responses"]["200"]["content"]["application/json"][number];
