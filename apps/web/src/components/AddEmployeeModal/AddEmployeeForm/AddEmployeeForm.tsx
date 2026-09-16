@@ -48,7 +48,7 @@ export function AddEmployeeForm({
       <div className="grid grid-cols-3 gap-4">
         <Field data-invalid={!!errors.name}>
           <FieldLabel className="text-xs text-zinc-600">
-            Imię <span className="text-red-500">*</span>
+            Imię <span className="text-destructive">*</span>
           </FieldLabel>
           <Input
             placeholder="Imię"
@@ -65,7 +65,7 @@ export function AddEmployeeForm({
 
         <Field data-invalid={!!errors.surname}>
           <FieldLabel className="text-xs text-zinc-600">
-            Nazwisko <span className="text-red-500">*</span>
+            Nazwisko <span className="text-destructive">*</span>
           </FieldLabel>
           <Input
             placeholder="Nazwisko"
@@ -82,7 +82,7 @@ export function AddEmployeeForm({
 
         <Field data-invalid={!!errors.pesel}>
           <FieldLabel className="text-xs text-zinc-600">
-            PESEL <span className="text-red-500">*</span>
+            PESEL <span className="text-destructive">*</span>
           </FieldLabel>
           <Input
             placeholder="11 cyfr"
@@ -106,7 +106,7 @@ export function AddEmployeeForm({
       <div className="grid grid-cols-3 gap-4 items-start">
         <Field data-invalid={!!errors.position}>
           <FieldLabel className="text-xs text-zinc-600">
-            Stanowisko <span className="text-red-500">*</span>
+            Stanowisko <span className="text-destructive">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -128,7 +128,7 @@ export function AddEmployeeForm({
 
         <Field data-invalid={!!errors.location}>
           <FieldLabel className="text-xs text-zinc-600">
-            Lokalizacja <span className="text-red-500">*</span>
+            Lokalizacja <span className="text-destructive">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -174,7 +174,7 @@ export function AddEmployeeForm({
 
         <Field data-invalid={!!errors.company}>
           <FieldLabel className="text-xs text-zinc-600">
-            Firma <span className="text-red-500">*</span>
+            Firma <span className="text-destructive">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -221,7 +221,7 @@ export function AddEmployeeForm({
       <div className="grid grid-cols-3 gap-4 items-start">
         <Field data-invalid={!!errors.workHours}>
           <FieldLabel className="text-xs text-zinc-600">
-            Wymiar etatu <span className="text-red-500">*</span>
+            Wymiar etatu <span className="text-destructive">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -244,7 +244,7 @@ export function AddEmployeeForm({
         <Field data-invalid={!!scheduleErrors?.start}>
           <FieldLabel className="text-xs text-zinc-600">
             Godzina startu (6:00 - 15:00){" "}
-            <span className="text-red-500">*</span>
+            <span className="text-destructive">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -276,7 +276,7 @@ export function AddEmployeeForm({
 
         <Field data-invalid={!!scheduleErrors?.end}>
           <FieldLabel className="text-xs text-zinc-600">
-            Godzina końcowa <span className="text-red-500">*</span>
+            Godzina końcowa <span className="text-destructive">*</span>
           </FieldLabel>
           <Input
             type="text"
@@ -296,7 +296,7 @@ export function AddEmployeeForm({
       <div className="grid grid-cols-3 gap-4 items-start">
         <Field data-invalid={!!errors.employmentDate}>
           <FieldLabel className="text-xs text-zinc-600">
-            Data rozpoczęcia <span className="text-red-500">*</span>
+            Data rozpoczęcia <span className="text-destructive">*</span>
           </FieldLabel>
           <Controller
             control={control}
@@ -349,7 +349,7 @@ export function AddEmployeeForm({
 
         <Field data-invalid={!!errors.leave}>
           <FieldLabel className="text-xs text-zinc-600">
-            Urlop roczny <span className="text-red-500">*</span>
+            Urlop roczny <span className="text-destructive">*</span>
           </FieldLabel>
           <Controller
             control={control}
