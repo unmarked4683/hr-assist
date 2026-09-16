@@ -1,5 +1,5 @@
 import { UserProfile } from "@/store/useAuthStore";
-import { Company, Employee, Holiday } from "@/types";
+import { AddEmployeeDto, Company, Employee, Holiday } from "@/types";
 import { apiRequest } from "./api-request";
 
 export class ApiService {
@@ -34,7 +34,7 @@ export class ApiService {
     return data;
   }
 
-  static async addEmployee(employee: Employee): Promise<Employee> {
+  static async addEmployee(employee: AddEmployeeDto): Promise<Employee> {
     const data = await apiRequest<Employee>("/api/employees", {
       method: "POST",
       body: JSON.stringify(employee),

@@ -110,7 +110,7 @@ export interface paths {
         get: operations["EmployeesController_findAll"];
         put?: never;
         post: operations["EmployeesController_create"];
-        delete?: never;
+        delete: operations["EmployeesController_removeAll"];
         options?: never;
         head?: never;
         patch?: never;
@@ -246,6 +246,11 @@ export interface components {
             address: components["schemas"]["AddressEntity"];
             employees: components["schemas"]["EmployeeEntity"][];
         };
+        LeaveEntity: {
+            base: number;
+            overdue: number;
+            current: number;
+        };
         EmployeeEntity: {
             id: string;
             name: string;
@@ -269,6 +274,7 @@ export interface components {
             firedBy: components["schemas"]["UserEntity"] | null;
             absences: components["schemas"]["AbsenceEntity"][];
             company: components["schemas"]["CompanyEntity"];
+            leave: components["schemas"]["LeaveEntity"];
         };
         AbsenceEntity: {
             id: string;
@@ -296,6 +302,8 @@ export interface components {
             employmentDate: string;
             /** @enum {number} */
             contractType: 1;
+            /** @enum {number} */
+            leave: 20 | 26;
         };
         UpdateEmployeeDto: {
             workSchedule?: components["schemas"]["WorkScheduleDto"];
@@ -558,6 +566,23 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["EmployeeEntity"];
                 };
+            };
+        };
+    };
+    EmployeesController_removeAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

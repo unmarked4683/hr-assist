@@ -28,7 +28,7 @@ export const employeeSchema = z
     }),
     employmentDate: z.string().min(1, "Data rozpoczęcia jest wymagana"),
     contractType: z.enum(ContractType, { message: "Wybierz typ umowy" }),
-    annualLeave: z.union([z.literal(20), z.literal(26)], {
+    leave: z.union([z.literal(20), z.literal(26)], {
       message: "Wybierz wymiar urlopu rocznego",
     }),
   })
