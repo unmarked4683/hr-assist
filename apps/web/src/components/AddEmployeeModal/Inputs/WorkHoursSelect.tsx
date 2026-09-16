@@ -39,7 +39,10 @@ export function WorkHoursSelect({
           {selectedOption ? selectedOption.label : "Wybierz etat..."}
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="bg-white border-zinc-200 text-zinc-900">
+      <SelectContent
+        className="bg-white border-zinc-200 text-zinc-900"
+        alignItemWithTrigger={false}
+      >
         {WORK_HOURS_OPTIONS.map((item) => (
           <SelectItem key={item.value} value={item.value.toString()}>
             {item.label}

@@ -200,9 +200,11 @@ export function AddEmployeeForm({
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent
-                    side="bottom"
-                    sideOffset={4}
-                    className="w-[--radix-select-trigger-width] bg-white border-zinc-200 text-zinc-900 shadow-md"
+                    // side="bottom"
+                    alignItemWithTrigger={false}
+                    // sideOffset={4}
+                    // w-[--radix-select-trigger-width]
+                    className=" bg-white border-zinc-200 text-zinc-900 shadow-md"
                   >
                     {companies.map((comp) => (
                       <SelectItem key={comp.id} value={comp.id}>
@@ -262,8 +264,9 @@ export function AddEmployeeForm({
                   <SelectValue placeholder="Wybierz start..." />
                 </SelectTrigger>
                 <SelectContent
-                  side="bottom"
-                  sideOffset={4}
+                  // side="bottom"
+                  // sideOffset={4}
+                  alignItemWithTrigger={false}
                   className="w-[--radix-select-trigger-width] bg-white border-zinc-200 text-zinc-900 max-h-48 shadow-md"
                 >
                   {availableStartHours.map((hour) => (
