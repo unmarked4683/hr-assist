@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import ms from "ms";
 
@@ -28,17 +29,31 @@ export function PositionInput({
     staleTime: ms("5 minutes"),
   });
 
+  const [inputValue, setInputValue] = useState(value || "");
+
+  useEffect(() => {
+    setInputValue(value || "");
+  }, [value]);
+
   return (
     <Combobox
       items={positions}
       value={value || null}
       onValueChange={(val) => {
-        onChange(val ?? "");
+        const newValue = val ?? "";
+        setInputValue(newValue);
+        onChange(newValue);
       }}
     >
       <ComboboxInput
         placeholder="Wpisz lub wybierz stanowisko..."
         aria-invalid={isInvalid}
+        value={inputValue}
+        onChange={(e) => {
+          const text = e.target.value;
+          setInputValue(text);
+          onChange(text);
+        }}
         className="border-zinc-300 text-zinc-900 bg-white data-[invalid=true]:border-red-500"
       />
       <ComboboxContent className="bg-white border-zinc-200 text-zinc-900 shadow-md">
