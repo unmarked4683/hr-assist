@@ -40,13 +40,13 @@ export function UserSection() {
       <Popover open={open} onOpenChange={setOpen}>
         <div className="rounded-xl border border-primary">
           <PopoverTrigger
-            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-sidebar-accent data-[popup-open]:bg-secondary/80 data-[popup-open]:text-secondary-foreground"
+            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-sidebar-accent data-popup-open:bg-secondary/80 data-popup-open:text-secondary-foreground"
             aria-label="Opcje użytkownika"
           >
             <UserProfile />
             <ChevronRight
               size={14}
-              className="ml-auto transform text-primary transition-transform duration-200 ease-in-out group-data-[popup-open]:-rotate-180"
+              className="ml-auto transform text-primary transition-transform duration-200 ease-in-out group-data-popup-open:-rotate-180"
             />
           </PopoverTrigger>
         </div>

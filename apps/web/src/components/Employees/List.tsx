@@ -95,7 +95,7 @@ export default function List() {
       <Card className="flex h-full flex-col overflow-hidden border border-border p-0 shadow-sm">
         <div className="min-h-0 flex-1 overflow-y-auto">
           <Table className="table-fixed">
-            <TableHeader className="sticky top-0 z-10">
+            <TableHeader className="sticky top-0 z-10 bg-card">
               <TableRow className="bg-muted/50 hover:bg-muted/50">
                 {COLUMNS.map((label, index) => (
                   <TableHead
@@ -141,18 +141,18 @@ export default function List() {
                       {employee.position}
                     </TableCell>
                     <TableCell className="px-3 py-2.5 text-center">
-                      <span className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+                      <span className="inline-flex h-5 items-center gap-1 rounded-full border border-border bg-secondary px-2.5 text-xs font-medium text-secondary-foreground">
                         <MapPin size={10} />
                         {employee.locationName}
                       </span>
                     </TableCell>
                     <TableCell className="px-3 py-2.5 text-center">
                       {employee.status === "alert" ? (
-                        <span className="inline-flex items-center rounded-full border border-destructive/35 bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
+                        <span className="inline-flex h-5 items-center rounded-full border border-destructive/35 bg-destructive/10 px-2.5 text-xs font-semibold text-destructive">
                           Do uzupełnienia
                         </span>
                       ) : (
-                        <span className="inline-flex items-center rounded-full border border-border bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+                        <span className="inline-flex h-5 items-center rounded-full border border-border bg-secondary px-2.5 text-xs font-medium text-secondary-foreground">
                           OK
                         </span>
                       )}
