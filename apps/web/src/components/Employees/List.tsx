@@ -95,12 +95,12 @@ export default function List() {
       <Card className="flex h-full flex-col overflow-hidden border border-border p-0 shadow-sm">
         <div className="min-h-0 flex-1 overflow-y-auto">
           <Table className="table-fixed">
-            <TableHeader className="sticky top-0 z-10 bg-card">
-              <TableRow className="hover:bg-transparent">
+            <TableHeader className="sticky top-0 z-10">
+              <TableRow className="bg-muted/50 hover:bg-muted/50">
                 {COLUMNS.map((label, index) => (
                   <TableHead
                     key={label}
-                    className={`${COLUMN_WIDTHS[index]} text-center`}
+                    className={`${COLUMN_WIDTHS[index]} h-auto px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase`}
                   >
                     {label}
                   </TableHead>
