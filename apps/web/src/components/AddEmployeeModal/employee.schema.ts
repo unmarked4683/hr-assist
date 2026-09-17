@@ -60,3 +60,25 @@ export const employeeSchema = z
   );
 
 export type EmployeeFormValues = z.infer<typeof employeeSchema>;
+
+export function getDefaultEmployeeFormValues(
+  initialData?: Partial<EmployeeFormValues>,
+): EmployeeFormValues {
+  return {
+    name: "",
+    surname: "",
+    pesel: "",
+    position: "",
+    location: Location.OFFICE,
+    company: "",
+    workHours: 8,
+    workSchedule: {
+      start: "08:00",
+      end: "16:00",
+    },
+    employmentDate: new Date().toISOString().split("T")[0],
+    contractType: ContractType.EMPLOYMENT_CONTRACT,
+    leave: 20,
+    ...initialData,
+  };
+}

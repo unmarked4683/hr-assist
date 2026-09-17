@@ -129,7 +129,7 @@ export class EmployeesService {
         .createQueryBuilder()
         .select('DISTINCT position')
         .from(EmployeeEntity, 'employee')
-        .getRawMany<{ position: string }>()
+        .getRawMany<Pick<EmployeeEntity, 'position'>>()
     ).map(({ position }: Pick<EmployeeEntity, 'position'>) => position);
 
     return result;
