@@ -36,13 +36,11 @@ export function EmployeeModal({ isOpen, onClose }: EmployeeModalProps) {
 
   const employeeMutation = useMutation({
     mutationFn: async (addEmployeeDto: AddEmployeeDto) => {
-      //! API: POST /api/employees
       return await ApiService.addEmployee(addEmployeeDto);
     },
     onSuccess: () => {
       toast.success("Pracownik dodany pomyślnie");
       queryClient.invalidateQueries({ queryKey: ["employees"] });
-      // Nowe, niestandardowe stanowisko mogło zostać dodane po stronie backendu.
       queryClient.invalidateQueries({ queryKey: ["positions"] });
     },
     onError: () => {
@@ -85,7 +83,11 @@ export function EmployeeModal({ isOpen, onClose }: EmployeeModalProps) {
             </DialogTitle>
           </DialogHeader>
 
-          <Form ref={formRef} onSubmit={handleFormSubmit} onCancel={handleModalClose} />
+          <Form
+            ref={formRef}
+            onSubmit={handleFormSubmit}
+            onCancel={handleModalClose}
+          />
         </DialogContent>
       </Dialog>
 

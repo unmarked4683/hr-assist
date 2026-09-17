@@ -9,12 +9,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 import {
   EARLIEST_EMPLOYMENT_DATE,
   EmployeeFormValues,
 } from "../../employee.schema";
+import { InputError } from "./InputError";
 
 export function EmploymentDateInput() {
   const {
@@ -34,7 +35,7 @@ export function EmploymentDateInput() {
           <div
             aria-invalid={!!error}
             className={cn(
-              "w-full justify-start text-left font-normal bg-white border border-zinc-300 rounded-md h-10 px-3 text-sm text-zinc-900 hover:bg-zinc-50 flex items-center cursor-pointer data-[invalid=true]:border-red-500",
+              "w-full justify-start text-left font-normal bg-white border border-zinc-300 rounded-md h-10 px-3 text-sm text-zinc-900 hover:bg-zinc-50 flex items-center cursor-pointer aria-invalid:border-red-500",
               !field.value && "text-muted-foreground",
             )}
           >
@@ -59,11 +60,7 @@ export function EmploymentDateInput() {
           />
         </PopoverContent>
       </Popover>
-      {error && (
-        <FieldDescription className="text-[11px] text-red-500 font-medium">
-          {String(error.message)}
-        </FieldDescription>
-      )}
+      <InputError message={error && String(error.message)} />
     </Field>
   );
 }

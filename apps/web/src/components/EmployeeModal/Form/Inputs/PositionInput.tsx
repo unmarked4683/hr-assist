@@ -10,9 +10,10 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "@/components/ui/combobox";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { ApiService } from "@/services/api.service";
 import { EmployeeFormValues } from "../../employee.schema";
+import { InputError } from "./InputError";
 
 export function PositionInput() {
   const {
@@ -24,7 +25,6 @@ export function PositionInput() {
 
   const { data: positions = [], isLoading } = useQuery({
     queryKey: ["positions"],
-    //! API: GET /api/employees/positions
     queryFn: async () => await ApiService.getPositions(),
     staleTime: ms("5 minutes"),
   });
@@ -44,7 +44,7 @@ export function PositionInput() {
           aria-invalid={!!error}
           value={field.value || ""}
           onChange={(e) => field.onChange(e.target.value)}
-          className="border-zinc-300 text-zinc-900 bg-white data-[invalid=true]:border-red-500"
+          className="border-zinc-300 text-zinc-900 bg-white"
         />
         <ComboboxContent className="bg-white border-zinc-200 text-zinc-900 shadow-md">
           <ComboboxEmpty>
@@ -61,11 +61,7 @@ export function PositionInput() {
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
-      {error && (
-        <FieldDescription className="text-[11px] text-red-500 font-medium">
-          {String(error.message)}
-        </FieldDescription>
-      )}
+      <InputError message={error && String(error.message)} />
     </Field>
   );
 }

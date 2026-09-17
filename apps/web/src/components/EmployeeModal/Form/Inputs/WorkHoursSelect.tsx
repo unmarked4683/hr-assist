@@ -7,8 +7,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { EmployeeFormValues } from "../../employee.schema";
+import { InputError } from "./InputError";
 
 const WORK_HOURS_OPTIONS = [
   { value: 4, label: "1/2 (4h)" },
@@ -39,7 +40,7 @@ export function WorkHoursSelect() {
       >
         <SelectTrigger
           aria-invalid={!!error}
-          className="border-zinc-300 text-zinc-900 w-full data-[invalid=true]:border-red-500"
+          className="border-zinc-300 text-zinc-900 w-full"
         >
           <SelectValue placeholder="Wybierz etat...">
             {selectedOption ? selectedOption.label : "Wybierz etat..."}
@@ -56,11 +57,7 @@ export function WorkHoursSelect() {
           ))}
         </SelectContent>
       </Select>
-      {error && (
-        <FieldDescription className="text-[11px] text-red-500 font-medium">
-          {String(error.message)}
-        </FieldDescription>
-      )}
+      <InputError message={error && String(error.message)} />
     </Field>
   );
 }

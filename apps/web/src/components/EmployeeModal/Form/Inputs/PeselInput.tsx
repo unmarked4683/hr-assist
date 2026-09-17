@@ -31,15 +31,18 @@ export function PeselInput() {
           },
         })}
         aria-invalid={!!error}
-        className="border-zinc-300 font-mono data-[invalid=true]:border-red-500"
+        className="border-zinc-300 font-mono"
       />
-      <div className="h-4">
+      <div className="h-4 overflow-hidden">
         {error ? (
-          <FieldDescription className="text-[11px] text-red-500 font-medium">
+          <FieldDescription
+            className="truncate text-[11px] font-medium text-red-500"
+            title={String(error.message)}
+          >
             {String(error.message)}
           </FieldDescription>
         ) : birthDate ? (
-          <FieldDescription className="text-[11px] text-zinc-500">
+          <FieldDescription className="truncate text-[11px] text-zinc-500">
             Data urodzenia: {format(birthDate, "dd.MM.yyyy", { locale: pl })}
           </FieldDescription>
         ) : null}

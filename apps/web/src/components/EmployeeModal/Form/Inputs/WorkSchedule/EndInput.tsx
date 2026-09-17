@@ -3,8 +3,9 @@ import { useFormContext } from "react-hook-form";
 import { addHours, format, parse } from "date-fns";
 
 import { Input } from "@/components/ui/input";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { EmployeeFormValues } from "../../../employee.schema";
+import { InputError } from "../InputError";
 
 export function EndInput() {
   const {
@@ -38,11 +39,7 @@ export function EndInput() {
         aria-invalid={!!error}
         className="bg-zinc-100 border-zinc-200 text-zinc-500 cursor-not-allowed font-medium"
       />
-      {error && (
-        <FieldDescription className="text-[11px] text-red-500 font-medium">
-          {String(error.message)}
-        </FieldDescription>
-      )}
+      <InputError message={error && String(error.message)} />
     </Field>
   );
 }
