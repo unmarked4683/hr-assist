@@ -1,15 +1,21 @@
 import { useFormContext } from "react-hook-form";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
 
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
-import { EmployeeFormValues } from "../employee.schema";
+import { EmployeeFormValues } from "../../employee.schema";
+import { getBirthDateFromPesel } from "../../pesel.utils";
 
 export function PeselInput() {
   const {
     register,
+    watch,
     formState: { errors },
   } = useFormContext<EmployeeFormValues>();
   const error = errors.pesel;
+  const pesel = watch("pesel");
+  const birthDate = !error ? getBirthDateFromPesel(pesel ?? "") : null;
 
   return (
     <Field data-invalid={!!error}>
@@ -27,11 +33,17 @@ export function PeselInput() {
         aria-invalid={!!error}
         className="border-zinc-300 font-mono data-[invalid=true]:border-red-500"
       />
-      {error && (
-        <FieldDescription className="text-[11px] text-red-500 font-medium">
-          {String(error.message)}
-        </FieldDescription>
-      )}
+      <div className="h-4">
+        {error ? (
+          <FieldDescription className="text-[11px] text-red-500 font-medium">
+            {String(error.message)}
+          </FieldDescription>
+        ) : birthDate ? (
+          <FieldDescription className="text-[11px] text-zinc-500">
+            Data urodzenia: {format(birthDate, "dd.MM.yyyy", { locale: pl })}
+          </FieldDescription>
+        ) : null}
+      </div>
     </Field>
   );
 }

@@ -11,7 +11,10 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
-import { EmployeeFormValues } from "../employee.schema";
+import {
+  EARLIEST_EMPLOYMENT_DATE,
+  EmployeeFormValues,
+} from "../../employee.schema";
 
 export function EmploymentDateInput() {
   const {
@@ -46,6 +49,9 @@ export function EmploymentDateInput() {
         <PopoverContent className="w-auto p-0 bg-white border-zinc-200 text-zinc-900 shadow-md">
           <Calendar
             mode="single"
+            locale={pl}
+            weekStartsOn={1}
+            disabled={{ before: EARLIEST_EMPLOYMENT_DATE }}
             selected={field.value ? new Date(field.value) : undefined}
             onSelect={(date) =>
               field.onChange(date ? format(date, "yyyy-MM-dd") : "")

@@ -1,10 +1,10 @@
 import { Meta, StoryObj } from "@storybook/nextjs-vite";
 import { fn } from "storybook/test";
-import { AddEmployeeModal } from "./AddEmployeeModal";
+import { EmployeeModal } from "./Modal";
 
-const meta: Meta<typeof AddEmployeeModal> = {
-  title: "Modals/AddEmployeeModal",
-  component: AddEmployeeModal,
+const meta: Meta<typeof EmployeeModal> = {
+  title: "Modals/EmployeeModal",
+  component: EmployeeModal,
   parameters: {
     layout: "centered",
   },
@@ -15,16 +15,16 @@ const meta: Meta<typeof AddEmployeeModal> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof AddEmployeeModal>;
+type Story = StoryObj<typeof EmployeeModal>;
 
 export const Open: Story = {
   args: {
-    open: true,
+    isOpen: true,
   },
 };
 
 export const Closed: Story = {
   args: {
-    open: false,
+    isOpen: false,
   },
 };

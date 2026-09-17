@@ -2,21 +2,20 @@ import { useController, useFormContext } from "react-hook-form";
 
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
-import { Location } from "@/types";
-import { EmployeeFormValues } from "../employee.schema";
+import { EmployeeFormValues } from "../../employee.schema";
 
-export function LocationToggle() {
+export function LeaveToggle() {
   const {
     control,
     formState: { errors },
   } = useFormContext<EmployeeFormValues>();
-  const { field } = useController({ control, name: "location" });
-  const error = errors.location;
+  const { field } = useController({ control, name: "leave" });
+  const error = errors.leave;
 
   return (
     <Field data-invalid={!!error}>
       <FieldLabel className="text-xs text-zinc-600">
-        Lokalizacja <span className="text-destructive">*</span>
+        Urlop roczny <span className="text-destructive">*</span>
       </FieldLabel>
       <div
         aria-invalid={!!error}
@@ -24,27 +23,27 @@ export function LocationToggle() {
       >
         <button
           type="button"
-          onClick={() => field.onChange(Location.OFFICE)}
+          onClick={() => field.onChange(20)}
           className={cn(
             "flex-1 h-full rounded text-xs font-medium transition-all flex items-center justify-center",
-            field.value === Location.OFFICE
+            field.value === 20
               ? "bg-white text-zinc-900 shadow-sm"
               : "text-zinc-500 hover:text-zinc-900",
           )}
         >
-          Biuro
+          20 dni
         </button>
         <button
           type="button"
-          onClick={() => field.onChange(Location.PRODUCTION)}
+          onClick={() => field.onChange(26)}
           className={cn(
             "flex-1 h-full rounded text-xs font-medium transition-all flex items-center justify-center",
-            field.value === Location.PRODUCTION
+            field.value === 26
               ? "bg-white text-zinc-900 shadow-sm"
               : "text-zinc-500 hover:text-zinc-900",
           )}
         >
-          Hala
+          26 dni
         </button>
       </div>
       {error && (

@@ -2,23 +2,23 @@ import { useFormContext } from "react-hook-form";
 
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
-import { EmployeeFormValues } from "../employee.schema";
+import { EmployeeFormValues } from "../../employee.schema";
 
-export function NameInput() {
+export function SurnameInput() {
   const {
     register,
     formState: { errors },
   } = useFormContext<EmployeeFormValues>();
-  const error = errors.name;
+  const error = errors.surname;
 
   return (
     <Field data-invalid={!!error}>
       <FieldLabel className="text-xs text-zinc-600">
-        Imię <span className="text-destructive">*</span>
+        Nazwisko <span className="text-destructive">*</span>
       </FieldLabel>
       <Input
-        placeholder="Imię"
-        {...register("name")}
+        placeholder="Nazwisko"
+        {...register("surname")}
         aria-invalid={!!error}
         className="border-zinc-300 data-[invalid=true]:border-red-500"
       />

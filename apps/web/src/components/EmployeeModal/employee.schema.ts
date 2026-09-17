@@ -1,5 +1,6 @@
 import { ContractType, Location } from "@/types";
 import { z } from "zod";
+import { validatePolish } from "validate-polish";
 
 const fullHourRegex = /^([01]\d|2[0-3]):00/;
 
@@ -11,7 +12,12 @@ export const employeeSchema = z
   .object({
     name: z.string().min(1, "Imię jest wymagane"),
     surname: z.string().min(1, "Nazwisko jest wymagane"),
-    pesel: z.string().length(11, "PESEL musi mieć dokładnie 11 cyfr"),
+    pesel: z
+      .string()
+      .length(11, "PESEL musi mieć dokładnie 11 cyfr")
+      .refine((value) => validatePolish.pesel(value), {
+        message: "Nieprawidłowy numer PESEL",
+      }),
     position: z.string().min(1, "Stanowisko jest wymagane"),
     location: z.enum(Location, { message: "Wybierz lokalizację" }),
     company: z.string().min(1, "Wybierz firmę"),
@@ -61,6 +67,22 @@ export const employeeSchema = z
 
 export type EmployeeFormValues = z.infer<typeof employeeSchema>;
 
+export type RememberedEmployeeFields = Pick<
+  EmployeeFormValues,
+  "location" | "position" | "workHours" | "workSchedule" | "leave"
+>;
+
+export const LAST_EMPLOYEE_DEFAULTS_QUERY_KEY = [
+  "employeeFormLastDefaults",
+] as const;
+
+export function pickRememberedFields(
+  data: EmployeeFormValues,
+): RememberedEmployeeFields {
+  const { location, position, workHours, workSchedule, leave } = data;
+  return { location, position, workHours, workSchedule, leave };
+}
+
 export function getDefaultEmployeeFormValues(
   initialData?: Partial<EmployeeFormValues>,
 ): EmployeeFormValues {
@@ -82,3 +104,5 @@ export function getDefaultEmployeeFormValues(
     ...initialData,
   };
 }
+
+export const EARLIEST_EMPLOYMENT_DATE = new Date(2026, 0, 1);

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/combobox";
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { ApiService } from "@/services/api.service";
-import { EmployeeFormValues } from "../employee.schema";
+import { EmployeeFormValues } from "../../employee.schema";
 
 export function PositionInput() {
   const {
@@ -24,6 +24,7 @@ export function PositionInput() {
 
   const { data: positions = [], isLoading } = useQuery({
     queryKey: ["positions"],
+    //! API: GET /api/employees/positions
     queryFn: async () => await ApiService.getPositions(),
     staleTime: ms("5 minutes"),
   });

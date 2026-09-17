@@ -1,5 +1,11 @@
 import { UserProfile } from "@/store/useAuthStore";
-import { AddEmployeeDto, Company, Employee, Holiday } from "@/types";
+import {
+  AddEmployeeDto,
+  Company,
+  CompanyNameAndId,
+  Employee,
+  Holiday,
+} from "@/types";
 import { apiRequest } from "./api-request";
 
 export class ApiService {
@@ -29,8 +35,9 @@ export class ApiService {
     return data;
   }
 
-  static async getCompanies(): Promise<Company[]> {
-    const data = await apiRequest<Company[]>("/api/companies");
+  static async getCompaniesNamesAndIds(): Promise<CompanyNameAndId[]> {
+    const data = await apiRequest<CompanyNameAndId[]>("/api/companies");
+    console.log("COMPANIES_NAMES_AND_IDS:", data);
     return data;
   }
 

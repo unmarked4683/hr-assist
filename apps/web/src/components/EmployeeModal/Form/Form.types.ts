@@ -1,12 +1,10 @@
 import { EmployeeFormValues } from "../employee.schema";
 
-export interface AddEmployeeFormProps {
-  initialData?: Partial<EmployeeFormValues>;
-  employeeId?: string;
+export interface FormProps {
   onSubmit: (data: EmployeeFormValues) => void;
   onCancel: () => void;
 }
 
-export interface AddEmployeeFormHandle {
+export interface FormHandle {
   reset: () => void;
 }

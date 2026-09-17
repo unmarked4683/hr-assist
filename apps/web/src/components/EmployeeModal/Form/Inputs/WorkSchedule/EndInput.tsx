@@ -4,9 +4,9 @@ import { addHours, format, parse } from "date-fns";
 
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
-import { EmployeeFormValues } from "../employee.schema";
+import { EmployeeFormValues } from "../../../employee.schema";
 
-export function WorkScheduleEndInput() {
+export function EndInput() {
   const {
     register,
     watch,

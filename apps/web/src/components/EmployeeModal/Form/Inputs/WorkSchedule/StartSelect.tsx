@@ -9,9 +9,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
-import { EmployeeFormValues } from "../employee.schema";
+import { EmployeeFormValues } from "../../../employee.schema";
 
-export function WorkScheduleStartSelect() {
+export function StartSelect() {
   const {
     control,
     watch,
