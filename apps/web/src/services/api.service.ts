@@ -37,7 +37,6 @@ export class ApiService {
 
   static async getCompaniesNamesAndIds(): Promise<CompanyNameAndId[]> {
     const data = await apiRequest<CompanyNameAndId[]>("/api/companies");
-    console.log("COMPANIES_NAMES_AND_IDS:", data);
     return data;
   }
 
@@ -51,6 +50,14 @@ export class ApiService {
 
   static async getPositions(): Promise<string[]> {
     const data = await apiRequest<string[]>("/api/employees/positions");
+    return data;
+  }
+
+  static async isPeselAvailable(pesel: string): Promise<boolean> {
+    const data = await apiRequest<boolean>(
+      `/api/employees/pesel/check-availability?pesel=${pesel}`,
+    );
+    console.log("IS_PESEL_AVAILABLE:", data);
     return data;
   }
 }

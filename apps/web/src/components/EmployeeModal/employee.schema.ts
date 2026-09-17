@@ -1,6 +1,7 @@
 import { ContractType, Location } from "@/types";
 import { z } from "zod";
 import { validatePolish } from "validate-polish";
+import { ApiService } from "@/services/api.service";
 
 const fullHourRegex = /^([01]\d|2[0-3]):00/;
 
@@ -8,16 +9,39 @@ const parseHourToNumber = (timeStr: string): number => {
   return parseInt(timeStr.split(":")[0], 10);
 };
 
+async function isPeselTaken(pesel: string): Promise<boolean> {
+  const isAvailable: boolean = await ApiService.isPeselAvailable(pesel);
+  return !isAvailable;
+}
+
 export const employeeSchema = z
   .object({
     name: z.string().min(1, "Imię jest wymagane"),
     surname: z.string().min(1, "Nazwisko jest wymagane"),
-    pesel: z
-      .string()
-      .length(11, "PESEL musi mieć dokładnie 11 cyfr")
-      .refine((value) => validatePolish.pesel(value), {
-        message: "Nieprawidłowy numer PESEL",
-      }),
+    pesel: z.string().superRefine(async (value, ctx) => {
+      if (value.length !== 11) {
+        ctx.addIssue({
+          code: "custom",
+          message: "PESEL musi mieć dokładnie 11 cyfr",
+        });
+        return;
+      }
+
+      if (!validatePolish.pesel(value)) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Nieprawidłowy numer PESEL",
+        });
+        return;
+      }
+
+      if (await isPeselTaken(value)) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Ten numer PESEL jest już zajęty w systemie",
+        });
+      }
+    }),
     position: z.string().min(1, "Stanowisko jest wymagane"),
     location: z.enum(Location, { message: "Wybierz lokalizację" }),
     company: z.string().min(1, "Wybierz firmę"),
