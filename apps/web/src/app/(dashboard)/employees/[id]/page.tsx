@@ -37,7 +37,7 @@ export default function EmployeePage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[500px] w-full items-center justify-center p-6">
+      <div className="flex h-[400px] w-full items-center justify-center p-6">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
@@ -126,8 +126,8 @@ export default function EmployeePage() {
         </Card>
       </div>
 
-      {/* 3. Główna karta (stała wysokość, zero layout shift) */}
-      <Card className="flex h-[460px] min-h-[460px] flex-col justify-between p-6">
+      {/* 3. Główna karta (zmniejszona wysokość z 460px do 360px) */}
+      <Card className="flex h-[360px] min-h-[360px] flex-col justify-between p-6">
         <Tabs
           defaultValue="dane"
           className="flex h-full w-full flex-col justify-between"
@@ -140,7 +140,7 @@ export default function EmployeePage() {
           {/* Zakładka: Dane pracownika */}
           <TabsContent
             value="dane"
-            className="mt-6 flex flex-1 items-center justify-between gap-4"
+            className="mt-4 flex flex-1 items-center justify-between gap-4"
           >
             <Button
               variant="outline"
@@ -152,15 +152,15 @@ export default function EmployeePage() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            <div className="grid flex-1 grid-cols-2 grid-rows-3 gap-4 h-full">
+            <div className="grid flex-1 grid-cols-2 grid-rows-3 gap-3 h-full">
               {paddedItems.map((item, idx) => (
                 <div key={idx} className="h-full">
                   {item ? (
-                    <Card className="flex h-full flex-col justify-center bg-muted/40 p-4">
-                      <span className="text-xs font-medium uppercase text-muted-foreground">
+                    <Card className="flex h-full flex-col justify-center bg-muted/40 px-3.5 py-2">
+                      <span className="text-[11px] font-medium uppercase text-muted-foreground">
                         {item.label}
                       </span>
-                      <span className="mt-1 truncate text-sm font-semibold">
+                      <span className="mt-0.5 truncate text-sm font-semibold">
                         {item.value}
                       </span>
                     </Card>
@@ -187,7 +187,7 @@ export default function EmployeePage() {
           {/* Zakładka: Urlopy */}
           <TabsContent
             value="urlopy"
-            className="mt-6 flex flex-1 items-center justify-between gap-4"
+            className="mt-4 flex flex-1 items-center justify-between gap-4"
           >
             {/* Element zastępczy rezerwujący przestrzeń po lewej strzałce */}
             <div className="invisible w-10 shrink-0">
@@ -198,7 +198,7 @@ export default function EmployeePage() {
 
             <div className="grid flex-1 grid-cols-2 gap-4 h-full">
               {/* Urlop zaległy */}
-              <Card className="flex h-full flex-col items-center justify-center space-y-6 bg-muted/40 p-6">
+              <Card className="flex h-full flex-col items-center justify-center space-y-4 bg-muted/40 p-4">
                 <h3 className="text-base font-semibold">Urlop zaległy</h3>
                 <Progress
                   value={
@@ -214,7 +214,7 @@ export default function EmployeePage() {
               </Card>
 
               {/* Urlop aktualny */}
-              <Card className="flex h-full flex-col items-center justify-center space-y-6 bg-muted/40 p-6">
+              <Card className="flex h-full flex-col items-center justify-center space-y-4 bg-muted/40 p-4">
                 <h3 className="text-base font-semibold">Urlop aktualny</h3>
                 <Progress
                   value={
