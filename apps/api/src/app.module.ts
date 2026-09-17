@@ -13,7 +13,7 @@ import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { EmployeesModule } from './modules/employees/employees.module';
 import { CompaniesModule } from './modules/companies/companies.module';
-import { AttendanceModule } from './modules/attendance/attendance.module';
+import { AbsencesModule } from './modules/absences/absences.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception/global-exception.filter';
 import { ResponseWrapperInterceptor } from './common/interceptors/response-wrapper/response-wrapper.interceptor';
 import { HolidaysModule } from './modules/holidays/holidays.module';
@@ -30,7 +30,7 @@ import { typeOrmConfig } from './config/typeorm.config';
     AuthModule,
     EmployeesModule,
     CompaniesModule,
-    AttendanceModule,
+    AbsencesModule,
     HolidaysModule,
   ],
   controllers: [AppController],

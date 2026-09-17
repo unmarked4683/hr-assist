@@ -77,7 +77,6 @@ export default function EmployeePage() {
     (currentPage + 1) * ITEMS_PER_PAGE,
   );
 
-  // Dopełnienie do 6 kafelków w celu utrzymania stałej symetrii i wymiaru karty
   const paddedItems = [
     ...currentItems,
     ...Array.from({ length: ITEMS_PER_PAGE - currentItems.length }, () => null),
@@ -102,7 +101,6 @@ export default function EmployeePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">{fullNameUpper}</h1>
 
-        {/* Karta z akcjami (wyłącznie ikony) */}
         <Card className="p-1">
           <div className="flex space-x-1">
             <Button variant="ghost" size="icon" title="Raport">
@@ -126,7 +124,7 @@ export default function EmployeePage() {
         </Card>
       </div>
 
-      {/* 3. Główna karta (zmniejszona wysokość z 460px do 360px) */}
+      {/* 3. Główna karta */}
       <Card className="flex h-[360px] min-h-[360px] flex-col justify-between p-6">
         <Tabs
           defaultValue="dane"
@@ -157,10 +155,10 @@ export default function EmployeePage() {
                 <div key={idx} className="h-full">
                   {item ? (
                     <Card className="flex h-full flex-col justify-center bg-muted/40 px-3.5 py-2">
-                      <span className="text-[11px] font-medium uppercase text-muted-foreground">
+                      <span className="text-[11px] font-medium uppercase text-muted-foreground leading-none">
                         {item.label}
                       </span>
-                      <span className="mt-0.5 truncate text-sm font-semibold">
+                      <span className="mt-1 truncate text-sm font-semibold leading-none">
                         {item.value}
                       </span>
                     </Card>
@@ -189,7 +187,6 @@ export default function EmployeePage() {
             value="urlopy"
             className="mt-4 flex flex-1 items-center justify-between gap-4"
           >
-            {/* Element zastępczy rezerwujący przestrzeń po lewej strzałce */}
             <div className="invisible w-10 shrink-0">
               <Button variant="outline" size="icon">
                 <ChevronLeft className="h-4 w-4" />
@@ -197,7 +194,6 @@ export default function EmployeePage() {
             </div>
 
             <div className="grid flex-1 grid-cols-2 gap-4 h-full">
-              {/* Urlop zaległy */}
               <Card className="flex h-full flex-col items-center justify-center space-y-4 bg-muted/40 p-4">
                 <h3 className="text-base font-semibold">Urlop zaległy</h3>
                 <Progress
@@ -213,7 +209,6 @@ export default function EmployeePage() {
                 </span>
               </Card>
 
-              {/* Urlop aktualny */}
               <Card className="flex h-full flex-col items-center justify-center space-y-4 bg-muted/40 p-4">
                 <h3 className="text-base font-semibold">Urlop aktualny</h3>
                 <Progress
@@ -230,7 +225,6 @@ export default function EmployeePage() {
               </Card>
             </div>
 
-            {/* Element zastępczy rezerwujący przestrzeń po prawej strzałce */}
             <div className="invisible w-10 shrink-0">
               <Button variant="outline" size="icon">
                 <ChevronRight className="h-4 w-4" />

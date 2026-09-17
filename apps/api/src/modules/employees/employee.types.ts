@@ -1,4 +1,4 @@
-import { IAbsenceEntity } from '../attendance/attendance.types';
+import { IAbsenceEntity } from '../absences/absences.types';
 import { ICompanyEntity } from '../companies/company.types';
 import { IUserEntity } from '../users/user.types';
 

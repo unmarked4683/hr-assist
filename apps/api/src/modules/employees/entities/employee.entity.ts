@@ -15,7 +15,7 @@ import { Max, Min } from 'class-validator';
 import { UserEntity } from '../../users/user.entity';
 import { CompanyEntity } from 'src/modules/companies/entities/company.entity';
 import { WorkScheduleEntity } from './work-schedule.entity';
-import { AbsenceEntity } from 'src/modules/attendance/entities/absence.entity';
+import { AbsenceEntity } from 'src/modules/absences/entities/absence.entity';
 import { LeaveEntity } from './leave.entity';
 
 @Entity('employees')

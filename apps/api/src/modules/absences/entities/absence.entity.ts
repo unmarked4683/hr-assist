@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { AbsenceType, IAbsenceEntity } from '../attendance.types';
+import { AbsenceType, IAbsenceEntity } from '../absences.types';
 import { EmployeeEntity } from 'src/modules/employees/entities/employee.entity';
 
 @Entity('absences')

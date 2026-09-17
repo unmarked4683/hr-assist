@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsUUID, IsDateString } from 'class-validator';
-import { AbsenceType, IAddAbsenceDto } from '../attendance.types';
+import { AbsenceType, IAddAbsenceDto } from '../absences.types';
 
 export class AddAbsenceDto implements IAddAbsenceDto {
   @IsEnum(AbsenceType)

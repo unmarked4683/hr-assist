@@ -26,7 +26,11 @@ export class EmployeesService {
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
   async findAll(): Promise<EmployeeEntity[]> {
-    return await EmployeeEntity.find();
+    return await EmployeeEntity.find({
+      relations: {
+        absences: true,
+      },
+    });
   }
 
   async findOne(id: string): Promise<EmployeeEntity> {
