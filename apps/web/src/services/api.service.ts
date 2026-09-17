@@ -1,11 +1,5 @@
 import { UserProfile } from "@/store/useAuthStore";
-import {
-  AddEmployeeDto,
-  Company,
-  CompanyNameAndId,
-  Employee,
-  Holiday,
-} from "@/types";
+import { AddEmployeeDto, CompanyNameAndId, Employee, Holiday } from "@/types";
 import { apiRequest } from "./api-request";
 
 export class ApiService {
@@ -62,6 +56,11 @@ export class ApiService {
     const data = await apiRequest<boolean>(
       `/api/employees/pesel/check-availability?pesel=${pesel}`,
     );
+    return data;
+  }
+
+  static async getEmployeeById(id: string): Promise<Employee> {
+    const data = await apiRequest<Employee>(`/api/employees/${id}`);
     return data;
   }
 }
