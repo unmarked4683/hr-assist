@@ -13,6 +13,14 @@ import {
   performSearch,
 } from "@/utils/employees.utils";
 import ms from "ms";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function List() {
   const searchParams = useSearchParams();
@@ -64,7 +72,7 @@ export default function List() {
   return (
     <div className="min-h-0 flex-1 overflow-hidden px-6 py-5">
       <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-        <table className="w-full shrink-0 table-fixed text-sm">
+        <Table className="w-full shrink-0 table-fixed">
           <colgroup>
             <col className="w-[16%]" />
             <col className="w-[16%]" />
@@ -72,22 +80,22 @@ export default function List() {
             <col className="w-[20%]" />
             <col className="w-[20%]" />
           </colgroup>
-          <thead>
-            <tr className="border-b border-border bg-muted/50">
+          <TableHeader>
+            <TableRow className="bg-muted/50 hover:bg-muted/50">
               {COLUMNS.map((label) => (
-                <th
+                <TableHead
                   key={label}
-                  className="px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+                  className="h-auto px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase"
                 >
                   {label}
-                </th>
+                </TableHead>
               ))}
-            </tr>
-          </thead>
-        </table>
+            </TableRow>
+          </TableHeader>
+        </Table>
 
         <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-          <table className="w-full table-fixed text-sm">
+          <Table className="w-full table-fixed">
             <colgroup>
               <col className="w-[16%]" />
               <col className="w-[16%]" />
@@ -95,40 +103,38 @@ export default function List() {
               <col className="w-[20%]" />
               <col className="w-[20%]" />
             </colgroup>
-            <tbody>
+            <TableBody>
               {filteredEmployees.length === 0 ? (
-                <tr>
-                  <td
+                <TableRow>
+                  <TableCell
                     colSpan={5}
-                    className="py-12 text-center text-sm text-muted-foreground"
+                    className="py-12 text-center text-sm whitespace-normal text-muted-foreground"
                   >
                     Brak pracowników spełniających kryteria wyszukiwania.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 filteredEmployees.map((employee, index) => (
-                  <tr
+                  <TableRow
                     key={employee.id}
-                    className={`border-b border-border ${
-                      index % 2 === 1 ? "bg-table-row-alt" : ""
-                    }`}
+                    className={index % 2 === 1 ? "bg-table-row-alt" : undefined}
                   >
-                    <td className="px-3 py-2.5 text-center font-medium text-foreground">
+                    <TableCell className="px-3 py-2.5 text-center font-medium whitespace-normal text-foreground">
                       {employee.name}
-                    </td>
-                    <td className="px-3 py-2.5 text-center text-foreground">
+                    </TableCell>
+                    <TableCell className="px-3 py-2.5 text-center whitespace-normal text-foreground">
                       {employee.surname}
-                    </td>
-                    <td className="px-3 py-2.5 text-center text-muted-foreground">
+                    </TableCell>
+                    <TableCell className="px-3 py-2.5 text-center whitespace-normal text-muted-foreground">
                       {employee.position}
-                    </td>
-                    <td className="px-3 py-2.5 text-center">
+                    </TableCell>
+                    <TableCell className="px-3 py-2.5 text-center">
                       <span className="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
                         <MapPin size={10} />
                         {employee.locationName}
                       </span>
-                    </td>
-                    <td className="px-3 py-2.5 text-center">
+                    </TableCell>
+                    <TableCell className="px-3 py-2.5 text-center">
                       {employee.status === "alert" ? (
                         <span className="inline-flex items-center rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-0.5 text-xs font-semibold text-destructive">
                           Do uzupełnienia
@@ -138,12 +144,12 @@ export default function List() {
                           OK
                         </span>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>

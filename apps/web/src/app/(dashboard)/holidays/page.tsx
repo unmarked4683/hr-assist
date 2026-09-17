@@ -6,6 +6,15 @@ import { Search } from "lucide-react";
 import { useState, useMemo } from "react";
 import { polishName } from "./holidays-translations";
 import Fuse from "fuse.js";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 const COLUMNS = ["Data", "Dzień tygodnia", "Nazwa święta"] as const;
 
@@ -93,77 +102,77 @@ export default function HolidaysPage() {
             size={15}
             className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
           />
-          <input
+          <Input
             type="text"
             placeholder="Szukaj świąt..."
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            className="h-9 w-full rounded-lg border border-input bg-background pr-4 pl-9 text-sm text-foreground placeholder:text-muted-foreground transition focus:border-primary focus:ring-2 focus:ring-primary/30 focus:outline-none"
+            className="h-9 pr-4 pl-9"
           />
         </div>
       </header>
 
       <div className="min-h-0 flex-1 overflow-hidden px-6 py-5">
         <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-          <table className="w-full shrink-0 table-fixed text-sm">
+          <Table className="w-full shrink-0 table-fixed">
             <colgroup>
               <col className="w-[30%]" />
               <col className="w-[30%]" />
               <col className="w-[40%]" />
             </colgroup>
-            <thead>
-              <tr className="border-b border-border bg-muted/50">
+            <TableHeader>
+              <TableRow className="bg-muted/50 hover:bg-muted/50">
                 {COLUMNS.map((label) => (
-                  <th
+                  <TableHead
                     key={label}
-                    className="px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase"
+                    className="h-auto px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase"
                   >
                     {label}
-                  </th>
+                  </TableHead>
                 ))}
-              </tr>
-            </thead>
-          </table>
+              </TableRow>
+            </TableHeader>
+          </Table>
 
           <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-            <table className="w-full table-fixed text-sm">
+            <Table className="w-full table-fixed">
               <colgroup>
                 <col className="w-[30%]" />
                 <col className="w-[30%]" />
                 <col className="w-[40%]" />
               </colgroup>
-              <tbody className="divide-y divide-border">
+              <TableBody>
                 {filteredHolidays.length === 0 ? (
-                  <tr>
-                    <td
+                  <TableRow>
+                    <TableCell
                       colSpan={3}
-                      className="py-12 text-center text-sm text-muted-foreground"
+                      className="py-12 text-center text-sm whitespace-normal text-muted-foreground"
                     >
                       Brak świąt pasujących do kryteriów wyszukiwania
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   filteredHolidays.map((holiday, index) => (
-                    <tr
+                    <TableRow
                       key={holiday.date}
-                      className={`border-b border-border transition hover:bg-muted/30 ${
-                        index % 2 === 1 ? "bg-table-row-alt" : ""
-                      }`}
+                      className={
+                        index % 2 === 1 ? "bg-table-row-alt" : undefined
+                      }
                     >
-                      <td className="px-3 py-2.5 text-center font-medium text-foreground">
+                      <TableCell className="px-3 py-2.5 text-center font-medium whitespace-normal text-foreground">
                         {holiday.formattedDate}
-                      </td>
-                      <td className="px-3 py-2.5 text-center text-muted-foreground capitalize">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-center whitespace-normal text-muted-foreground capitalize">
                         {holiday.weekday}
-                      </td>
-                      <td className="px-3 py-2.5 text-center text-muted-foreground">
+                      </TableCell>
+                      <TableCell className="px-3 py-2.5 text-center whitespace-normal text-muted-foreground">
                         {holiday.translatedName}
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))
                 )}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         </div>
       </div>

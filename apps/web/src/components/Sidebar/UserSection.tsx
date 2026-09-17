@@ -1,18 +1,22 @@
+"use client";
+
+import { useCallback, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ChevronRight } from "lucide-react";
+import { toast } from "sonner";
 import { ApiService } from "@/services/api.service";
-import { SidebarFlyoutTrigger, AnchoredFlyout } from "./Flyout";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { UserProfile } from "./UserProfile";
 import { LogoutBtn } from "./LogoutBtn";
-import { toast } from "sonner";
 
 export function UserSection() {
   const router = useRouter();
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const userTriggerRef = useRef<HTMLButtonElement>(null);
-
-  const closeUserMenu = useCallback(() => setUserMenuOpen(false), []);
+  const [open, setOpen] = useState(false);
 
   const logoutMutation = useMutation({
     mutationFn: async () => await ApiService.logout(),
@@ -23,7 +27,7 @@ export function UserSection() {
       toast.error(message);
     },
     onSettled: () => {
-      closeUserMenu();
+      setOpen(false);
     },
   });
 
@@ -32,28 +36,33 @@ export function UserSection() {
   }, [logoutMutation]);
 
   return (
-    <div className="px-3 pb-4 overflow-visible">
-      <div className="rounded-xl border border-primary">
-        <SidebarFlyoutTrigger
-          ref={userTriggerRef}
-          open={userMenuOpen}
-          onClick={() => setUserMenuOpen((current) => !current)}
-          className="rounded-xl"
-          aria-label="Opcje użytkownika"
-        >
-          <UserProfile />
-        </SidebarFlyoutTrigger>
-      </div>
+    <div className="px-3 pb-4">
+      <Popover open={open} onOpenChange={setOpen}>
+        <div className="rounded-xl border border-primary">
+          <PopoverTrigger
+            className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-sidebar-accent data-[popup-open]:bg-secondary/80 data-[popup-open]:text-secondary-foreground"
+            aria-label="Opcje użytkownika"
+          >
+            <UserProfile />
+            <ChevronRight
+              size={14}
+              className="ml-auto transform text-primary transition-transform duration-200 ease-in-out group-data-[popup-open]:-rotate-180"
+            />
+          </PopoverTrigger>
+        </div>
 
-      <AnchoredFlyout
-        open={userMenuOpen}
-        onClose={closeUserMenu}
-        triggerRef={userTriggerRef}
-        title="Konto"
-        placement="right"
-      >
-        <LogoutBtn onLogoutBtnClick={handleLogout} />
-      </AnchoredFlyout>
+        <PopoverContent
+          side="right"
+          align="end"
+          sideOffset={8}
+          className="w-52 rounded-xl p-3"
+        >
+          <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Konto
+          </p>
+          <LogoutBtn onLogoutBtnClick={handleLogout} />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
