@@ -16,7 +16,7 @@ export function LocationToggle() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         Lokalizacja <span className="text-destructive">*</span>
       </FieldLabel>
       <div

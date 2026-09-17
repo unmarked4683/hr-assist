@@ -19,7 +19,7 @@ export function PeselInput() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         PESEL <span className="text-destructive">*</span>
       </FieldLabel>
       <Input
@@ -31,7 +31,7 @@ export function PeselInput() {
           },
         })}
         aria-invalid={!!error}
-        className="border-zinc-300 font-mono"
+        className="font-mono"
       />
       <div className="h-4 overflow-hidden">
         {error ? (

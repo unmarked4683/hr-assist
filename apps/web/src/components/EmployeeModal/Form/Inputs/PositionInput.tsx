@@ -31,7 +31,7 @@ export function PositionInput() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         Stanowisko <span className="text-destructive">*</span>
       </FieldLabel>
       <Combobox
@@ -44,9 +44,8 @@ export function PositionInput() {
           aria-invalid={!!error}
           value={field.value || ""}
           onChange={(e) => field.onChange(e.target.value)}
-          className="border-zinc-300 text-zinc-900 bg-white"
         />
-        <ComboboxContent className="bg-white border-zinc-200 text-zinc-900 shadow-md">
+        <ComboboxContent>
           <ComboboxEmpty>
             {isLoading
               ? "Ładowanie..."

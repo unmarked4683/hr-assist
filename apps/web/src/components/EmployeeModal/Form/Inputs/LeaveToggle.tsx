@@ -15,7 +15,7 @@ export function LeaveToggle() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         Urlop roczny <span className="text-destructive">*</span>
       </FieldLabel>
       <div

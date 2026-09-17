@@ -29,7 +29,7 @@ export function EndInput() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         Godzina końcowa <span className="text-destructive">*</span>
       </FieldLabel>
       <Input
@@ -37,7 +37,7 @@ export function EndInput() {
         disabled
         {...register("workSchedule.end")}
         aria-invalid={!!error}
-        className="bg-zinc-100 border-zinc-200 text-zinc-500 cursor-not-allowed font-medium"
+        className="font-medium"
       />
       <InputError message={error && String(error.message)} />
     </Field>

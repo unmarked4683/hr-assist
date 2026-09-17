@@ -14,14 +14,13 @@ export function SurnameInput() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         Nazwisko <span className="text-destructive">*</span>
       </FieldLabel>
       <Input
         placeholder="Nazwisko"
         {...register("surname")}
         aria-invalid={!!error}
-        className="border-zinc-300"
       />
       <InputError message={error && String(error.message)} />
     </Field>

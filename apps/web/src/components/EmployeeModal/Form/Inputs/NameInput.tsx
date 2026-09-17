@@ -14,15 +14,10 @@ export function NameInput() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         Imię <span className="text-destructive">*</span>
       </FieldLabel>
-      <Input
-        placeholder="Imię"
-        {...register("name")}
-        aria-invalid={!!error}
-        className="border-zinc-300"
-      />
+      <Input placeholder="Imię" {...register("name")} aria-invalid={!!error} />
       <InputError message={error && String(error.message)} />
     </Field>
   );

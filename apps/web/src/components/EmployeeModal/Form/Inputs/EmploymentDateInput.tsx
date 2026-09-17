@@ -27,7 +27,7 @@ export function EmploymentDateInput() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         Data rozpoczęcia <span className="text-destructive">*</span>
       </FieldLabel>
       <Popover>
@@ -47,7 +47,7 @@ export function EmploymentDateInput() {
             )}
           </div>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 bg-white border-zinc-200 text-zinc-900 shadow-md">
+        <PopoverContent className="w-auto p-0">
           <Calendar
             mode="single"
             locale={pl}

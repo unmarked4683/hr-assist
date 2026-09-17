@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { User } from '../auth/decorators/user.decorator';
@@ -17,6 +18,7 @@ import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { EmployeeEntity } from './entities/employee.entity';
 import { EmployeesService } from './employees.service';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { PeselValidationPipe } from 'src/common/pipes/pesel/pesel.pipe';
 
 @Auth()
 @Controller('employees')
@@ -31,6 +33,13 @@ export class EmployeesController {
   @Get('/positions')
   findAllPositions(): Promise<string[]> {
     return this.employeesService.findAllPositions();
+  }
+
+  @Get('/pesel/check-availability')
+  checkPeselAvailability(
+    @Query('pesel', PeselValidationPipe) pesel: string,
+  ): Promise<boolean> {
+    return this.employeesService.checkPeselAvailability(pesel);
   }
 
   @Get('/:id')

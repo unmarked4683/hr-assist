@@ -134,4 +134,9 @@ export class EmployeesService {
 
     return result;
   }
+
+  async checkPeselAvailability(pesel: string): Promise<boolean> {
+    const isPeselTaken: boolean = await EmployeeEntity.existsBy({ pesel });
+    return !isPeselTaken;
+  }
 }

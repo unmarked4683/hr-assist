@@ -31,25 +31,19 @@ export function WorkHoursSelect() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         Wymiar etatu <span className="text-destructive">*</span>
       </FieldLabel>
       <Select
         onValueChange={(val) => field.onChange(Number(val))}
         value={field.value?.toString()}
       >
-        <SelectTrigger
-          aria-invalid={!!error}
-          className="border-zinc-300 text-zinc-900 w-full"
-        >
+        <SelectTrigger aria-invalid={!!error} className="w-full">
           <SelectValue placeholder="Wybierz etat...">
             {selectedOption ? selectedOption.label : "Wybierz etat..."}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent
-          className="bg-white border-zinc-200 text-zinc-900"
-          alignItemWithTrigger={false}
-        >
+        <SelectContent alignItemWithTrigger={false}>
           {WORK_HOURS_OPTIONS.map((item) => (
             <SelectItem key={item.value} value={item.value.toString()}>
               {item.label}

@@ -33,20 +33,14 @@ export function StartSelect() {
 
   return (
     <Field data-invalid={!!error}>
-      <FieldLabel className="text-xs text-zinc-600">
+      <FieldLabel>
         Godzina startu (6:00 - 15:00) <span className="text-destructive">*</span>
       </FieldLabel>
       <Select onValueChange={field.onChange} value={field.value}>
-        <SelectTrigger
-          aria-invalid={!!error}
-          className="border-zinc-300 text-zinc-900 w-full"
-        >
+        <SelectTrigger aria-invalid={!!error} className="w-full">
           <SelectValue placeholder="Wybierz start..." />
         </SelectTrigger>
-        <SelectContent
-          alignItemWithTrigger={false}
-          className="w-[--radix-select-trigger-width] bg-white border-zinc-200 text-zinc-900 max-h-48 shadow-md"
-        >
+        <SelectContent alignItemWithTrigger={false} className="max-h-48">
           {availableStartHours.map((hour) => (
             <SelectItem key={hour} value={hour}>
               {hour}
