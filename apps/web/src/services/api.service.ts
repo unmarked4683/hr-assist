@@ -57,7 +57,6 @@ export class ApiService {
     const data = await apiRequest<boolean>(
       `/api/employees/pesel/check-availability?pesel=${pesel}`,
     );
-    console.log("IS_PESEL_AVAILABLE:", data);
     return data;
   }
 }
