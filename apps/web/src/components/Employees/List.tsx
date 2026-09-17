@@ -94,14 +94,11 @@ export default function List() {
     <div className="min-h-0 flex-1 overflow-hidden px-6 py-5">
       <Card className="flex h-full flex-col overflow-hidden border border-border p-0 shadow-sm">
         <div className="min-h-0 flex-1 overflow-y-auto">
-          <Table className="table-fixed">
-            <TableHeader className="sticky top-0 z-10 bg-card">
-              <TableRow className="bg-muted/50 hover:bg-muted/50">
+          <Table>
+            <TableHeader>
+              <TableRow>
                 {COLUMNS.map((label, index) => (
-                  <TableHead
-                    key={label}
-                    className={`${COLUMN_WIDTHS[index]} h-auto px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase`}
-                  >
+                  <TableHead key={label} className={COLUMN_WIDTHS[index]}>
                     {label}
                   </TableHead>
                 ))}
@@ -110,7 +107,7 @@ export default function List() {
             <TableBody>
               {filteredEmployees.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-48 text-center">
+                  <TableCell colSpan={5} className="h-48">
                     <div className="flex flex-col items-center justify-center py-6">
                       <Users className="h-8 w-8 text-muted-foreground/50 mb-2" />
                       <p className="text-sm font-medium text-foreground">
@@ -131,22 +128,22 @@ export default function List() {
                       index % 2 === 1 ? "bg-table-row-alt" : ""
                     }`}
                   >
-                    <TableCell className="px-3 py-2.5 text-center font-medium whitespace-normal text-foreground">
+                    <TableCell className="font-medium text-foreground">
                       {employee.name}
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 text-center whitespace-normal text-foreground">
+                    <TableCell className="text-foreground">
                       {employee.surname}
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 text-center whitespace-normal text-muted-foreground">
+                    <TableCell className="text-muted-foreground">
                       {employee.position}
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 text-center">
+                    <TableCell>
                       <span className="inline-flex h-5 items-center gap-1 rounded-full border border-border bg-secondary px-2.5 text-xs font-medium text-secondary-foreground">
                         <MapPin size={10} />
                         {employee.locationName}
                       </span>
                     </TableCell>
-                    <TableCell className="px-3 py-2.5 text-center">
+                    <TableCell>
                       {employee.status === "alert" ? (
                         <span className="inline-flex h-5 items-center rounded-full border border-destructive/35 bg-destructive/10 px-2.5 text-xs font-semibold text-destructive">
                           Do uzupełnienia

@@ -15,8 +15,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card } from "@/components/ui/card";
 
 const COLUMNS = ["Data", "Dzień tygodnia", "Nazwa święta"] as const;
+const COLUMN_WIDTHS = ["w-[30%]", "w-[30%]", "w-[40%]"];
 
 export default function HolidaysPage() {
   const [search, setSearch] = useState("");
@@ -113,40 +115,24 @@ export default function HolidaysPage() {
       </header>
 
       <div className="min-h-0 flex-1 overflow-hidden px-6 py-5">
-        <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-          <Table className="w-full shrink-0 table-fixed">
-            <colgroup>
-              <col className="w-[30%]" />
-              <col className="w-[30%]" />
-              <col className="w-[40%]" />
-            </colgroup>
-            <TableHeader>
-              <TableRow className="bg-muted/50 hover:bg-muted/50">
-                {COLUMNS.map((label) => (
-                  <TableHead
-                    key={label}
-                    className="h-auto px-3 py-3 text-center text-xs font-semibold tracking-wide text-muted-foreground uppercase"
-                  >
-                    {label}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-          </Table>
-
-          <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-            <Table className="w-full table-fixed">
-              <colgroup>
-                <col className="w-[30%]" />
-                <col className="w-[30%]" />
-                <col className="w-[40%]" />
-              </colgroup>
+        <Card className="flex h-full flex-col overflow-hidden border border-border p-0 shadow-sm">
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {COLUMNS.map((label, index) => (
+                    <TableHead key={label} className={COLUMN_WIDTHS[index]}>
+                      {label}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
               <TableBody>
                 {filteredHolidays.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={3}
-                      className="py-12 text-center text-sm whitespace-normal text-muted-foreground"
+                      className="py-12 text-sm text-muted-foreground"
                     >
                       Brak świąt pasujących do kryteriów wyszukiwania
                     </TableCell>
@@ -159,13 +145,13 @@ export default function HolidaysPage() {
                         index % 2 === 1 ? "bg-table-row-alt" : undefined
                       }
                     >
-                      <TableCell className="px-3 py-2.5 text-center font-medium whitespace-normal text-foreground">
+                      <TableCell className="font-medium text-foreground">
                         {holiday.formattedDate}
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-center whitespace-normal text-muted-foreground capitalize">
+                      <TableCell className="text-muted-foreground capitalize">
                         {holiday.weekday}
                       </TableCell>
-                      <TableCell className="px-3 py-2.5 text-center whitespace-normal text-muted-foreground">
+                      <TableCell className="text-muted-foreground">
                         {holiday.translatedName}
                       </TableCell>
                     </TableRow>
@@ -174,7 +160,7 @@ export default function HolidaysPage() {
               </TableBody>
             </Table>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );
