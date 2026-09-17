@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent } from "@/components/ui/card";
 
+const COLUMN_WIDTHS = ["w-[16%]", "w-[16%]", "w-[28%]", "w-[20%]", "w-[20%]"];
+
 export default function List() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -90,23 +92,15 @@ export default function List() {
 
   return (
     <div className="min-h-0 flex-1 overflow-hidden px-6 py-5">
-      <Card className="flex h-full flex-col overflow-hidden shadow-sm border border-border">
-        <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-          <Table className="w-full table-fixed border-collapse">
-            <colgroup>
-              <col className="w-[16%]" />
-              <col className="w-[16%]" />
-              <col className="w-[28%]" />
-              <col className="w-[20%]" />
-              <col className="w-[20%]" />
-            </colgroup>
-            <TableHeader className="sticky top-0 z-10 bg-muted/90 backdrop-blur-md">
-              {/* Dodano klasy anulujące hover i wprowadzające grubszą, wyraźną linię dolną */}
-              <TableRow className="hover:bg-transparent border-b-2 border-border/80">
-                {COLUMNS.map((label) => (
+      <Card className="flex h-full flex-col overflow-hidden border border-border p-0 shadow-sm">
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <Table className="table-fixed">
+            <TableHeader className="sticky top-0 z-10 bg-card">
+              <TableRow className="hover:bg-transparent">
+                {COLUMNS.map((label, index) => (
                   <TableHead
                     key={label}
-                    className="h-auto px-3 py-3.5 text-center text-xs font-bold tracking-wide text-foreground uppercase"
+                    className={`${COLUMN_WIDTHS[index]} text-center`}
                   >
                     {label}
                   </TableHead>
@@ -133,7 +127,7 @@ export default function List() {
                   <TableRow
                     key={employee.id}
                     onClick={() => router.push(`/employees/${employee.id}`)}
-                    className={`cursor-pointer transition-colors hover:bg-muted/60 border-b border-border/50 ${
+                    className={`cursor-pointer ${
                       index % 2 === 1 ? "bg-table-row-alt" : ""
                     }`}
                   >
