@@ -30,6 +30,11 @@ export class ApiService {
     return data;
   }
 
+  static async getEmployee(id: string): Promise<Employee> {
+    const data = await apiRequest<Employee>(`/api/employees/${id}`);
+    return data;
+  }
+
   static async getHolidays(): Promise<Holiday[]> {
     const data = await apiRequest<Holiday[]>("/api/holidays");
     return data;
