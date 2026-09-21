@@ -18,6 +18,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { ApiService } from "@/services/api.service";
 import { useParams } from "next/navigation";
+import EmployeeCalendar from "@/components/employee-calendar";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -235,10 +236,12 @@ export default function EmployeePage() {
       </Card>
 
       <Card className="p-6">
-        <CardHeader className="mb-4 p-0">
+        {/* <CardHeader className="mb-4 p-0">
           <CardTitle>Kalendarz</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0"></CardContent>
+        </CardHeader> */}
+        <CardContent className="p-0">
+          <EmployeeCalendar employeeId={employeeId as string} />
+        </CardContent>
       </Card>
     </div>
   );
