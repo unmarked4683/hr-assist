@@ -17,7 +17,7 @@ export class AbsenceEntity extends BaseEntity implements IAbsenceEntity {
   @Column({ type: 'enum', enum: AbsenceType })
   type: AbsenceType;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'timestamp with time zone' })
   date: Date;
 
   @ManyToOne(() => EmployeeEntity, (employee) => employee.absences)

@@ -22,14 +22,14 @@ export const STATUS_PRESENTATION: Record<AttendanceStatus, StatusPresentation> =
   PRESENT: {
     code: "OB",
     label: "Obecność",
-    dotClassName: "bg-primary",
-    textClassName: "text-foreground",
+    dotClassName: "bg-emerald-500",
+    textClassName: "text-emerald-600",
   },
   VACATION: {
     code: "UW",
     label: "Urlop wypoczynkowy",
-    dotClassName: "bg-sky-500",
-    textClassName: "text-sky-600",
+    dotClassName: "bg-amber-500",
+    textClassName: "text-amber-600",
   },
   REQUEST_VACATION: {
     code: "UŻ",
@@ -40,20 +40,20 @@ export const STATUS_PRESENTATION: Record<AttendanceStatus, StatusPresentation> =
   SICK_LEAVE: {
     code: "CH",
     label: "Zwolnienie lekarskie",
-    dotClassName: "bg-rose-500",
-    textClassName: "text-rose-600",
+    dotClassName: "bg-amber-500",
+    textClassName: "text-amber-600",
   },
   CARE_LEAVE: {
     code: "OP",
     label: "Opieka",
-    dotClassName: "bg-violet-500",
-    textClassName: "text-violet-600",
+    dotClassName: "bg-amber-500",
+    textClassName: "text-amber-600",
   },
   UNEXCUSED_ABSENCE: {
     code: "NN",
     label: "Nieobecność nieusprawiedliwiona",
     dotClassName: "bg-destructive",
-    textClassName: "text-destructive",
+    textClassName: "text-destructive font-semibold",
   },
 };
 

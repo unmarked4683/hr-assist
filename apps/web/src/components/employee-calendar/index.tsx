@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
+import { SectionErrorBlock } from "@/components/ui/section-error-block";
 import { DateControls } from "./date-controls";
 import { CalendarTable } from "./calendar-table";
 import { getMockAttendance } from "./mock-data";
@@ -12,15 +13,20 @@ interface EmployeeCalendarProps {
   employeeId: string;
 }
 
-export default function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) {
+export default function EmployeeCalendar({
+  employeeId,
+}: EmployeeCalendarProps) {
   const today = useMemo(() => new Date(), []);
   const [year, setYear] = useState(() => today.getFullYear());
   const [month, setMonth] = useState(() => today.getMonth());
+  const [scrollToTodaySignal, setScrollToTodaySignal] = useState(0);
 
   const {
     data: attendance,
     isLoading,
     isError,
+    error,
+    refetch,
   } = useQuery({
     queryKey: ["employee-attendance", employeeId, year, month],
     // ! TODO: API - Tutaj podmienisz wywołanie getMockAttendance na realny strzał do API (np. fetch / useQuery)
@@ -56,6 +62,9 @@ export default function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) 
   const goToToday = () => {
     setYear(today.getFullYear());
     setMonth(today.getMonth());
+    // Bump the signal so the calendar re-centers on today's row even when
+    // we're already viewing the current month (e.g. after scrolling away).
+    setScrollToTodaySignal((prev) => prev + 1);
   };
 
   return (
@@ -76,14 +85,17 @@ export default function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) 
           Ładowanie kalendarza...
         </div>
       ) : isError ? (
-        <div className="flex flex-1 min-h-0 items-center justify-center rounded-xl border border-border bg-card text-sm text-destructive">
-          Błąd podczas ładowania kalendarza pracownika
-        </div>
+        <SectionErrorBlock
+          title="Błąd kalendarza pracownika"
+          description={error?.message || "Nie udało się załadować kalendarza."}
+          onRetry={() => refetch()}
+        />
       ) : (
         <CalendarTable
           year={year}
           month={month}
           attendanceByDate={attendanceByDate}
+          scrollToTodaySignal={scrollToTodaySignal}
         />
       )}
     </div>

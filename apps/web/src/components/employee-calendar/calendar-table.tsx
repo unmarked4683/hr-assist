@@ -41,12 +41,14 @@ interface CalendarTableProps {
   year: number;
   month: number;
   attendanceByDate: Map<string, AttendanceStatus>;
+  scrollToTodaySignal: number;
 }
 
 export function CalendarTable({
   year,
   month,
   attendanceByDate,
+  scrollToTodaySignal,
 }: CalendarTableProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const todayRowRef = useRef<HTMLTableRowElement>(null);
@@ -69,20 +71,11 @@ export function CalendarTable({
   useLayoutEffect(() => {
     if (!isCurrentMonth) return;
 
-    const container = scrollContainerRef.current;
-    const todayRow = todayRowRef.current;
-    if (!container || !todayRow) return;
-
-    const targetScrollTop =
-      todayRow.offsetTop -
-      container.clientHeight / 2 +
-      todayRow.clientHeight / 2;
-
-    container.scrollTo({
-      top: Math.max(targetScrollTop, 0),
+    todayRowRef.current?.scrollIntoView({
       behavior: "smooth",
+      block: "center",
     });
-  }, [isCurrentMonth, days]);
+  }, [isCurrentMonth, days, scrollToTodaySignal]);
 
   return (
     <Card className="flex flex-1 min-h-0 flex-col overflow-hidden border border-border p-0 shadow-sm">

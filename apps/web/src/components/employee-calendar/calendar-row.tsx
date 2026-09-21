@@ -55,6 +55,13 @@ export function CalendarRow({
 
   const isUnexcusedAbsence = status === "UNEXCUSED_ABSENCE";
 
+  // Pulsing tint lives on a `before:` background layer, not the row itself:
+  // `animate-pulse` animates opacity, and applying it to the row would fade
+  // the text along with the background.
+  const pulseCellClassName =
+    isUnexcusedAbsence &&
+    "relative before:absolute before:inset-0 before:-z-10 before:animate-pulse before:bg-destructive/10";
+
   return (
     <TableRow
       ref={ref}
@@ -62,28 +69,34 @@ export function CalendarRow({
       className={cn(
         rowIndex % 2 === 1 && "bg-table-row-alt",
         isWeekend && "cursor-default bg-muted/20 text-muted-foreground/60",
-        isUnexcusedAbsence && "animate-pulse bg-destructive/10",
       )}
     >
-      <TableCell className="font-medium text-foreground">
+      <TableCell
+        className={cn(
+          "relative group font-medium text-foreground",
+          pulseCellClassName,
+        )}
+      >
+        {isToday && <TodayMarker />}
         <span className="inline-flex items-center justify-center">
           {format(date, "d MMMM yyyy", { locale: pl })}
-          {isToday && <TodayMarker />}
         </span>
       </TableCell>
-      <TableCell className="text-muted-foreground capitalize">
+      <TableCell className={cn("text-muted-foreground capitalize", pulseCellClassName)}>
         {format(date, "EEEE", { locale: pl }).toLowerCase()}
       </TableCell>
-      <TableCell>
+      <TableCell className={cn(pulseCellClassName)}>
         <span className="inline-flex w-full items-center justify-center">
           <StatusIndicator status={status} />
         </span>
       </TableCell>
-      <TableCell className="text-muted-foreground">{scheduleLabel}</TableCell>
-      <TableCell className="text-muted-foreground">
+      <TableCell className={cn("text-muted-foreground", pulseCellClassName)}>
+        {scheduleLabel}
+      </TableCell>
+      <TableCell className={cn("text-muted-foreground", pulseCellClassName)}>
         {nominalHoursLabel}
       </TableCell>
-      <TableCell className="text-muted-foreground">
+      <TableCell className={cn("text-muted-foreground", pulseCellClassName)}>
         {actualHoursLabel}
       </TableCell>
     </TableRow>
