@@ -1,11 +1,17 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { AbsencesService } from './absences.service';
-import { AbsencesController } from './absences.controller';
 import { EmployeesModule } from '../employees/employees.module';
+import { HolidaysModule } from '../holidays/holidays.module';
+import { AbsencesController } from './absences.controller';
+import { IsNotDuvetDayConstraint } from 'src/common/validators/is-not-duvet-day.validator';
 
 @Module({
-  imports: [forwardRef(() => EmployeesModule)],
+  imports: [
+    forwardRef(() => EmployeesModule),
+    forwardRef(() => HolidaysModule),
+  ],
   controllers: [AbsencesController],
-  providers: [AbsencesService],
+  providers: [AbsencesService, IsNotDuvetDayConstraint],
+  exports: [AbsencesService],
 })
 export class AbsencesModule {}

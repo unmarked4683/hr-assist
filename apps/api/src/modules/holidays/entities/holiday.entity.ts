@@ -19,6 +19,8 @@ export class HolidayEntity extends BaseEntity implements IHolidayEntity {
   @Column({ type: 'date' })
   date: Date;
 
+  // TODO add holiday type (formal, internal)
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

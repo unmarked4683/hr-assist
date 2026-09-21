@@ -6,6 +6,7 @@ import { HolidayEntity } from './entities/holiday.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { Between, DataSource, EntityManager } from 'typeorm';
+import { isWeekend } from 'date-fns';
 
 @Injectable()
 export class HolidaysService implements OnModuleInit {
@@ -88,5 +89,10 @@ export class HolidaysService implements OnModuleInit {
     return await HolidayEntity.findBy({
       date: Between(new Date(`${year}-01-01`), new Date(`${year}-12-31`)),
     });
+  }
+
+  async isDuvetDay(date: Date): Promise<boolean> {
+    console.log('CALLING isDuvetDay WITH DATE: ', date.toISOString());
+    return isWeekend(date) || (await HolidayEntity.existsBy({ date }));
   }
 }
