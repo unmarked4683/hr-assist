@@ -234,14 +234,11 @@ export default function EmployeePage() {
         </Tabs>
       </Card>
 
-      {/* 4. Dolna sekcja: Kalendarz */}
       <Card className="p-6">
         <CardHeader className="mb-4 p-0">
           <CardTitle>Kalendarz</CardTitle>
         </CardHeader>
-        <CardContent className="p-0">
-          {/* Tabela / Grid kalendarza do dodania w przyszłości */}
-        </CardContent>
+        <CardContent className="p-0"></CardContent>
       </Card>
     </div>
   );

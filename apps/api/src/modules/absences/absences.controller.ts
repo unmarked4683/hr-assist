@@ -12,7 +12,9 @@ export class AbsencesController {
   ) {}
 
   @Post('/')
-  addAbsence(@Body() addAbsenceDto: AddAbsenceDto): Promise<AbsenceEntity> {}
+  addAbsence(@Body() addAbsenceDto: AddAbsenceDto): Promise<AbsenceEntity> {
+    return this.absencesService.addAbsence(addAbsenceDto);
+  }
 
   // TODO add absences logic
 }
