@@ -13,7 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { ApiService } from "@/services/api.service";
@@ -86,9 +86,9 @@ export default function EmployeePage() {
   const fullNameUpper = `${employee.name} ${employee.surname}`.toUpperCase();
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden px-6 py-4">
       {/* 1. Odnośnik powrotny */}
-      <div>
+      <div className="shrink-0">
         <Link
           href="/employees"
           className="inline-flex items-center text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -99,7 +99,7 @@ export default function EmployeePage() {
       </div>
 
       {/* 2. Nagłówek nawigacyjny i akcje */}
-      <div className="flex items-center justify-between">
+      <div className="mb-2 flex shrink-0 items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">{fullNameUpper}</h1>
 
         <Card className="p-1">
@@ -126,21 +126,15 @@ export default function EmployeePage() {
       </div>
 
       {/* 3. Główna karta */}
-      <Card className="flex h-[360px] min-h-[360px] flex-col justify-between p-6">
-        <Tabs
-          defaultValue="dane"
-          className="flex h-full w-full flex-col justify-between"
-        >
+      <Card size="sm" className="flex shrink-0 flex-col gap-2">
+        <Tabs defaultValue="dane" className="w-full gap-2">
           <TabsList className="mx-auto grid w-64 grid-cols-2">
             <TabsTrigger value="dane">Dane pracownika</TabsTrigger>
             <TabsTrigger value="urlopy">Urlopy</TabsTrigger>
           </TabsList>
 
           {/* Zakładka: Dane pracownika */}
-          <TabsContent
-            value="dane"
-            className="mt-4 flex flex-1 items-center justify-between gap-4"
-          >
+          <TabsContent value="dane" className="flex items-center gap-4">
             <Button
               variant="outline"
               size="icon"
@@ -151,20 +145,23 @@ export default function EmployeePage() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
-            <div className="grid flex-1 grid-cols-2 grid-rows-3 gap-3 h-full">
+            <div className="grid flex-1 shrink-0 grid-cols-2 gap-3">
               {paddedItems.map((item, idx) => (
-                <div key={idx} className="h-full">
+                <div key={idx}>
                   {item ? (
-                    <Card className="flex h-full flex-col justify-center bg-muted/40 px-3.5 py-2">
-                      <span className="text-[11px] font-medium uppercase text-muted-foreground leading-none">
+                    <Card className="flex flex-col space-y-1 bg-muted/40 p-3">
+                      <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
                         {item.label}
                       </span>
-                      <span className="mt-1 truncate text-sm font-semibold leading-none">
+                      <span className="truncate text-sm font-semibold text-foreground">
                         {item.value}
                       </span>
                     </Card>
                   ) : (
-                    <div className="h-full rounded-lg border border-dashed opacity-0" />
+                    <Card className="flex flex-col space-y-1 p-3 opacity-0">
+                      <span className="text-xs uppercase">placeholder</span>
+                      <span className="text-sm">placeholder</span>
+                    </Card>
                   )}
                 </div>
               ))}
@@ -184,19 +181,16 @@ export default function EmployeePage() {
           </TabsContent>
 
           {/* Zakładka: Urlopy */}
-          <TabsContent
-            value="urlopy"
-            className="mt-4 flex flex-1 items-center justify-between gap-4"
-          >
+          <TabsContent value="urlopy" className="flex items-center gap-4">
             <div className="invisible w-10 shrink-0">
               <Button variant="outline" size="icon">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
             </div>
 
-            <div className="grid flex-1 grid-cols-2 gap-4 h-full">
-              <Card className="flex h-full flex-col items-center justify-center space-y-4 bg-muted/40 p-4">
-                <h3 className="text-base font-semibold">Urlop zaległy</h3>
+            <div className="grid flex-1 grid-cols-2 gap-3">
+              <Card className="flex flex-col items-center justify-center gap-2 bg-muted/40 p-3">
+                <h3 className="text-sm font-semibold">Urlop zaległy</h3>
                 <Progress
                   value={
                     employee.leave.base > 0
@@ -205,13 +199,13 @@ export default function EmployeePage() {
                   }
                   className="w-3/4"
                 />
-                <span className="text-sm font-medium text-muted-foreground">
+                <span className="text-xs font-medium text-muted-foreground">
                   {employee.leave.overdue} / {employee.leave.base} dni
                 </span>
               </Card>
 
-              <Card className="flex h-full flex-col items-center justify-center space-y-4 bg-muted/40 p-4">
-                <h3 className="text-base font-semibold">Urlop aktualny</h3>
+              <Card className="flex flex-col items-center justify-center gap-2 bg-muted/40 p-3">
+                <h3 className="text-sm font-semibold">Urlop aktualny</h3>
                 <Progress
                   value={
                     employee.leave.base > 0
@@ -220,7 +214,7 @@ export default function EmployeePage() {
                   }
                   className="w-3/4"
                 />
-                <span className="text-sm font-medium text-muted-foreground">
+                <span className="text-xs font-medium text-muted-foreground">
                   {employee.leave.current} / {employee.leave.base} dni
                 </span>
               </Card>
@@ -235,11 +229,11 @@ export default function EmployeePage() {
         </Tabs>
       </Card>
 
-      <Card className="p-6">
-        {/* <CardHeader className="mb-4 p-0">
-          <CardTitle>Kalendarz</CardTitle>
-        </CardHeader> */}
-        <CardContent className="p-0">
+      <Card
+        size="sm"
+        className="flex min-h-0 flex-1 flex-col overflow-hidden"
+      >
+        <CardContent className="min-h-0 flex-1 overflow-hidden">
           <EmployeeCalendar employeeId={employeeId as string} />
         </CardContent>
       </Card>

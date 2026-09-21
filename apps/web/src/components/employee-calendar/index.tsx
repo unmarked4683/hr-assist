@@ -59,7 +59,7 @@ export default function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) 
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex h-full min-h-0 flex-col gap-3">
       <DateControls
         month={month}
         year={year}
@@ -71,12 +71,12 @@ export default function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) 
       />
 
       {isLoading ? (
-        <div className="flex h-[480px] items-center justify-center gap-2 rounded-xl border border-border bg-card text-sm text-muted-foreground">
+        <div className="flex flex-1 min-h-0 items-center justify-center gap-2 rounded-xl border border-border bg-card text-sm text-muted-foreground">
           <Loader2 className="size-4 animate-spin" />
           Ładowanie kalendarza...
         </div>
       ) : isError ? (
-        <div className="flex h-[480px] items-center justify-center rounded-xl border border-border bg-card text-sm text-destructive">
+        <div className="flex flex-1 min-h-0 items-center justify-center rounded-xl border border-border bg-card text-sm text-destructive">
           Błąd podczas ładowania kalendarza pracownika
         </div>
       ) : (
