@@ -1,4 +1,4 @@
-import { AbsenceEntity } from 'src/modules/absences/entities/absence.entity';
+import { AbsenceEntity } from 'src/modules/attendance/entities/absence.entity';
 import { AddressEntity } from 'src/modules/companies/entities/address.entity';
 import { CompanyEntity } from 'src/modules/companies/entities/company.entity';
 import { EmployeeEntity } from 'src/modules/employees/entities/employee.entity';

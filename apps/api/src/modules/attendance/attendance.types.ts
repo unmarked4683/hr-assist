@@ -23,6 +23,9 @@ export const AttendanceStatus = {
   PRESENCE: 'OB',
 } as const satisfies Record<string, string>;
 
+export type AttendanceStatusType =
+  (typeof AttendanceStatus)[keyof typeof AttendanceStatus];
+
 export interface IAbsenceEntity {
   id: string;
   employee: IEmployeeEntity;
@@ -30,4 +33,7 @@ export interface IAbsenceEntity {
   date: Date;
 }
 
-export type IAddAbsenceDto = Omit<IAbsenceEntity, 'id' | 'employee'>;
+export interface IDateQueryDto {
+  year?: number; // min. 2026, max. currentYear + 5
+  month?: number; // min. 1, max. 12
+}

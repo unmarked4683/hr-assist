@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { AbsenceType, IAbsenceEntity } from '../absences.types';
+import { AbsenceType, IAbsenceEntity } from '../attendance.types';
 import { EmployeeEntity } from 'src/modules/employees/entities/employee.entity';
 
 @Entity('absences')
@@ -14,7 +14,11 @@ export class AbsenceEntity extends BaseEntity implements IAbsenceEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'enum', enum: AbsenceType })
+  @Column({
+    type: 'enum',
+    enum: AbsenceType,
+    default: AbsenceType.UNEXCUSED_ABSENCE,
+  })
   type: AbsenceType;
 
   @Column({ type: 'timestamp with time zone' })
