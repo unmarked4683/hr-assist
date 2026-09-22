@@ -6,9 +6,9 @@ import { Loader2 } from "lucide-react";
 import { SectionErrorBlock } from "@/components/ui/section-error-block";
 import { DateControls } from "./date-controls";
 import { CalendarTable } from "./calendar-table";
-import { getMockAttendance } from "./mock-data";
-import { AttendanceStatus } from "./types";
+import { CalendarRecord, AttendanceStatus } from "./types";
 import { ApiService } from "@/services/api.service";
+import { Absence } from "@/types";
 
 interface EmployeeCalendarProps {
   employeeId: string;
@@ -30,18 +30,25 @@ export default function EmployeeCalendar({
     refetch,
   } = useQuery({
     queryKey: ["employee-attendance", employeeId, year, month],
-    // ! TODO: API - Tutaj podmienisz wywołanie getMockAttendance na realny strzał do API (np. fetch / useQuery)
     queryFn: async () => {
       const absences = await ApiService.getEmployeeAbsences(employeeId);
-      console.log("ABSENCES", absences);
-      return getMockAttendance(year, month + 1);
+      const records: CalendarRecord[] = (
+        Array.isArray(absences) ? absences : []
+      ).map((item: Absence) => ({
+        date: item.date,
+        status: item.type as AttendanceStatus,
+      }));
+
+      return records;
     },
   });
 
   const attendanceByDate = useMemo(() => {
     const map = new Map<string, AttendanceStatus>();
     attendance?.forEach((record) => {
-      map.set(record.date.slice(0, 10), record.status);
+      if (record.date) {
+        map.set(record.date.slice(0, 10), record.status);
+      }
     });
     return map;
   }, [attendance]);
@@ -67,8 +74,6 @@ export default function EmployeeCalendar({
   const goToToday = () => {
     setYear(today.getFullYear());
     setMonth(today.getMonth());
-    // Bump the signal so the calendar re-centers on today's row even when
-    // we're already viewing the current month (e.g. after scrolling away).
     setScrollToTodaySignal((prev) => prev + 1);
   };
 

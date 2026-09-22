@@ -13,7 +13,12 @@ export function StatusIndicator({ status, className }: StatusIndicatorProps) {
     );
   }
 
-  const presentation = STATUS_PRESENTATION[status];
+  const presentation = STATUS_PRESENTATION[status] || {
+    code: status,
+    label: status,
+    dotClassName: "bg-muted-foreground",
+    textClassName: "text-muted-foreground",
+  };
 
   return (
     <span
@@ -26,7 +31,10 @@ export function StatusIndicator({ status, className }: StatusIndicatorProps) {
     >
       <span
         aria-hidden="true"
-        className={cn("size-2 shrink-0 rounded-full", presentation.dotClassName)}
+        className={cn(
+          "size-2 shrink-0 rounded-full",
+          presentation.dotClassName,
+        )}
       />
       {presentation.code}
     </span>
