@@ -13,11 +13,13 @@ export function StatusIndicator({ status, className }: StatusIndicatorProps) {
     );
   }
 
-  const presentation = STATUS_PRESENTATION[status] || {
-    code: status,
-    label: status,
-    dotClassName: "bg-muted-foreground",
-    textClassName: "text-muted-foreground",
+  const customPresentation = STATUS_PRESENTATION[status];
+
+  const presentation = {
+    code: customPresentation?.code || status,
+    label: customPresentation?.label || status,
+    dotClassName: customPresentation?.dotClassName || "bg-amber-500",
+    textClassName: customPresentation?.textClassName || "text-amber-600",
   };
 
   return (

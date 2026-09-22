@@ -25,115 +25,46 @@ export interface CalendarRecord {
 export interface StatusPresentation {
   code: string;
   label: string;
-  dotClassName: string;
-  textClassName: string;
+  dotClassName?: string;
+  textClassName?: string;
 }
 
-export const STATUS_PRESENTATION: Record<AttendanceStatus, StatusPresentation> =
-  {
-    PRESENT: {
-      code: "OB",
-      label: "Obecność",
-      dotClassName: "bg-emerald-500",
-      textClassName: "text-emerald-600",
-    },
-    OB: {
-      code: "OB",
-      label: "Obecność",
-      dotClassName: "bg-emerald-500",
-      textClassName: "text-emerald-600",
-    },
-    UW: {
-      code: "UW",
-      label: "Urlop wypoczynkowy",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    UŻ: {
-      code: "UŻ",
-      label: "Urlop na żądanie",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    CH: {
-      code: "CH",
-      label: "Zwolnienie lekarskie",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    OP: {
-      code: "OP",
-      label: "Opieka",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    NN: {
-      code: "NN",
-      label: "Nieobecność nieusprawiedliwiona",
-      dotClassName: "bg-destructive",
-      textClassName: "text-destructive font-semibold",
-    },
-    UB: {
-      code: "UB",
-      label: "Urlop bezpłatny",
-      dotClassName: "bg-muted-foreground",
-      textClassName: "text-muted-foreground",
-    },
-    UM: {
-      code: "UM",
-      label: "Urlop macierzyński",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    NUN: {
-      code: "NUN",
-      label: "Nieobecność usprawiedliwiona niepłatna",
-      dotClassName: "bg-muted-foreground",
-      textClassName: "text-muted-foreground",
-    },
-    NUP: {
-      code: "NUP",
-      label: "Nieobecność usprawiedliwiona płatna",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    UO: {
-      code: "UO",
-      label: "Urlop ojcowski",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    REH: {
-      code: "REH",
-      label: "Świadczenie rehabilitacyjne",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    UR: {
-      code: "UR",
-      label: "Urlop rodzicielski",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    UOK: {
-      code: "UOK",
-      label: "Urlop okolicznościowy",
-      dotClassName: "bg-amber-500",
-      textClassName: "text-amber-600",
-    },
-    WZS: {
-      code: "WZS",
-      label: "Dzień wolny za święto",
-      dotClassName: "bg-blue-500",
-      textClassName: "text-blue-600",
-    },
-    WYC: {
-      code: "WYC",
-      label: "Urlop wychowawczy",
-      dotClassName: "bg-muted-foreground",
-      textClassName: "text-muted-foreground",
-    },
-  };
+export const STATUS_PRESENTATION: Partial<
+  Record<AttendanceStatus, StatusPresentation>
+> = {
+  PRESENT: {
+    code: "OB",
+    label: "Obecność",
+    dotClassName: "bg-emerald-500",
+    textClassName: "text-emerald-600",
+  },
+  OB: {
+    code: "OB",
+    label: "Obecność",
+    dotClassName: "bg-emerald-500",
+    textClassName: "text-emerald-600",
+  },
+  NN: {
+    code: "NN",
+    label: "Nieobecność nieusprawiedliwiona",
+    dotClassName: "bg-destructive",
+    textClassName: "text-destructive font-semibold",
+  },
+  UW: { code: "UW", label: "Urlop wypoczynkowy" },
+  UŻ: { code: "UŻ", label: "Urlop na żądanie" },
+  CH: { code: "CH", label: "Zwolnienie lekarskie" },
+  OP: { code: "OP", label: "Opieka" },
+  UB: { code: "UB", label: "Urlop bezpłatny" },
+  UM: { code: "UM", label: "Urlop macierzyński" },
+  NUN: { code: "NUN", label: "Nieobecność usprawiedliwiona niepłatna" },
+  NUP: { code: "NUP", label: "Nieobecność usprawiedliwiona płatna" },
+  UO: { code: "UO", label: "Urlop ojcowski" },
+  REH: { code: "REH", label: "Świadczenie rehabilitacyjne" },
+  UR: { code: "UR", label: "Urlop rodzicielski" },
+  UOK: { code: "UOK", label: "Urlop okolicznościowy" },
+  WZS: { code: "WZS", label: "Dzień wolny za święto" },
+  WYC: { code: "WYC", label: "Urlop wychowawczy" },
+};
 
 export const MONTH_NAMES = [
   "Styczeń",
