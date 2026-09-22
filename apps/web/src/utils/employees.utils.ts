@@ -1,8 +1,9 @@
 import Fuse from "fuse.js";
-import { Employee } from "@/types";
+import { Employee, EmployeesList } from "@/types";
 
-export interface EnrichedEmployee extends Employee {
-  status: string;
+export interface EnrichedEmployee extends Omit<Employee, "workSchedule"> {
+  ok: boolean;
+  workSchedule: { start: string; end: string };
   locationName: string;
   searchIndex: string;
 }
@@ -18,14 +19,25 @@ export const COLUMNS = [
 export const getLocationName = (location: number): string =>
   location === 1 ? "Hala" : "Biuro";
 
-export const enrichEmployees = (employees: Employee[]): EnrichedEmployee[] =>
+export const enrichEmployees = (employees: EmployeesList): EnrichedEmployee[] =>
   employees.map((employee) => {
     const locationName = getLocationName(employee.location);
+    const statusText = employee.ok ? "OK" : "Problem";
+
+    const rawSchedule = employee.workSchedule as unknown as {
+      start?: string;
+      end?: string;
+    };
+    const workSchedule = {
+      start: rawSchedule?.start ?? "",
+      end: rawSchedule?.end ?? "",
+    };
+
     return {
-      ...employee,
-      status: "ok",
+      ...(employee as unknown as EnrichedEmployee),
+      workSchedule,
       locationName,
-      searchIndex: `${employee.name} ${employee.surname} ${employee.position} ${locationName}`,
+      searchIndex: `${employee.name} ${employee.surname} ${employee.position} ${locationName} ${statusText}`,
     };
   });
 

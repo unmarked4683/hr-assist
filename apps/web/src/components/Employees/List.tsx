@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { ApiService } from "@/services/api.service";
 import { MapPin, Users, AlertCircle, Loader2 } from "lucide-react";
-import { Employee } from "@/types";
+import { EmployeesList } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
 import {
@@ -34,9 +34,10 @@ export default function List() {
     data: employees = [],
     isLoading,
     isError,
-  } = useQuery<Employee[]>({
+  } = useQuery<EmployeesList>({
     queryKey: ["employees"],
-    queryFn: async () => await ApiService.getEmployees(),
+    queryFn: async () =>
+      (await ApiService.getEmployees()) as unknown as EmployeesList,
     staleTime: ms("5 minutes"),
     gcTime: ms("1 hour"),
     retry: 1,
@@ -144,7 +145,7 @@ export default function List() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      {employee.status === "alert" ? (
+                      {!employee.ok ? (
                         <span className="inline-flex h-5 items-center rounded-full border border-destructive/35 bg-destructive/10 px-2.5 text-xs font-semibold text-destructive">
                           Do uzupełnienia
                         </span>

@@ -8,6 +8,7 @@ import { DateControls } from "./date-controls";
 import { CalendarTable } from "./calendar-table";
 import { getMockAttendance } from "./mock-data";
 import { AttendanceStatus } from "./types";
+import { ApiService } from "@/services/api.service";
 
 interface EmployeeCalendarProps {
   employeeId: string;
@@ -30,7 +31,11 @@ export default function EmployeeCalendar({
   } = useQuery({
     queryKey: ["employee-attendance", employeeId, year, month],
     // ! TODO: API - Tutaj podmienisz wywołanie getMockAttendance na realny strzał do API (np. fetch / useQuery)
-    queryFn: () => getMockAttendance(year, month + 1),
+    queryFn: async () => {
+      const absences = await ApiService.getEmployeeAbsences(employeeId);
+      console.log("ABSENCES", absences);
+      return getMockAttendance(year, month + 1);
+    },
   });
 
   const attendanceByDate = useMemo(() => {

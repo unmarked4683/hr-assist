@@ -132,6 +132,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/employees/pesel/check-availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EmployeesController_checkPeselAvailability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/employees/{id}": {
         parameters: {
             query?: never;
@@ -196,6 +212,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/employees/{employeeId}/attendance/absences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AttendanceController_findAbsences"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/employees/{employeeId}/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AttendanceController_changeAttendanceStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/holidays/{year}": {
         parameters: {
             query?: never;
@@ -242,6 +290,32 @@ export interface components {
             /** Format: email */
             email: string;
             password: string;
+        };
+        EmployeeResponseDto: {
+            ok: boolean;
+            id: string;
+            name: string;
+            surname: string;
+            pesel: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            position: string;
+            /** @enum {number} */
+            location: 1 | 2;
+            company: Record<string, never>;
+            workHours: number;
+            workSchedule: Record<string, never>;
+            /** Format: date-time */
+            employmentDate: string;
+            /** @enum {number} */
+            contractType: 1;
+            /** Format: date-time */
+            firedAt: string | null;
+            firedBy: Record<string, never> | null;
+            absences: Record<string, never>[];
+            leave: Record<string, never>;
         };
         WorkScheduleEntity: {
             start: string;
@@ -338,6 +412,12 @@ export interface components {
         UpdateAddressDto: Record<string, never>;
         UpdateCompanyDto: {
             address: components["schemas"]["UpdateAddressDto"];
+        };
+        ChangeAttendanceStatusDto: {
+            /** @enum {string} */
+            status: "OB" | "CH" | "NN" | "UB" | "UW" | "UM" | "NUN" | "NUP" | "UO" | "OP" | "REH" | "UR" | "UŻ" | "UOK" | "WZS" | "WYC";
+            /** Format: date-time */
+            date: string;
         };
         HolidayEntity: {
             id: string;
@@ -557,7 +637,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EmployeeEntity"][];
+                    "application/json": components["schemas"]["EmployeeResponseDto"][];
                 };
             };
         };
@@ -617,6 +697,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": string[];
+                };
+            };
+        };
+    };
+    EmployeesController_checkPeselAvailability: {
+        parameters: {
+            query: {
+                pesel: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": boolean;
                 };
             };
         };
@@ -807,6 +908,53 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AttendanceController_findAbsences: {
+        parameters: {
+            query?: {
+                year?: number;
+                month?: number;
+            };
+            header?: never;
+            path: {
+                employeeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AbsenceEntity"][];
+                };
+            };
+        };
+    };
+    AttendanceController_changeAttendanceStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employeeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeAttendanceStatusDto"];
+            };
+        };
         responses: {
             200: {
                 headers: {

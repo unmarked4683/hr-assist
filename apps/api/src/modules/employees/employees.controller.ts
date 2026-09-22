@@ -19,7 +19,7 @@ import { EmployeeEntity } from './entities/employee.entity';
 import { EmployeesService } from './employees.service';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { PeselValidationPipe } from 'src/common/pipes/pesel/pesel.pipe';
-import { EmployeesListDto } from './dto/employees-list.dto';
+import { EmployeeResponseDto } from './dto/employees-list.dto';
 
 @Auth()
 @Controller('employees')
@@ -27,7 +27,7 @@ export class EmployeesController {
   constructor(private readonly employeesService: EmployeesService) {}
 
   @Get('/')
-  findAll(): Promise<EmployeesListDto> {
+  findAll(): Promise<EmployeeResponseDto[]> {
     return this.employeesService.findAll();
   }
 

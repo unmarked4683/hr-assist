@@ -19,7 +19,7 @@ import { Progress } from "@/components/ui/progress";
 import { SectionErrorBlock } from "@/components/ui/section-error-block";
 import { ApiService } from "@/services/api.service";
 import { useParams } from "next/navigation";
-import EmployeeCalendar from "@/components/employee-calendar";
+import EmployeeCalendar from "@/components/EmployeeCalendar";
 
 const ITEMS_PER_PAGE = 6;
 
@@ -50,7 +50,7 @@ export default function EmployeePage() {
 
   if (isLoading) {
     return (
-      <div className="flex h-[400px] w-full items-center justify-center p-6">
+      <div className="flex h-100 w-full items-center justify-center p-6">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );

@@ -9,7 +9,7 @@ import {
   Location,
 } from '../employee.types';
 
-class EmployeeResponseDto implements IEmployeeResponseDto {
+export class EmployeeResponseDto implements IEmployeeResponseDto {
   ok: boolean;
   id: string;
   name: string;
@@ -29,5 +29,3 @@ class EmployeeResponseDto implements IEmployeeResponseDto {
   absences: IAbsenceEntity[];
   leave: ILeaveEntity;
 }
-
-export class EmployeesListDto extends Array<EmployeeResponseDto> {}

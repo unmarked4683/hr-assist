@@ -1,5 +1,12 @@
 import { UserProfile } from "@/store/useAuthStore";
-import { AddEmployeeDto, CompanyNameAndId, Employee, Holiday } from "@/types";
+import {
+  Absences,
+  AddEmployeeDto,
+  CompanyNameAndId,
+  Employee,
+  EmployeesList,
+  Holiday,
+} from "@/types";
 import { apiRequest } from "./api-request";
 
 export class ApiService {
@@ -19,8 +26,8 @@ export class ApiService {
     });
   }
 
-  static async getEmployees(): Promise<Employee[]> {
-    const data = await apiRequest<Employee[]>("/api/employees");
+  static async getEmployees(): Promise<EmployeesList> {
+    const data = await apiRequest<EmployeesList>("/api/employees");
     return data;
   }
 
@@ -61,6 +68,13 @@ export class ApiService {
 
   static async getEmployeeById(id: string): Promise<Employee> {
     const data = await apiRequest<Employee>(`/api/employees/${id}`);
+    return data;
+  }
+
+  static async getEmployeeAbsences(id: string): Promise<Absences> {
+    const data = await apiRequest<Absences>(
+      `/api/employees/${id}/attendance/absences`,
+    );
     return data;
   }
 }
