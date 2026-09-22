@@ -1,7 +1,6 @@
 "use client";
 
-import { ApiService } from "@/services/api.service";
-import { useQuery } from "@tanstack/react-query";
+import { useHolidays } from "@/hooks/use-holidays";
 import { Search } from "lucide-react";
 import { useState, useMemo } from "react";
 import { polishName } from "./holidays-translations";
@@ -23,14 +22,8 @@ const COLUMN_WIDTHS = ["w-[30%]", "w-[30%]", "w-[40%]"];
 export default function HolidaysPage() {
   const [search, setSearch] = useState("");
 
-  const {
-    data: holidays,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["holidays"],
-    queryFn: async () => await ApiService.getHolidays(),
-  });
+  // Zastąpiono manualne useQuery gotowym hookiem useHolidays
+  const { data: holidays, isLoading, isError } = useHolidays();
 
   const formatDate = (dateString: string) => {
     try {

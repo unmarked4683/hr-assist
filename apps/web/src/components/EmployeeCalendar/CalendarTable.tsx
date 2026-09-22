@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/table";
 import { CalendarRow } from "./CalendarRow";
 import { AttendanceStatus } from "./types";
+import { useHolidays } from "@/hooks/use-holidays";
+import { polishName } from "@/app/(dashboard)/holidays/holidays-translations";
 
 const COLUMNS = [
   "Data",
@@ -52,6 +54,18 @@ export function CalendarTable({
 }: CalendarTableProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const todayRowRef = useRef<HTMLTableRowElement>(null);
+
+  // Pobieramy święta raz dla całego kalendarza za pomocą React Query hooka
+  const { data: holidays = [] } = useHolidays();
+
+  // Tworzymy mapę O(1) z polskimi nazwami świąt, odświeżaną tylko po zmianie danych z API
+  const holidaysMap = useMemo(() => {
+    const map = new Map<string, string>();
+    holidays.forEach((h) => {
+      map.set(h.date, polishName(h.name)); // h.date to np. "2026-01-06"
+    });
+    return map;
+  }, [holidays]);
 
   const monthStart = useMemo(
     () => startOfMonth(new Date(year, month, 1)),
@@ -108,6 +122,7 @@ export function CalendarTable({
                   isToday={isToday}
                   isFuture={isFuture}
                   rowIndex={index}
+                  holidaysMap={holidaysMap}
                 />
               );
             })}
