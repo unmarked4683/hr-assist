@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { DateQueryDto } from './dto/date-query.dto';
 import { AbsenceEntity } from './entities/absence.entity';
 import { EmployeesService } from '../employees/employees.service';
@@ -15,7 +15,10 @@ import { AbsenceType, AttendanceStatus } from './attendance.types';
 
 @Injectable()
 export class AttendanceService {
-  constructor(private readonly employeesService: EmployeesService) {}
+  constructor(
+    @Inject(forwardRef(() => EmployeesService))
+    private readonly employeesService: EmployeesService,
+  ) {}
 
   async findAbsences(
     employeeId: string,
@@ -49,31 +52,10 @@ export class AttendanceService {
     await this.employeesService.findOne(employeeId);
 
     if (status === AttendanceStatus.PRESENCE) {
-      console.log('DELETING ABSENCE FOR DATE: ', date);
       await AbsenceEntity.delete({ employee: { id: employeeId }, date });
       return;
     }
 
-    // const absence: AbsenceEntity = (await AbsenceEntity.findOneBy({
-    //   employee: { id: employeeId },
-    //   date,
-    // })) as AbsenceEntity;
-
-    // if (absence) {
-    //   if (absence.type !== (status as unknown as AbsenceType)) {
-    //     absence.type = status as unknown as AbsenceType;
-    //     await absence.save();
-    //   }
-    //   return;
-    // } else {
-    //   const newAbsence: AbsenceEntity = AbsenceEntity.create({
-    //     employee: { id: employeeId },
-    //     date,
-    //     type: status as unknown as AbsenceType,
-    //   });
-    //   await newAbsence.save();
-    //   return;
-    // }
     const newAbsence = await AbsenceEntity.upsert(
       {
         employee: { id: employeeId },
@@ -83,5 +65,12 @@ export class AttendanceService {
       ['employee', 'date'],
     );
     console.log('NEW ABSENCE: ', newAbsence);
+  }
+
+  async hasUnexcusedAbsences(employeeId: string): Promise<boolean> {
+    return await AbsenceEntity.existsBy({
+      employee: { id: employeeId },
+      type: AbsenceType.UNEXCUSED_ABSENCE,
+    });
   }
 }

@@ -12,5 +12,6 @@ import { HolidaysModule } from '../holidays/holidays.module';
   ],
   controllers: [AttendanceController],
   providers: [AttendanceService, IsNotDuvetDayConstraint],
+  exports: [forwardRef(() => AttendanceService)],
 })
 export class AttendanceModule {}

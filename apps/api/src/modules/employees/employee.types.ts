@@ -61,3 +61,7 @@ export type ICreateEmployeeDto = Omit<
   company: string;
   leave: number;
 };
+
+export interface IEmployeeResponseDto extends IEmployeeEntity {
+  ok: boolean;
+}

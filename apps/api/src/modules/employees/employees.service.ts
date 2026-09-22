@@ -16,6 +16,8 @@ import { CompanyEntity } from '../companies/entities/company.entity';
 import { merge } from 'lodash';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
+import { EmployeesListDto } from './dto/employees-list.dto';
+import { AttendanceService } from '../attendance/attendance.service';
 
 @Injectable()
 export class EmployeesService {
@@ -23,14 +25,31 @@ export class EmployeesService {
     @Inject(forwardRef(() => CompaniesService))
     private readonly companiesService: CompaniesService,
 
+    @Inject(forwardRef(() => AttendanceService))
+    private readonly attendanceService: AttendanceService,
+
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
-  async findAll(): Promise<EmployeeEntity[]> {
-    return await EmployeeEntity.find({
+  async findAll(): Promise<EmployeesListDto> {
+    const employees = await EmployeeEntity.find({
       relations: {
         absences: true,
       },
     });
+
+    const employeesListDto: EmployeesListDto = await Promise.all(
+      employees.map(async (emp) => {
+        const hasUnexcusedAbsences: boolean =
+          await this.attendanceService.hasUnexcusedAbsences(emp.id);
+
+        return {
+          ...emp,
+          ok: !hasUnexcusedAbsences,
+        };
+      }),
+    );
+
+    return employeesListDto;
   }
 
   async findOne(id: string): Promise<EmployeeEntity> {
