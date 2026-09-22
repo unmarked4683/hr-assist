@@ -41,7 +41,7 @@ const COLUMN_WIDTHS = [
 
 interface CalendarTableProps {
   year: number;
-  month: number;
+  month: number; // oczekiwane 1-12
   attendanceByDate: Map<string, AttendanceStatus>;
   scrollToTodaySignal: number;
 }
@@ -55,20 +55,18 @@ export function CalendarTable({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const todayRowRef = useRef<HTMLTableRowElement>(null);
 
-  // Pobieramy święta raz dla całego kalendarza za pomocą React Query hooka
   const { data: holidays = [] } = useHolidays();
 
-  // Tworzymy mapę O(1) z polskimi nazwami świąt, odświeżaną tylko po zmianie danych z API
   const holidaysMap = useMemo(() => {
     const map = new Map<string, string>();
     holidays.forEach((h) => {
-      map.set(h.date, polishName(h.name)); // h.date to np. "2026-01-06"
+      map.set(h.date, polishName(h.name));
     });
     return map;
   }, [holidays]);
 
   const monthStart = useMemo(
-    () => startOfMonth(new Date(year, month, 1)),
+    () => startOfMonth(new Date(year, month - 1, 1)),
     [year, month],
   );
   const monthEnd = useMemo(() => endOfMonth(monthStart), [monthStart]);

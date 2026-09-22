@@ -1,6 +1,9 @@
+"use client";
+
 import { forwardRef, useState } from "react";
 import { format, isWeekend } from "date-fns";
 import { pl } from "date-fns/locale";
+import { useParams } from "next/navigation";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { StatusIndicator } from "./StatusIndicator";
 import {
@@ -10,6 +13,9 @@ import {
 } from "./types";
 import { cn } from "@/lib/utils";
 import { AttendanceModal } from "./AttendanceModal";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ApiService } from "@/services/api.service";
+import { QueryKeysService } from "@/services/query-keys.service";
 
 interface CalendarRowProps {
   date: Date;
@@ -17,23 +23,24 @@ interface CalendarRowProps {
   isToday: boolean;
   isFuture: boolean;
   rowIndex: number;
-  holidaysMap?: Map<string, string>; // Przyjmuje gotową mapę o złożoności O(1)
+  holidaysMap?: Map<string, string>;
 }
 
 export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
   ({ date, rawStatus, isToday, isFuture, holidaysMap = new Map() }, ref) => {
+    const params = useParams();
+    const employeeId = params?.id as string;
+
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const queryClient = useQueryClient();
     const weekdayLabel = format(date, "EEEE", { locale: pl });
     const weekend = isWeekend(date);
 
-    // Błyskawiczne sprawdzenie O(1) w mapie po formacie YYYY-MM-DD
     const formattedDateString = format(date, "yyyy-MM-dd");
     const holidayName = holidaysMap.get(formattedDateString) || null;
 
-    // Święto, weekend lub przyszłość blokują edycję
     const isDisabled = weekend || isFuture || Boolean(holidayName);
 
-    // Dni robocze z przeszłości/dzisiaj bez statusu to domyślnie OB (chyba że to święto)
     const effectiveStatus: AttendanceStatus | null = holidayName
       ? null
       : weekend || isFuture
@@ -42,13 +49,42 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
 
     const isUnexcused = effectiveStatus === "NN";
 
+    const mutation = useMutation({
+      mutationFn: async (newStatus: AttendanceStatus) => {
+        if (!employeeId) throw new Error("Brak ID pracownika w URL");
+        const dateString: string = format(date, "yyyy-MM-dd");
+        console.log("EMPLOYEE ID", employeeId);
+        console.log("DATE", dateString);
+        console.log("NEW STATUS", newStatus);
+        await ApiService.updateEmployeeAttendance(employeeId, {
+          status: newStatus,
+          // date: date.toISOString(),
+          date: dateString,
+        });
+      },
+      onSuccess: async () => {
+        // Inwalidacja za pomocą QueryKeysService (identyczny klucz jak w zapytaniu)
+        await queryClient.invalidateQueries({
+          queryKey: QueryKeysService.attendancePerMonth({
+            employeeId,
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
+          }),
+        });
+        setIsModalOpen(false);
+      },
+      onError: (error) => {
+        console.error("Błąd podczas aktualizacji frekwencji:", error);
+      },
+    });
+
     const handleRowClick = () => {
       if (isDisabled) return;
       setIsModalOpen(true);
     };
 
     const handleUpdateStatus = (newStatus: AttendanceStatus) => {
-      console.log("Wysyłanie mutacji z nowym statusem:", newStatus);
+      mutation.mutate(newStatus);
     };
 
     return (
@@ -62,10 +98,9 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
               ? "opacity-60 cursor-not-allowed bg-muted/20"
               : "cursor-pointer hover:bg-muted/40",
             isToday && "bg-muted/50 font-medium",
-            isUnexcused && "bg-destructive/10",
+            isUnexcused && "bg-destructive/15 animate-pulse",
           )}
         >
-          {/* Polska data bez wiodącego zera, np. "6 stycznia 2026" */}
           <TableCell className="font-medium">
             {format(date, "d MMMM yyyy", { locale: pl })}
           </TableCell>
@@ -91,7 +126,6 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
             )}
           </TableCell>
 
-          {/* Bezpieczne scalanie kolumn przy święcie z colSpan={3} */}
           {holidayName ? (
             <TableCell
               colSpan={3}
@@ -123,7 +157,9 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
         {!isDisabled && (
           <AttendanceModal
             isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
+            onClose={() => {
+              if (!mutation.isPending) setIsModalOpen(false);
+            }}
             date={date}
             currentStatus={effectiveStatus}
             onUpdate={handleUpdateStatus}

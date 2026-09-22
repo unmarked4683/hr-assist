@@ -1,5 +1,6 @@
+import { z } from "zod";
+
 export type AttendanceStatus =
-  | "PRESENT"
   | "OB"
   | "CH"
   | "NN"
@@ -32,12 +33,6 @@ export interface StatusPresentation {
 export const STATUS_PRESENTATION: Partial<
   Record<AttendanceStatus, StatusPresentation>
 > = {
-  PRESENT: {
-    code: "OB",
-    label: "Obecność",
-    dotClassName: "bg-emerald-500",
-    textClassName: "text-emerald-600",
-  },
   OB: {
     code: "OB",
     label: "Obecność",
@@ -97,3 +92,34 @@ export interface CalendarRow {
 export const DEFAULT_SCHEDULE = { start: "08:00", end: "16:00" } as const;
 
 export const NOMINAL_WORK_HOURS = 8;
+
+export interface UpdateEmployeeAttendanceDto {
+  status: AttendanceStatus;
+  date: string;
+}
+
+export const updateEmployeeAttendanceSchema = z.object({
+  status: z.enum([
+    "OB",
+    "CH",
+    "NN",
+    "UB",
+    "UW",
+    "UM",
+    "NUN",
+    "NUP",
+    "UO",
+    "OP",
+    "REH",
+    "UR",
+    "UŻ",
+    "UOK",
+    "WZS",
+    "WYC",
+  ] as [AttendanceStatus, ...AttendanceStatus[]]),
+  date: z.string().datetime(),
+});
+
+export type UpdateEmployeeAttendanceInput = z.infer<
+  typeof updateEmployeeAttendanceSchema
+>;

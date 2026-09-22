@@ -8,6 +8,7 @@ import {
   Holiday,
 } from "@/types";
 import { apiRequest } from "./api-request";
+import { UpdateEmployeeAttendanceDto } from "@/components/EmployeeCalendar/types";
 
 export class ApiService {
   static async login(email: string, password: string): Promise<UserProfile> {
@@ -71,10 +72,25 @@ export class ApiService {
     return data;
   }
 
-  static async getEmployeeAbsences(id: string): Promise<Absences> {
+  static async getEmployeeAbsencesByMonth(
+    id: string,
+    year: number,
+    month: number,
+  ): Promise<Absences> {
     const data = await apiRequest<Absences>(
-      `/api/employees/${id}/attendance/absences`,
+      `/api/employees/${id}/attendance/absences?year=${year}&month=${month}`,
     );
     return data;
+  }
+
+  static async updateEmployeeAttendance(
+    id: string,
+    data: UpdateEmployeeAttendanceDto,
+  ): Promise<void> {
+    const response = await apiRequest<void>(`/api/employees/${id}/attendance`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+    return response;
   }
 }

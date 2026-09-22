@@ -9,6 +9,7 @@ import { CalendarTable } from "./CalendarTable";
 import { CalendarRecord, AttendanceStatus } from "./types";
 import { ApiService } from "@/services/api.service";
 import { Absence } from "@/types";
+import { QueryKeysService } from "@/services/query-keys.service";
 
 interface EmployeeCalendarProps {
   employeeId: string;
@@ -19,7 +20,8 @@ export default function EmployeeCalendar({
 }: EmployeeCalendarProps) {
   const today = useMemo(() => new Date(), []);
   const [year, setYear] = useState(() => today.getFullYear());
-  const [month, setMonth] = useState(() => today.getMonth());
+  // Miesiące od razu w zakresie 1-12 (np. styczeń = 1, wrzesień = 9)
+  const [month, setMonth] = useState(() => today.getMonth() + 1);
   const [scrollToTodaySignal, setScrollToTodaySignal] = useState(0);
 
   const {
@@ -29,9 +31,17 @@ export default function EmployeeCalendar({
     error,
     refetch,
   } = useQuery({
-    queryKey: ["employee-attendance", employeeId, year, month],
+    queryKey: QueryKeysService.attendancePerMonth({
+      employeeId,
+      year,
+      month, // Wędruje wprost 1-12
+    }),
     queryFn: async () => {
-      const absences = await ApiService.getEmployeeAbsences(employeeId);
+      const absences = await ApiService.getEmployeeAbsencesByMonth(
+        employeeId,
+        year,
+        month,
+      );
       const records: CalendarRecord[] = (
         Array.isArray(absences) ? absences : []
       ).map((item: Absence) => ({
@@ -41,6 +51,7 @@ export default function EmployeeCalendar({
 
       return records;
     },
+    enabled: !!employeeId,
   });
 
   const attendanceByDate = useMemo(() => {
@@ -54,8 +65,8 @@ export default function EmployeeCalendar({
   }, [attendance]);
 
   const goToPrevMonth = () => {
-    if (month === 0) {
-      setMonth(11);
+    if (month === 1) {
+      setMonth(12);
       setYear((prev) => prev - 1);
     } else {
       setMonth((prev) => prev - 1);
@@ -63,8 +74,8 @@ export default function EmployeeCalendar({
   };
 
   const goToNextMonth = () => {
-    if (month === 11) {
-      setMonth(0);
+    if (month === 12) {
+      setMonth(1);
       setYear((prev) => prev + 1);
     } else {
       setMonth((prev) => prev + 1);
@@ -73,7 +84,7 @@ export default function EmployeeCalendar({
 
   const goToToday = () => {
     setYear(today.getFullYear());
-    setMonth(today.getMonth());
+    setMonth(today.getMonth() + 1);
     setScrollToTodaySignal((prev) => prev + 1);
   };
 
@@ -103,7 +114,7 @@ export default function EmployeeCalendar({
       ) : (
         <CalendarTable
           year={year}
-          month={month}
+          month={month} // Przekazujemy czyste 1-12
           attendanceByDate={attendanceByDate}
           scrollToTodaySignal={scrollToTodaySignal}
         />
