@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CalendarRow } from "./calendar-row";
+import { CalendarRow } from "./CalendarRow";
 import { AttendanceStatus } from "./types";
 
 const COLUMNS = [
