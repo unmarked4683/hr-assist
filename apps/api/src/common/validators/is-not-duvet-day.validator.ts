@@ -13,7 +13,7 @@ import { HolidaysService } from 'src/modules/holidays/holidays.service';
 export class IsNotDuvetDayConstraint implements ValidatorConstraintInterface {
   constructor(private readonly holidaysService: HolidaysService) {}
 
-  async validate(value: any): Promise<boolean> {
+  async validate(value: Date): Promise<boolean> {
     if (!(value instanceof Date)) return false;
     return !(await this.holidaysService.isDuvetDay(value));
   }

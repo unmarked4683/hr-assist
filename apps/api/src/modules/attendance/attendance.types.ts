@@ -18,13 +18,24 @@ export enum AbsenceType {
   PARENTAL_CHILD_LEAVE = 'WYC',
 }
 
-export const AttendanceStatus = {
-  ...AbsenceType,
-  PRESENCE: 'OB',
-} as const satisfies Record<string, string>;
-
-export type AttendanceStatusType =
-  (typeof AttendanceStatus)[keyof typeof AttendanceStatus];
+export enum AttendanceStatus {
+  PRESENCE = 'OB',
+  SICK_LEAVE = 'CH',
+  UNEXCUSED_ABSENCE = 'NN',
+  UNPAID_LEAVE = 'UB',
+  VACATION_LEAVE = 'UW',
+  MATERNITY_LEAVE = 'UM',
+  UNPAID_EXCUSED_ABSENCE = 'NUN',
+  PAID_EXCUSED_ABSENCE = 'NUP',
+  PATERNITY_LEAVE = 'UO',
+  CARE = 'OP',
+  REHABILITATION_BENEFIT = 'REH',
+  PARENTAL_LEAVE = 'UR',
+  ON_DEMAND_LEAVE = 'UŻ',
+  CIRCUMSTANTIAL_LEAVE = 'UOK',
+  DAY_OFF_FOR_HOLIDAY = 'WZS',
+  PARENTAL_CHILD_LEAVE = 'WYC',
+}
 
 export interface IAbsenceEntity {
   id: string;
@@ -36,4 +47,9 @@ export interface IAbsenceEntity {
 export interface IDateQueryDto {
   year?: number; // min. 2026, max. currentYear + 5
   month?: number; // min. 1, max. 12
+}
+
+export interface IChangeAttendanceStatusDto {
+  status: AttendanceStatus;
+  date: Date; // min. 01.01.2026, max. currentDate + 5 years
 }

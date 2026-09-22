@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { useContainer } from 'class-validator';
-import { AttendanceModule } from './modules/attendance/attendance.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,7 +18,7 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
   });
 
-  useContainer(app.select(AttendanceModule), { fallbackOnErrors: true });
+  useContainer(app.select(AppModule), { fallbackOnErrors: true });
 
   const config = new DocumentBuilder()
     .setTitle('HR Assist API')

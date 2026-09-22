@@ -10,6 +10,8 @@ import {
   endOfMonth,
   set,
 } from 'date-fns';
+import { ChangeAttendanceStatusDto } from './dto/change-attendance-status.dto';
+import { AbsenceType, AttendanceStatus } from './attendance.types';
 
 @Injectable()
 export class AttendanceService {
@@ -38,5 +40,48 @@ export class AttendanceService {
     }
 
     return AbsenceEntity.find({ where });
+  }
+
+  async changeAttendanceStatus(
+    employeeId: string,
+    { date, status }: ChangeAttendanceStatusDto,
+  ) {
+    await this.employeesService.findOne(employeeId);
+
+    if (status === AttendanceStatus.PRESENCE) {
+      console.log('DELETING ABSENCE FOR DATE: ', date);
+      await AbsenceEntity.delete({ employee: { id: employeeId }, date });
+      return;
+    }
+
+    // const absence: AbsenceEntity = (await AbsenceEntity.findOneBy({
+    //   employee: { id: employeeId },
+    //   date,
+    // })) as AbsenceEntity;
+
+    // if (absence) {
+    //   if (absence.type !== (status as unknown as AbsenceType)) {
+    //     absence.type = status as unknown as AbsenceType;
+    //     await absence.save();
+    //   }
+    //   return;
+    // } else {
+    //   const newAbsence: AbsenceEntity = AbsenceEntity.create({
+    //     employee: { id: employeeId },
+    //     date,
+    //     type: status as unknown as AbsenceType,
+    //   });
+    //   await newAbsence.save();
+    //   return;
+    // }
+    const newAbsence = await AbsenceEntity.upsert(
+      {
+        employee: { id: employeeId },
+        date,
+        type: status as unknown as AbsenceType,
+      },
+      ['employee', 'date'],
+    );
+    console.log('NEW ABSENCE: ', newAbsence);
   }
 }
