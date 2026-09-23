@@ -27,6 +27,6 @@ export class AbsenceEntity extends BaseEntity implements IAbsenceEntity {
   date: Date;
 
   @ManyToOne(() => EmployeeEntity, (employee) => employee.absences)
-  @JoinColumn({ name: 'employee_id' })
+  @JoinColumn({ name: 'employeeId' })
   employee: EmployeeEntity;
 }

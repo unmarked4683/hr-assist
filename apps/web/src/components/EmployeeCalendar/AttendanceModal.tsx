@@ -29,7 +29,7 @@ export function AttendanceModal({
   onUpdate,
 }: AttendanceModalProps) {
   const [selectedStatus, setSelectedStatus] = useState<AttendanceStatus>(
-    currentStatus || "PRESENT",
+    currentStatus || "OB",
   );
 
   const formattedDate = format(date, "d MMMM yyyy", { locale: pl });

@@ -19,6 +19,7 @@ import { HolidaysModule } from './modules/holidays/holidays.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { typeOrmConfig } from './config/typeorm.config';
 import { AttendanceModule } from './modules/attendance/attendance.module';
+import { LeavesModule } from './modules/leaves/leaves.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { AttendanceModule } from './modules/attendance/attendance.module';
     CompaniesModule,
     HolidaysModule,
     AttendanceModule,
+    LeavesModule,
   ],
   controllers: [AppController],
   providers: [
