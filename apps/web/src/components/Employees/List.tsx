@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { ApiService } from "@/services/api.service";
+import { QueryKeysService } from "@/services/query-keys.service";
 import { MapPin, Users, AlertCircle, Loader2 } from "lucide-react";
 import { EmployeesList } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -35,7 +36,7 @@ export default function List() {
     isLoading,
     isError,
   } = useQuery<EmployeesList>({
-    queryKey: ["employees"],
+    queryKey: QueryKeysService.employeesList(),
     queryFn: async () =>
       (await ApiService.getEmployees()) as unknown as EmployeesList,
     staleTime: ms("5 minutes"),
