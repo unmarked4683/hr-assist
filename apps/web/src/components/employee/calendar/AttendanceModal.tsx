@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AttendanceStatus, STATUS_PRESENTATION } from "./types";
+import { AttendanceStatus, LEAVE_ATTENDANCE_STATUSES, STATUS_PRESENTATION } from "./types";
 import { QueryKeysService } from "@/services/query-keys.service";
 
 interface AttendanceModalProps {
@@ -19,9 +19,11 @@ interface AttendanceModalProps {
   onClose: () => void;
   date: Date;
   currentStatus: AttendanceStatus | null;
-  onUpdate: (status: AttendanceStatus) => void;
+  onUpdate: (status: AttendanceStatus) => Promise<void>;
   employeeId: string;
 }
+
+const STATUS_OPTIONS = Object.values(AttendanceStatus);
 
 export function AttendanceModal({
   isOpen,
@@ -31,31 +33,36 @@ export function AttendanceModal({
   onUpdate,
   employeeId,
 }: AttendanceModalProps) {
-  const [selectedStatus, setSelectedStatus] = useState<string>(
-    currentStatus || "OB",
+  const [selectedStatus, setSelectedStatus] = useState<AttendanceStatus>(
+    currentStatus ?? AttendanceStatus.OB,
   );
+  const [isSaving, setIsSaving] = useState(false);
   const queryClient = useQueryClient();
 
   const formattedDate = format(date, "d MMMM yyyy", { locale: pl });
 
-  const handleSave = () => {
-    onUpdate(selectedStatus as AttendanceStatus);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      await onUpdate(selectedStatus);
+    } catch {
+      // Błąd jest już logowany przez mutację wywołującą onUpdate —
+      // zostawiamy modal otwarty, żeby użytkownik mógł spróbować ponownie.
+      setIsSaving(false);
+      return;
+    }
 
-    // Sprawdzamy czy wybrany status to urlop
-    const leaveStatuses = ["UŻ", "UW"];
-    const isLeaveStatus = leaveStatuses.includes(selectedStatus);
-
-    if (isLeaveStatus && employeeId) {
-      // Unieważnienie cache z poprawnym przekazaniem obiektu do QueryKeysService
+    // Status frekwencji został zapisany — dopiero teraz unieważniamy cache urlopów,
+    // jeśli wybrany status jest jednym z typów urlopu.
+    if (employeeId && LEAVE_ATTENDANCE_STATUSES.includes(selectedStatus)) {
       queryClient.invalidateQueries({
         queryKey: QueryKeysService.employeeLeave({ employeeId }),
       });
     }
 
+    setIsSaving(false);
     onClose();
   };
-
-  const statuses = Object.keys(STATUS_PRESENTATION);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -77,18 +84,17 @@ export function AttendanceModal({
             </label>
             <select
               value={selectedStatus}
-              onChange={(e) => setSelectedStatus(e.target.value)}
+              onChange={(e) =>
+                setSelectedStatus(e.target.value as AttendanceStatus)
+              }
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
             >
-              {statuses.map((statusKey) => {
-                const presentation =
-                  STATUS_PRESENTATION[statusKey as AttendanceStatus];
-                const code = presentation?.code || statusKey;
-                const label = presentation?.label || statusKey;
+              {STATUS_OPTIONS.map((statusOption) => {
+                const presentation = STATUS_PRESENTATION[statusOption];
 
                 return (
-                  <option key={statusKey} value={statusKey}>
-                    {label} ({code})
+                  <option key={statusOption} value={statusOption}>
+                    {presentation.label} ({presentation.code})
                   </option>
                 );
               })}
@@ -96,8 +102,8 @@ export function AttendanceModal({
           </div>
 
           <div className="w-full pt-2">
-            <Button onClick={handleSave} className="w-full">
-              Zaktualizuj
+            <Button onClick={handleSave} disabled={isSaving} className="w-full">
+              {isSaving ? "Zapisywanie…" : "Zaktualizuj"}
             </Button>
           </div>
         </div>

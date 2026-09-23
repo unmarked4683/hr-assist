@@ -13,30 +13,22 @@ export function StatusIndicator({ status, className }: StatusIndicatorProps) {
     );
   }
 
-  const customPresentation = STATUS_PRESENTATION[status];
-
-  const presentation = {
-    code: customPresentation?.code || status,
-    label: customPresentation?.label || status,
-    dotClassName: customPresentation?.dotClassName || "bg-amber-500",
-    textClassName: customPresentation?.textClassName || "text-amber-600",
-  };
+  const presentation = STATUS_PRESENTATION[status];
+  const dotClassName = presentation.dotClassName || "bg-amber-500";
+  const textClassName = presentation.textClassName || "text-amber-600";
 
   return (
     <span
       title={presentation.label}
       className={cn(
         "inline-flex items-center gap-1.5 text-sm font-medium",
-        presentation.textClassName,
+        textClassName,
         className,
       )}
     >
       <span
         aria-hidden="true"
-        className={cn(
-          "size-2 shrink-0 rounded-full",
-          presentation.dotClassName,
-        )}
+        className={cn("size-2 shrink-0 rounded-full", dotClassName)}
       />
       {presentation.code}
     </span>

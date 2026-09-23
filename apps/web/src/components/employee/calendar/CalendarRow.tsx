@@ -3,7 +3,6 @@
 import { forwardRef, useState } from "react";
 import { format, isWeekend } from "date-fns";
 import { pl } from "date-fns/locale";
-import { useParams } from "next/navigation";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { StatusIndicator } from "./StatusIndicator";
 import {
@@ -19,6 +18,7 @@ import { QueryKeysService } from "@/services/query-keys.service";
 import { Employee, EmployeesList } from "@/types";
 
 interface CalendarRowProps {
+  employeeId: string;
   date: Date;
   rawStatus?: AttendanceStatus;
   isToday: boolean;
@@ -28,10 +28,10 @@ interface CalendarRowProps {
 }
 
 export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
-  ({ date, rawStatus, isToday, isFuture, holidaysMap = new Map() }, ref) => {
-    const params = useParams();
-    const employeeId = params?.id as string;
-
+  (
+    { employeeId, date, rawStatus, isToday, isFuture, holidaysMap = new Map() },
+    ref,
+  ) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const queryClient = useQueryClient();
     const weekdayLabel = format(date, "EEEE", { locale: pl });
@@ -46,9 +46,9 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
       ? null
       : weekend || isFuture
         ? null
-        : rawStatus || "OB";
+        : rawStatus || AttendanceStatus.OB;
 
-    const isUnexcused = effectiveStatus === "NN";
+    const isUnexcused = effectiveStatus === AttendanceStatus.NN;
 
     const mutation = useMutation({
       mutationFn: async (newStatus: AttendanceStatus) => {
@@ -121,8 +121,8 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
       setIsModalOpen(true);
     };
 
-    const handleUpdateStatus = (newStatus: AttendanceStatus) => {
-      mutation.mutate(newStatus);
+    const handleUpdateStatus = async (newStatus: AttendanceStatus) => {
+      await mutation.mutateAsync(newStatus);
     };
 
     return (
@@ -201,6 +201,7 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
             date={date}
             currentStatus={effectiveStatus}
             onUpdate={handleUpdateStatus}
+            employeeId={employeeId}
           />
         )}
       </>

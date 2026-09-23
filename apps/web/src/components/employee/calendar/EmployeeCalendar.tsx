@@ -15,9 +15,7 @@ interface EmployeeCalendarProps {
   employeeId: string;
 }
 
-export default function EmployeeCalendar({
-  employeeId,
-}: EmployeeCalendarProps) {
+export function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) {
   const today = useMemo(() => new Date(), []);
   const [year, setYear] = useState(() => today.getFullYear());
   // Miesiące od razu w zakresie 1-12 (np. styczeń = 1, wrzesień = 9)
@@ -113,6 +111,7 @@ export default function EmployeeCalendar({
         />
       ) : (
         <CalendarTable
+          employeeId={employeeId}
           year={year}
           month={month} // Przekazujemy czyste 1-12
           attendanceByDate={attendanceByDate}

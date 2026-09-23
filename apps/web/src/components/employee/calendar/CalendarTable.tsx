@@ -40,6 +40,7 @@ const COLUMN_WIDTHS = [
 ];
 
 interface CalendarTableProps {
+  employeeId: string;
   year: number;
   month: number; // oczekiwane 1-12
   attendanceByDate: Map<string, AttendanceStatus>;
@@ -47,6 +48,7 @@ interface CalendarTableProps {
 }
 
 export function CalendarTable({
+  employeeId,
   year,
   month,
   attendanceByDate,
@@ -115,6 +117,7 @@ export function CalendarTable({
                 <CalendarRow
                   key={dateKey}
                   ref={isToday ? todayRowRef : undefined}
+                  employeeId={employeeId}
                   date={date}
                   rawStatus={attendanceByDate.get(dateKey)}
                   isToday={isToday}
