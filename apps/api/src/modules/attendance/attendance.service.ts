@@ -1,4 +1,9 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  UnprocessableEntityException,
+  forwardRef,
+} from '@nestjs/common';
 import { DateQueryDto } from './dto/date-query.dto';
 import { AbsenceEntity } from './entities/absence.entity';
 import { EmployeesService } from '../employees/employees.service';
@@ -12,12 +17,17 @@ import {
 } from 'date-fns';
 import { ChangeAttendanceStatusDto } from './dto/change-attendance-status.dto';
 import { AbsenceType, AttendanceStatus } from './attendance.types';
+import { LeavesService } from '../leaves/leaves.service';
+import { LEAVE_TYPES } from 'src/common/constants';
 
 @Injectable()
 export class AttendanceService {
   constructor(
     @Inject(forwardRef(() => EmployeesService))
     private readonly employeesService: EmployeesService,
+
+    @Inject(forwardRef(() => LeavesService))
+    private readonly leavesService: LeavesService,
   ) {}
 
   async findAbsences(
@@ -56,6 +66,15 @@ export class AttendanceService {
       return;
     }
 
+    if (LEAVE_TYPES.includes(status as unknown as AbsenceType)) {
+      const canAddLeave: boolean =
+        await this.leavesService.canAddLeave(employeeId);
+
+      if (!canAddLeave)
+        throw new UnprocessableEntityException(
+          'Pracownik wyczerpał limit urlopów na żądanie i wypoczynkowych na bieżący rok',
+        );
+    }
     const newAbsence = await AbsenceEntity.upsert(
       {
         employee: { id: employeeId },

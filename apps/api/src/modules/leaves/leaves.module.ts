@@ -7,5 +7,6 @@ import { EmployeesModule } from '../employees/employees.module';
   imports: [forwardRef(() => EmployeesModule)],
   controllers: [LeavesController],
   providers: [LeavesService],
+  exports: [LeavesService],
 })
 export class LeavesModule {}

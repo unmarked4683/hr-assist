@@ -4,8 +4,9 @@ import { LeaveDetailsDto, LeaveDto } from './dto/leave.dto';
 import { AbsenceEntity } from '../attendance/entities/absence.entity';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { AbsenceType } from '../attendance/attendance.types';
 import { getYear } from 'date-fns';
+import { EmployeeEntity } from '../employees/entities/employee.entity';
+import { LEAVE_TYPES } from 'src/common/constants';
 
 @Injectable()
 export class LeavesService {
@@ -69,11 +70,34 @@ export class LeavesService {
       .from(AbsenceEntity, 'a')
       .where('a.employeeId = :employeeId', { employeeId })
       .andWhere('EXTRACT(YEAR FROM a.date) = :year', { year })
-      .andWhere('a.type IN (:...types)', {
-        types: [AbsenceType.VACATION_LEAVE, AbsenceType.ON_DEMAND_LEAVE],
+      .andWhere('a.type IN (:...leaveTypes)', {
+        leaveTypes: LEAVE_TYPES,
       })
       .getRawOne<{ leavesCount: number }>())!;
 
     return leavesCount;
+  }
+
+  async canAddLeave(employeeId: string): Promise<boolean> {
+    const {
+      leave: { current, overdue },
+    }: EmployeeEntity = await this.employeesService.findOneById(employeeId);
+    const currentYear: number = getYear(new Date());
+    const { leavesCount } = (await this.dataSource
+      .createQueryBuilder()
+      .select('COUNT(a.id)::int', 'leavesCount')
+      .from(AbsenceEntity, 'a')
+      .where('a.employeeId = :employeeId', { employeeId })
+      .andWhere('EXTRACT(YEAR FROM a.date) = :currentYear', { currentYear })
+      .andWhere('a.type IN (:...leaveTypes)', {
+        leaveTypes: LEAVE_TYPES,
+      })
+      .getRawOne<{ leavesCount: number }>())!;
+
+    console.log('LEAVES COUNT: ', leavesCount);
+    const fullLeaveBase: number = overdue + current;
+    console.log('FULL LEAVE BASE: ', fullLeaveBase);
+
+    return leavesCount < fullLeaveBase;
   }
 }
