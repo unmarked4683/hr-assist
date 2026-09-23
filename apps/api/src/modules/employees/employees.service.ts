@@ -52,7 +52,21 @@ export class EmployeesService {
     return employeesListDto;
   }
 
-  async findOne(id: string): Promise<EmployeeEntity> {
+  async findOne(id: string): Promise<EmployeeResponseDto> {
+    const employee = await EmployeeEntity.findOne({ where: { id } });
+    if (!employee) {
+      throw new NotFoundException(`Employee with id ${id} not found`);
+    }
+    const hasUnexcusedAbsences: boolean =
+      await this.attendanceService.hasUnexcusedAbsences(id);
+
+    return {
+      ...employee,
+      ok: !hasUnexcusedAbsences,
+    };
+  }
+
+  async findOneById(id: string): Promise<EmployeeEntity> {
     const employee = await EmployeeEntity.findOne({ where: { id } });
     if (!employee) {
       throw new NotFoundException(`Employee with id ${id} not found`);
@@ -92,19 +106,19 @@ export class EmployeesService {
   }
 
   async update(id: string, dto: UpdateEmployeeDto): Promise<EmployeeEntity> {
-    const employee = await this.findOne(id);
+    const employee = await this.findOneById(id);
     const merged = merge({}, employee, dto);
     Object.assign(employee, merged);
     return await employee.save();
   }
 
   async remove(id: string): Promise<EmployeeEntity> {
-    const employee = await this.findOne(id);
+    const employee = await this.findOneById(id);
     return await employee.remove();
   }
 
   async fire(id: string, firedBy: UserEntity): Promise<EmployeeEntity> {
-    const employee = await this.findOne(id);
+    const employee = await this.findOneById(id);
     employee.firedBy = firedBy;
     await employee.softRemove();
     return employee;

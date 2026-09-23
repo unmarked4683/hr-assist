@@ -16,6 +16,7 @@ import { AttendanceModal } from "./AttendanceModal";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiService } from "@/services/api.service";
 import { QueryKeysService } from "@/services/query-keys.service";
+import { Employee, EmployeesList } from "@/types";
 
 interface CalendarRowProps {
   date: Date;
@@ -53,24 +54,58 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
       mutationFn: async (newStatus: AttendanceStatus) => {
         if (!employeeId) throw new Error("Brak ID pracownika w URL");
         const dateString: string = format(date, "yyyy-MM-dd");
-        console.log("EMPLOYEE ID", employeeId);
-        console.log("DATE", dateString);
-        console.log("NEW STATUS", newStatus);
         await ApiService.updateEmployeeAttendance(employeeId, {
           status: newStatus,
-          // date: date.toISOString(),
           date: dateString,
         });
       },
-      onSuccess: async () => {
-        // Inwalidacja za pomocą QueryKeysService (identyczny klucz jak w zapytaniu)
+      onSuccess: async (_, newStatus) => {
+        const year = parseInt(format(date, "yyyy"), 10);
+        const month = parseInt(format(date, "M"), 10);
+
+        // 1. Inwalidujemy i od razu pobieramy świeże absencje dla tego miesiąca
         await queryClient.invalidateQueries({
           queryKey: QueryKeysService.attendancePerMonth({
             employeeId,
-            year: date.getFullYear(),
-            month: date.getMonth() + 1,
+            year,
+            month,
           }),
         });
+
+        // 2. Natychmiast odświeżamy szczegóły tego pracownika (w tym flagę 'ok') za pomocą refetch
+        await queryClient.refetchQueries({
+          queryKey: QueryKeysService.employeeDetails({ employeeId }),
+        });
+
+        // 3. Bezpośrednio modyfikujemy cache listy pracowników, żeby flaga/status zmieniły się w locie
+        queryClient.setQueryData(
+          QueryKeysService.employeesList(),
+          (oldData: EmployeesList | undefined) => {
+            if (!oldData) return oldData;
+
+            // Zakładając, że EmployeesList to tablica pracowników lub obiekt zawierający tablicę
+            const list = Array.isArray(oldData)
+              ? oldData
+              : (oldData as EmployeesList);
+            if (!Array.isArray(list)) return oldData;
+
+            const updatedList = list.map(({}: Employee) => {
+              if (emp.id === employeeId) {
+                // Jeśli zmieniono na NN, ustawiamy ok na false, w przeciwnym razie backend zweryfikuje przy refetchu
+                return {
+                  ...emp,
+                  ok: newStatus === "NN" ? false : emp.ok,
+                };
+              }
+              return emp;
+            });
+
+            return Array.isArray(oldData)
+              ? updatedList
+              : { ...oldData, employees: updatedList };
+          },
+        );
+
         setIsModalOpen(false);
       },
       onError: (error) => {

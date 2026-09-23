@@ -19,4 +19,8 @@ export class QueryKeysService {
   public static employeeDetails(params: { employeeId: string }) {
     return [this.EMPLOYEE_SCOPE, params.employeeId] as const;
   }
+
+  public static employeesList() {
+    return [this.EMPLOYEE_SCOPE, "list"] as const;
+  }
 }
