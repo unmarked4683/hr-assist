@@ -59,11 +59,11 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
           date: dateString,
         });
       },
-      onSuccess: async (_, newStatus) => {
+      onSuccess: async () => {
         const year = parseInt(format(date, "yyyy"), 10);
         const month = parseInt(format(date, "M"), 10);
 
-        // 1. Inwalidujemy i od razu pobieramy świeże absencje dla tego miesiąca
+        // 1. Inwalidujemy absencje w kalendarzu dla danego miesiąca
         await queryClient.invalidateQueries({
           queryKey: QueryKeysService.attendancePerMonth({
             employeeId,
@@ -72,37 +72,40 @@ export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
           }),
         });
 
-        // 2. Natychmiast odświeżamy szczegóły tego pracownika (w tym flagę 'ok') za pomocą refetch
+        // 2. Odświeżamy szczegóły TEGO JEDNEGO pracownika z backendu
         await queryClient.refetchQueries({
           queryKey: QueryKeysService.employeeDetails({ employeeId }),
         });
 
-        // 3. Bezpośrednio modyfikujemy cache listy pracowników, żeby flaga/status zmieniły się w locie
+        // 3. Pobieramy ten świeży obiekt z cache szczegółów pracownika
+        const updatedEmployee = queryClient.getQueryData<Employee>(
+          QueryKeysService.employeeDetails({ employeeId }),
+        );
+
+        // 4. Podmieniamy go na liście głównej bez ponownego pobierania całej listy!
         queryClient.setQueryData(
           QueryKeysService.employeesList(),
           (oldData: EmployeesList | undefined) => {
             if (!oldData) return oldData;
 
-            // Zakładając, że EmployeesList to tablica pracowników lub obiekt zawierający tablicę
             const list = Array.isArray(oldData)
               ? oldData
               : (oldData as EmployeesList);
             if (!Array.isArray(list)) return oldData;
 
-            const updatedList = list.map(({}: Employee) => {
+            // Jeśli z jakiegoś powodu nie mamy nowego obiektu, zostawiamy stare dane
+            if (!updatedEmployee) return oldData;
+
+            const updatedList = list.map((emp: Employee) => {
               if (emp.id === employeeId) {
-                // Jeśli zmieniono na NN, ustawiamy ok na false, w przeciwnym razie backend zweryfikuje przy refetchu
-                return {
-                  ...emp,
-                  ok: newStatus === "NN" ? false : emp.ok,
-                };
+                return updatedEmployee; // <-- Wrzucamy świeży obiekt z backendu!
               }
               return emp;
             });
 
             return Array.isArray(oldData)
               ? updatedList
-              : { ...oldData, employees: updatedList };
+              : { ...(oldData as EmployeesList), employees: updatedList };
           },
         );
 

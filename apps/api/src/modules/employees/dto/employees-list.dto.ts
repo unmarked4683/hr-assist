@@ -1,13 +1,13 @@
-import { IAbsenceEntity } from 'src/modules/attendance/attendance.types';
-import { ICompanyEntity } from 'src/modules/companies/company.types';
-import { IUserEntity } from 'src/modules/users/user.types';
 import {
   ContractType,
   IEmployeeResponseDto,
-  ILeaveEntity,
-  IWorkScheduleEntity,
   Location,
 } from '../employee.types';
+import { WorkScheduleEntity } from '../entities/work-schedule.entity';
+import { AbsenceEntity } from 'src/modules/attendance/entities/absence.entity';
+import { LeaveEntity } from '../entities/leave.entity';
+import { CompanyEntity } from 'src/modules/companies/entities/company.entity';
+import { UserEntity } from 'src/modules/users/user.entity';
 
 export class EmployeeResponseDto implements IEmployeeResponseDto {
   ok: boolean;
@@ -19,13 +19,13 @@ export class EmployeeResponseDto implements IEmployeeResponseDto {
   updatedAt: Date;
   position: string;
   location: Location;
-  company: ICompanyEntity;
+  company: CompanyEntity;
   workHours: number;
-  workSchedule: IWorkScheduleEntity;
+  workSchedule: WorkScheduleEntity;
   employmentDate: Date;
   contractType: ContractType;
   firedAt: Date | null;
-  firedBy: IUserEntity | null;
-  absences: IAbsenceEntity[];
-  leave: ILeaveEntity;
+  firedBy: UserEntity | null;
+  absences: AbsenceEntity[];
+  leave: LeaveEntity;
 }
