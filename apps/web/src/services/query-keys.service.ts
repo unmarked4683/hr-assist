@@ -23,4 +23,8 @@ export class QueryKeysService {
   public static employeesList() {
     return [this.EMPLOYEE_SCOPE, "list"] as const;
   }
+
+  public static employeeLeave(params: { employeeId: string }) {
+    return [this.EMPLOYEE_SCOPE, "leave", params.employeeId] as const;
+  }
 }

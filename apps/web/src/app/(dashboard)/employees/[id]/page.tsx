@@ -18,6 +18,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { SectionErrorBlock } from "@/components/ui/section-error-block";
 import { ApiService } from "@/services/api.service";
+import { QueryKeysService } from "@/services/query-keys.service";
 import { useParams } from "next/navigation";
 import EmployeeCalendar from "@/components/EmployeeCalendar";
 
@@ -44,8 +45,21 @@ export default function EmployeePage() {
     error,
     refetch,
   } = useQuery({
-    queryKey: ["employee", employeeId],
+    queryKey: QueryKeysService.employeeDetails({
+      employeeId: employeeId as string,
+    }),
     queryFn: async () => await ApiService.getEmployeeById(employeeId as string),
+    enabled: !!employeeId,
+  });
+
+  // Pobieranie danych o urlopach z uwzględnieniem struktury QueryKeysService
+  const { data: leaveData, isLoading: isLeaveLoading } = useQuery({
+    queryKey: QueryKeysService.employeeLeave({
+      employeeId: employeeId as string,
+    }),
+    queryFn: async () =>
+      await ApiService.getEmployeeLeave(employeeId as string),
+    enabled: !!employeeId,
   });
 
   if (isLoading) {
@@ -218,33 +232,39 @@ export default function EmployeePage() {
                 </div>
 
                 <div className="grid flex-1 grid-cols-2 gap-3">
+                  {/* Urlop zaległy */}
                   <Card className="flex flex-col items-center justify-center gap-2 bg-muted/40 p-3.5">
                     <h3 className="text-sm font-semibold">Urlop zaległy</h3>
                     <Progress
                       value={
-                        employee.leave.base > 0
-                          ? (employee.leave.overdue / employee.leave.base) * 100
+                        leaveData?.overdue.base && leaveData.overdue.base > 0
+                          ? (leaveData.overdue.used / leaveData.overdue.base) *
+                            100
                           : 0
                       }
                       className="w-3/4"
                     />
                     <span className="text-xs font-medium text-muted-foreground">
-                      {employee.leave.overdue} / {employee.leave.base} dni
+                      {leaveData?.overdue.used ?? 0} /{" "}
+                      {leaveData?.overdue.base ?? 0} dni
                     </span>
                   </Card>
 
+                  {/* Urlop aktualny */}
                   <Card className="flex flex-col items-center justify-center gap-2 bg-muted/40 p-3.5">
                     <h3 className="text-sm font-semibold">Urlop aktualny</h3>
                     <Progress
                       value={
-                        employee.leave.base > 0
-                          ? (employee.leave.current / employee.leave.base) * 100
+                        leaveData?.current.base && leaveData.current.base > 0
+                          ? (leaveData.current.used / leaveData.current.base) *
+                            100
                           : 0
                       }
                       className="w-3/4"
                     />
                     <span className="text-xs font-medium text-muted-foreground">
-                      {employee.leave.current} / {employee.leave.base} dni
+                      {leaveData?.current.used ?? 0} /{" "}
+                      {leaveData?.current.base ?? 0} dni
                     </span>
                   </Card>
                 </div>

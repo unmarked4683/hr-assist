@@ -37,3 +37,6 @@ export type Absences =
   paths["/api/employees/{employeeId}/attendance/absences"]["get"]["responses"]["200"]["content"]["application/json"];
 
 export type Absence = Absences[number];
+
+export type Leave =
+  paths["/api/employees/{employeeId}/leaves"]["get"]["responses"]["200"]["content"]["application/json"];

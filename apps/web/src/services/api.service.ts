@@ -6,6 +6,7 @@ import {
   Employee,
   EmployeesList,
   Holiday,
+  Leave,
 } from "@/types";
 import { apiRequest } from "./api-request";
 import { UpdateEmployeeAttendanceDto } from "@/components/EmployeeCalendar/types";
@@ -92,5 +93,10 @@ export class ApiService {
       body: JSON.stringify(data),
     });
     return response;
+  }
+
+  static async getEmployeeLeave(id: string): Promise<Leave> {
+    const data = await apiRequest<Leave>(`/api/employees/${id}/leaves`);
+    return data;
   }
 }

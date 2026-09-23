@@ -4,1016 +4,1040 @@
  */
 
 export interface paths {
-  "/api": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AppController_getHello"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["AppController_getHello"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/users": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UsersController_findAll"];
+        put?: never;
+        post: operations["UsersController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["UsersController_findAll"];
-    put?: never;
-    post: operations["UsersController_create"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/users/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/users/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UsersController_findOne"];
+        put: operations["UsersController_update"];
+        post?: never;
+        delete: operations["UsersController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["UsersController_findOne"];
-    put: operations["UsersController_update"];
-    post?: never;
-    delete: operations["UsersController_remove"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/auth/login": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post: operations["AuthController_login"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/auth/logout": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AuthController_logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post: operations["AuthController_logout"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/auth/me": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AuthController_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["AuthController_me"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/employees": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/employees": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EmployeesController_findAll"];
+        put?: never;
+        post: operations["EmployeesController_create"];
+        delete: operations["EmployeesController_removeAll"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["EmployeesController_findAll"];
-    put?: never;
-    post: operations["EmployeesController_create"];
-    delete: operations["EmployeesController_removeAll"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/employees/positions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/employees/positions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EmployeesController_findAllPositions"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["EmployeesController_findAllPositions"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/employees/pesel/check-availability": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/employees/pesel/check-availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EmployeesController_checkPeselAvailability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["EmployeesController_checkPeselAvailability"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/employees/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/employees/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["EmployeesController_findOne"];
+        put: operations["EmployeesController_update"];
+        post?: never;
+        delete: operations["EmployeesController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["EmployeesController_findOne"];
-    put: operations["EmployeesController_update"];
-    post?: never;
-    delete: operations["EmployeesController_remove"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/employees/{id}/fire": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/employees/{id}/fire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["EmployeesController_fire"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put?: never;
-    post: operations["EmployeesController_fire"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/companies": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/companies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CompaniesController_findAll"];
+        put?: never;
+        post: operations["CompaniesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["CompaniesController_findAll"];
-    put?: never;
-    post: operations["CompaniesController_create"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/companies/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/companies/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["CompaniesController_findOne"];
+        put: operations["CompaniesController_update"];
+        post?: never;
+        delete: operations["CompaniesController_remove"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["CompaniesController_findOne"];
-    put: operations["CompaniesController_update"];
-    post?: never;
-    delete: operations["CompaniesController_remove"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/employees/{employeeId}/attendance/absences": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/employees/{employeeId}/attendance/absences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["AttendanceController_findAbsences"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["AttendanceController_findAbsences"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/employees/{employeeId}/attendance": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/employees/{employeeId}/attendance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["AttendanceController_changeAttendanceStatus"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get?: never;
-    put: operations["AttendanceController_changeAttendanceStatus"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/holidays/{year}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
+    "/api/holidays/{year}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["HolidaysController_findHolidays"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
     };
-    get: operations["HolidaysController_findHolidays"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
+    "/api/employees/{employeeId}/leaves": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["LeavesController_findLeaveForCurrentYear"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    UserEntity: {
-      id: string;
-      name: string;
-      surname: string;
-      pesel: string;
-      email: string;
-      password: string;
-      accessToken?: string;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
+    schemas: {
+        UserEntity: {
+            id: string;
+            name: string;
+            surname: string;
+            pesel: string;
+            email: string;
+            password: string;
+            accessToken?: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateUserDto: {
+            name: string;
+            surname: string;
+            pesel: string;
+            /** Format: email */
+            email: string;
+            password: string;
+        };
+        UpdateUserDto: Record<string, never>;
+        LoginDto: {
+            /** Format: email */
+            email: string;
+            password: string;
+        };
+        AddressEntity: {
+            id: string;
+            street: string;
+            houseNumber: number;
+            postCode: string;
+            city: string;
+            company: components["schemas"]["CompanyEntity"];
+        };
+        WorkScheduleEntity: {
+            start: string;
+            end: string;
+        };
+        AbsenceEntity: {
+            id: string;
+            /** @enum {string} */
+            type: "CH" | "NN" | "UB" | "UW" | "UM" | "NUN" | "NUP" | "UO" | "OP" | "REH" | "UR" | "UŻ" | "UOK" | "WZS" | "WYC";
+            /** Format: date-time */
+            date: string;
+            employee: components["schemas"]["EmployeeEntity"];
+        };
+        LeaveEntity: {
+            base: number;
+            overdue: number;
+            current: number;
+        };
+        EmployeeEntity: {
+            id: string;
+            name: string;
+            surname: string;
+            pesel: string;
+            position: string;
+            /** @enum {number} */
+            location: 1 | 2;
+            workHours: number;
+            workSchedule: components["schemas"]["WorkScheduleEntity"];
+            /** Format: date-time */
+            employmentDate: string;
+            /** @enum {number} */
+            contractType: 1;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** Format: date-time */
+            firedAt: string | null;
+            firedBy: components["schemas"]["UserEntity"] | null;
+            absences: components["schemas"]["AbsenceEntity"][];
+            company: components["schemas"]["CompanyEntity"];
+            leave: components["schemas"]["LeaveEntity"];
+        };
+        CompanyEntity: {
+            id: string;
+            name: string;
+            nip: string;
+            address: components["schemas"]["AddressEntity"];
+            employees: components["schemas"]["EmployeeEntity"][];
+        };
+        EmployeeResponseDto: {
+            ok: boolean;
+            id: string;
+            name: string;
+            surname: string;
+            pesel: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            position: string;
+            /** @enum {number} */
+            location: 1 | 2;
+            company: components["schemas"]["CompanyEntity"];
+            workHours: number;
+            workSchedule: components["schemas"]["WorkScheduleEntity"];
+            /** Format: date-time */
+            employmentDate: string;
+            /** @enum {number} */
+            contractType: 1;
+            /** Format: date-time */
+            firedAt: string | null;
+            firedBy: components["schemas"]["UserEntity"] | null;
+            absences: components["schemas"]["AbsenceEntity"][];
+            leave: components["schemas"]["LeaveEntity"];
+        };
+        WorkScheduleDto: {
+            start: string;
+            end: string;
+        };
+        CreateEmployeeDto: {
+            name: string;
+            surname: string;
+            pesel: string;
+            position: string;
+            /** @enum {number} */
+            location: 1 | 2;
+            company: string;
+            workHours: number;
+            workSchedule: components["schemas"]["WorkScheduleDto"];
+            /** Format: date-time */
+            employmentDate: string;
+            /** @enum {number} */
+            contractType: 1;
+            /** @enum {number} */
+            leave: 20 | 26;
+        };
+        UpdateEmployeeDto: {
+            workSchedule?: components["schemas"]["WorkScheduleDto"];
+        };
+        CreateAddressDto: {
+            street: string;
+            houseNumber: number;
+            postCode: string;
+            city: string;
+        };
+        CreateCompanyDto: {
+            name: string;
+            nip: string;
+            address: components["schemas"]["CreateAddressDto"];
+        };
+        UpdateAddressDto: Record<string, never>;
+        UpdateCompanyDto: {
+            address: components["schemas"]["UpdateAddressDto"];
+        };
+        ChangeAttendanceStatusDto: {
+            /** @enum {string} */
+            status: "OB" | "CH" | "NN" | "UB" | "UW" | "UM" | "NUN" | "NUP" | "UO" | "OP" | "REH" | "UR" | "UŻ" | "UOK" | "WZS" | "WYC";
+            /** Format: date-time */
+            date: string;
+        };
+        HolidayEntity: {
+            id: string;
+            name: string;
+            /** Format: date-time */
+            date: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        LeaveDetailsDto: {
+            /**
+             * @description Wymiar bazowy urlopu (20 lub 26 dni)
+             * @example 26
+             */
+            base: number;
+            /**
+             * @description Liczba wykorzystanych dni urlopu
+             * @example 13
+             */
+            used: number;
+        };
+        LeaveDto: {
+            /** @description Urlop zaległy z poprzedniego roku */
+            overdue: components["schemas"]["LeaveDetailsDto"];
+            /** @description Urlop bieżący */
+            current: components["schemas"]["LeaveDetailsDto"];
+        };
     };
-    CreateUserDto: {
-      name: string;
-      surname: string;
-      pesel: string;
-      /** Format: email */
-      email: string;
-      password: string;
-    };
-    UpdateUserDto: Record<string, never>;
-    LoginDto: {
-      /** Format: email */
-      email: string;
-      password: string;
-    };
-    AddressEntity: {
-      id: string;
-      street: string;
-      houseNumber: number;
-      postCode: string;
-      city: string;
-      company: components["schemas"]["CompanyEntity"];
-    };
-    WorkScheduleEntity: {
-      start: string;
-      end: string;
-    };
-    AbsenceEntity: {
-      id: string;
-      /** @enum {string} */
-      type:
-        | "CH"
-        | "NN"
-        | "UB"
-        | "UW"
-        | "UM"
-        | "NUN"
-        | "NUP"
-        | "UO"
-        | "OP"
-        | "REH"
-        | "UR"
-        | "UŻ"
-        | "UOK"
-        | "WZS"
-        | "WYC";
-      /** Format: date-time */
-      date: string;
-      employee: components["schemas"]["EmployeeEntity"];
-    };
-    LeaveEntity: {
-      base: number;
-      overdue: number;
-      current: number;
-    };
-    EmployeeEntity: {
-      id: string;
-      name: string;
-      surname: string;
-      pesel: string;
-      position: string;
-      /** @enum {number} */
-      location: 1 | 2;
-      workHours: number;
-      workSchedule: components["schemas"]["WorkScheduleEntity"];
-      /** Format: date-time */
-      employmentDate: string;
-      /** @enum {number} */
-      contractType: 1;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-      /** Format: date-time */
-      firedAt: string | null;
-      firedBy: components["schemas"]["UserEntity"] | null;
-      absences: components["schemas"]["AbsenceEntity"][];
-      company: components["schemas"]["CompanyEntity"];
-      leave: components["schemas"]["LeaveEntity"];
-    };
-    CompanyEntity: {
-      id: string;
-      name: string;
-      nip: string;
-      address: components["schemas"]["AddressEntity"];
-      employees: components["schemas"]["EmployeeEntity"][];
-    };
-    EmployeeResponseDto: {
-      ok: boolean;
-      id: string;
-      name: string;
-      surname: string;
-      pesel: string;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-      position: string;
-      /** @enum {number} */
-      location: 1 | 2;
-      company: components["schemas"]["CompanyEntity"];
-      workHours: number;
-      workSchedule: components["schemas"]["WorkScheduleEntity"];
-      /** Format: date-time */
-      employmentDate: string;
-      /** @enum {number} */
-      contractType: 1;
-      /** Format: date-time */
-      firedAt: string | null;
-      firedBy: components["schemas"]["UserEntity"] | null;
-      absences: components["schemas"]["AbsenceEntity"][];
-      leave: components["schemas"]["LeaveEntity"];
-    };
-    WorkScheduleDto: {
-      start: string;
-      end: string;
-    };
-    CreateEmployeeDto: {
-      name: string;
-      surname: string;
-      pesel: string;
-      position: string;
-      /** @enum {number} */
-      location: 1 | 2;
-      company: string;
-      workHours: number;
-      workSchedule: components["schemas"]["WorkScheduleDto"];
-      /** Format: date-time */
-      employmentDate: string;
-      /** @enum {number} */
-      contractType: 1;
-      /** @enum {number} */
-      leave: 20 | 26;
-    };
-    UpdateEmployeeDto: {
-      workSchedule?: components["schemas"]["WorkScheduleDto"];
-    };
-    CreateAddressDto: {
-      street: string;
-      houseNumber: number;
-      postCode: string;
-      city: string;
-    };
-    CreateCompanyDto: {
-      name: string;
-      nip: string;
-      address: components["schemas"]["CreateAddressDto"];
-    };
-    UpdateAddressDto: Record<string, never>;
-    UpdateCompanyDto: {
-      address: components["schemas"]["UpdateAddressDto"];
-    };
-    ChangeAttendanceStatusDto: {
-      /** @enum {string} */
-      status:
-        | "OB"
-        | "CH"
-        | "NN"
-        | "UB"
-        | "UW"
-        | "UM"
-        | "NUN"
-        | "NUP"
-        | "UO"
-        | "OP"
-        | "REH"
-        | "UR"
-        | "UŻ"
-        | "UOK"
-        | "WZS"
-        | "WYC";
-      /** Format: date-time */
-      date: string;
-    };
-    HolidayEntity: {
-      id: string;
-      name: string;
-      /** Format: date-time */
-      date: string;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-    };
-  };
-  responses: never;
-  parameters: never;
-  requestBodies: never;
-  headers: never;
-  pathItems: never;
+    responses: never;
+    parameters: never;
+    requestBodies: never;
+    headers: never;
+    pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  AppController_getHello: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    AppController_getHello: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": string;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
         };
-      };
     };
-  };
-  UsersController_findAll: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    UsersController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["UserEntity"][];
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"][];
+                };
+            };
         };
-      };
     };
-  };
-  UsersController_create: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateUserDto"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
+    UsersController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["UserEntity"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateUserDto"];
+            };
         };
-      };
-    };
-  };
-  UsersController_findOne: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["UserEntity"];
+    };
+    UsersController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  UsersController_update: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateUserDto"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["UserEntity"];
+    };
+    UsersController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  UsersController_remove: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      204: {
-        headers: {
-          [name: string]: unknown;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateUserDto"];
+            };
         };
-        content?: never;
-      };
-    };
-  };
-  AuthController_login: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["LoginDto"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["UserEntity"];
+    };
+    UsersController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  AuthController_logout: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      204: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-        content?: never;
-      };
     };
-  };
-  AuthController_me: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    AuthController_login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["UserEntity"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginDto"];
+            };
         };
-      };
-    };
-  };
-  EmployeesController_findAll: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["EmployeeResponseDto"][];
+    };
+    AuthController_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-  };
-  EmployeesController_create: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateEmployeeDto"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-        content: {
-          "application/json": components["schemas"]["EmployeeEntity"];
+    };
+    AuthController_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-  };
-  EmployeesController_removeAll: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      204: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
+                };
+            };
         };
-        content?: never;
-      };
     };
-  };
-  EmployeesController_findAllPositions: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    EmployeesController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": string[];
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeResponseDto"][];
+                };
+            };
         };
-      };
     };
-  };
-  EmployeesController_checkPeselAvailability: {
-    parameters: {
-      query: {
-        pesel: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    EmployeesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content: {
-          "application/json": boolean;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateEmployeeDto"];
+            };
         };
-      };
-    };
-  };
-  EmployeesController_findOne: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeEntity"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["EmployeeResponseDto"];
+    };
+    EmployeesController_removeAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-  };
-  EmployeesController_update: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateEmployeeDto"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
-        content: {
-          "application/json": components["schemas"]["EmployeeEntity"];
+    };
+    EmployeesController_findAllPositions: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-  };
-  EmployeesController_remove: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      204: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["EmployeeEntity"];
+    };
+    EmployeesController_checkPeselAvailability: {
+        parameters: {
+            query: {
+                pesel: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-  };
-  EmployeesController_fire: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": boolean;
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["EmployeeEntity"];
+    };
+    EmployeesController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  CompaniesController_findAll: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeResponseDto"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["CompanyEntity"][];
+    };
+    EmployeesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
         };
-      };
-    };
-  };
-  CompaniesController_create: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateCompanyDto"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateEmployeeDto"];
+            };
         };
-        content: {
-          "application/json": components["schemas"]["CompanyEntity"];
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeEntity"];
+                };
+            };
         };
-      };
     };
-  };
-  CompaniesController_findOne: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    EmployeesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["CompanyEntity"];
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeEntity"];
+                };
+            };
         };
-      };
     };
-  };
-  CompaniesController_update: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateCompanyDto"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    EmployeesController_fire: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
         };
-        content: {
-          "application/json": components["schemas"]["CompanyEntity"];
+        requestBody?: never;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployeeEntity"];
+                };
+            };
         };
-      };
     };
-  };
-  CompaniesController_remove: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+    CompaniesController_findAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-        content?: never;
-      };
-    };
-  };
-  AttendanceController_findAbsences: {
-    parameters: {
-      query?: {
-        year?: number;
-        month?: number;
-      };
-      header?: never;
-      path: {
-        employeeId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyEntity"][];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["AbsenceEntity"][];
+    };
+    CompaniesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
         };
-      };
-    };
-  };
-  AttendanceController_changeAttendanceStatus: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        employeeId: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ChangeAttendanceStatusDto"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateCompanyDto"];
+            };
         };
-        content?: never;
-      };
-    };
-  };
-  HolidaysController_findHolidays: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        year: number;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyEntity"];
+                };
+            };
         };
-        content: {
-          "application/json": components["schemas"]["HolidayEntity"][];
-        };
-      };
     };
-  };
+    CompaniesController_findOne: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyEntity"];
+                };
+            };
+        };
+    };
+    CompaniesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateCompanyDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyEntity"];
+                };
+            };
+        };
+    };
+    CompaniesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AttendanceController_findAbsences: {
+        parameters: {
+            query?: {
+                year?: number;
+                month?: number;
+            };
+            header?: never;
+            path: {
+                employeeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AbsenceEntity"][];
+                };
+            };
+        };
+    };
+    AttendanceController_changeAttendanceStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employeeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangeAttendanceStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    HolidaysController_findHolidays: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                year: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HolidayEntity"][];
+                };
+            };
+        };
+    };
+    LeavesController_findLeaveForCurrentYear: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employeeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveDto"];
+                };
+            };
+        };
+    };
 }

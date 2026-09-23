@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
-import ms from "ms";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AttendanceStatus, STATUS_PRESENTATION } from "./types";
+import { QueryKeysService } from "@/services/query-keys.service";
 
 interface AttendanceModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ interface AttendanceModalProps {
   date: Date;
   currentStatus: AttendanceStatus | null;
   onUpdate: (status: AttendanceStatus) => void;
+  employeeId: string;
 }
 
 export function AttendanceModal({
@@ -27,20 +29,33 @@ export function AttendanceModal({
   date,
   currentStatus,
   onUpdate,
+  employeeId,
 }: AttendanceModalProps) {
-  const [selectedStatus, setSelectedStatus] = useState<AttendanceStatus>(
+  const [selectedStatus, setSelectedStatus] = useState<string>(
     currentStatus || "OB",
   );
+  const queryClient = useQueryClient();
 
   const formattedDate = format(date, "d MMMM yyyy", { locale: pl });
 
   const handleSave = () => {
-    console.log("Zmienianie częstotliwości:", selectedStatus);
-    onUpdate(selectedStatus);
+    onUpdate(selectedStatus as AttendanceStatus);
+
+    // Sprawdzamy czy wybrany status to urlop
+    const leaveStatuses = ["UŻ", "UW"];
+    const isLeaveStatus = leaveStatuses.includes(selectedStatus);
+
+    if (isLeaveStatus && employeeId) {
+      // Unieważnienie cache z poprawnym przekazaniem obiektu do QueryKeysService
+      queryClient.invalidateQueries({
+        queryKey: QueryKeysService.employeeLeave({ employeeId }),
+      });
+    }
+
     onClose();
   };
 
-  const statuses = Object.keys(STATUS_PRESENTATION) as AttendanceStatus[];
+  const statuses = Object.keys(STATUS_PRESENTATION);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -62,13 +77,12 @@ export function AttendanceModal({
             </label>
             <select
               value={selectedStatus}
-              onChange={(e) =>
-                setSelectedStatus(e.target.value as AttendanceStatus)
-              }
+              onChange={(e) => setSelectedStatus(e.target.value)}
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
             >
               {statuses.map((statusKey) => {
-                const presentation = STATUS_PRESENTATION[statusKey];
+                const presentation =
+                  STATUS_PRESENTATION[statusKey as AttendanceStatus];
                 const code = presentation?.code || statusKey;
                 const label = presentation?.label || statusKey;
 
