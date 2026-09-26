@@ -13,7 +13,7 @@ import { QueryKeysService } from "@/services/query-keys.service";
 import { EmployeeHeader } from "./EmployeeHeader";
 import { EmployeeInfoTab } from "./EmployeeInfoTab";
 import { EmployeeLeaveTab } from "./EmployeeLeaveTab";
-import { EmployeeCalendar } from "./calendar/EmployeeCalendar";
+import { EmployeeCalendar } from "../Calendar/EmployeeCalendar";
 
 type EmployeeTab = "dane" | "urlopy";
 
@@ -123,7 +123,14 @@ export function EmployeeProfilePage() {
 
       <Card size="sm" className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <CardContent className="min-h-0 flex-1 overflow-hidden">
-          <EmployeeCalendar employeeId={employeeId as string} />
+          <EmployeeCalendar
+            employeeId={employeeId as string}
+            schedule={{
+              start: employee.workSchedule.start,
+              end: employee.workSchedule.end,
+              workHours: employee.workHours,
+            }}
+          />
         </CardContent>
       </Card>
     </div>

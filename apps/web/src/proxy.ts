@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { authLog, describeJwtExpiry } from "@/lib/auth-debug";
+import type { NextProxy, NextRequest } from "next/server";
+import { authLog, describeJwtExpiry } from "@/utils/debug.utils";
 
-export function proxy(request: NextRequest) {
+export const proxy: NextProxy = (request: NextRequest) => {
   const accessToken = request.cookies.get("accessToken")?.value;
   const isAuthorized: boolean = !!accessToken;
 
@@ -34,7 +34,7 @@ export function proxy(request: NextRequest) {
   }
 
   return NextResponse.next();
-}
+};
 
 export const config = {
   matcher: [

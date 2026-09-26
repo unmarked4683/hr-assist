@@ -8,7 +8,7 @@ interface SuccessLogoutResponse {
   errors: null;
 }
 
-export async function POST() {
+export const POST = async () => {
   try {
     await apiRequest<null>("/api/auth/logout", {
       method: "POST",
@@ -34,4 +34,4 @@ export async function POST() {
   });
 
   return response;
-}
+};

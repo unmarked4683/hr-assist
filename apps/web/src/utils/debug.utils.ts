@@ -1,6 +1,8 @@
-// TODO(auth-debug): tymczasowa diagnostyka 401 po odświeżeniu — usunąć po naprawie.
+// Logi diagnostyczne — wyłączone w buildzie produkcyjnym.
 
 const IS_ENABLED = process.env.NODE_ENV !== "production";
+
+type DebugLogger = (event: string, payload?: Record<string, unknown>) => void;
 
 /** Czas od startu strony (klient) lub znacznik czasu (serwer) — do porządkowania zdarzeń. */
 const timestamp = (): string =>
@@ -8,14 +10,18 @@ const timestamp = (): string =>
     ? new Date().toISOString()
     : `+${Math.round(performance.now())}ms`;
 
-export const authLog = (
-  event: string,
-  payload?: Record<string, unknown>,
-): void => {
-  if (!IS_ENABLED) return;
-  const side = typeof window === "undefined" ? "server" : "client";
-  console.log(`[auth-debug][${side}] ${timestamp()} ${event}`, payload ?? "");
-};
+const createDebugLogger =
+  (scope: string): DebugLogger =>
+  (event, payload) => {
+    if (!IS_ENABLED) return;
+    const side = typeof window === "undefined" ? "server" : "client";
+    console.log(`[${scope}][${side}] ${timestamp()} ${event}`, payload ?? "");
+  };
+
+export const calendarLog = createDebugLogger("EmployeeCalendar");
+
+// TODO(auth-debug): tymczasowa diagnostyka 401 po odświeżeniu — usunąć po naprawie.
+export const authLog = createDebugLogger("auth-debug");
 
 /**
  * Odczytuje `exp` z payloadu JWT BEZ weryfikacji podpisu — wyłącznie do logów.

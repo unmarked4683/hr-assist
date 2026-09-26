@@ -178,6 +178,12 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  /* Bez elastycznego "odbicia" całej strony (macOS/iOS) — layout panelu i tak
+     przewija się wewnątrz własnych kontenerów. */
+  html,
+  body {
+    @apply overscroll-none;
+  }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;

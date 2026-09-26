@@ -9,16 +9,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getYear } from "date-fns";
-import { MONTH_NAMES } from "./types";
-import { CalendarPeriod } from "./month.utils";
+import { MONTH_NAMES } from "@/utils/calendar.types";
+import { CalendarPeriod } from "@/utils/month.utils";
 
-// Lista lat kończy się na roku następnym względem bieżącego.
-const LAST_YEAR_OPTION = getYear(new Date()) + 1;
+// Przyciski shadcn przesuwają się o 1px przy kliknięciu — w kontrolkach dat to
+// wygląda jak "skok", więc wyłączamy to przesunięcie.
+const STABLE_BUTTON_CLASS = "active:not-aria-[haspopup]:translate-y-0";
 
-const buildYearOptions = (firstYear: number): number[] =>
+const buildYearOptions = (firstYear: number, lastYear: number): number[] =>
   Array.from(
-    { length: Math.max(LAST_YEAR_OPTION - firstYear + 1, 1) },
+    { length: Math.max(lastYear - firstYear + 1, 1) },
     (_, index) => firstYear + index,
   );
 
@@ -27,6 +27,8 @@ interface DateControlsProps {
   year: number;
   /** Najwcześniejszy dostępny miesiąc (1-12) — wcześniejsze są zablokowane. */
   minPeriod: CalendarPeriod;
+  /** Najpóźniejszy dostępny miesiąc (1-12) — późniejsze są zablokowane. */
+  maxPeriod: CalendarPeriod;
   onMonthChange: (month: number) => void;
   onYearChange: (year: number) => void;
   onPrevMonth: () => void;
@@ -38,19 +40,25 @@ export function DateControls({
   month,
   year,
   minPeriod,
+  maxPeriod,
   onMonthChange,
   onYearChange,
   onPrevMonth,
   onNextMonth,
   onToday,
 }: DateControlsProps) {
-  const yearOptions = buildYearOptions(minPeriod.year);
+  const yearOptions = buildYearOptions(minPeriod.year, maxPeriod.year);
   const isAtMinPeriod =
     year < minPeriod.year ||
     (year === minPeriod.year && month <= minPeriod.month);
 
-  const isMonthBeforeMin = (monthOption: number): boolean =>
-    year === minPeriod.year && monthOption < minPeriod.month;
+  const isAtMaxPeriod =
+    year > maxPeriod.year ||
+    (year === maxPeriod.year && month >= maxPeriod.month);
+
+  const isMonthOutOfRange = (monthOption: number): boolean =>
+    (year === minPeriod.year && monthOption < minPeriod.month) ||
+    (year === maxPeriod.year && monthOption > maxPeriod.month);
 
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -59,6 +67,7 @@ export function DateControls({
         size="icon"
         onClick={onPrevMonth}
         disabled={isAtMinPeriod}
+        className={STABLE_BUTTON_CLASS}
         aria-label="Poprzedni miesiąc"
       >
         <ChevronLeft />
@@ -82,7 +91,7 @@ export function DateControls({
               <SelectItem
                 key={name}
                 value={monthOption.toString()}
-                disabled={isMonthBeforeMin(monthOption)}
+                disabled={isMonthOutOfRange(monthOption)}
               >
                 {name}
               </SelectItem>
@@ -111,12 +120,18 @@ export function DateControls({
         variant="outline"
         size="icon"
         onClick={onNextMonth}
+        disabled={isAtMaxPeriod}
+        className={STABLE_BUTTON_CLASS}
         aria-label="Następny miesiąc"
       >
         <ChevronRight />
       </Button>
 
-      <Button variant="secondary" onClick={onToday}>
+      <Button
+        variant="outline-primary"
+        onClick={onToday}
+        className={STABLE_BUTTON_CLASS}
+      >
         Dziś
       </Button>
     </div>

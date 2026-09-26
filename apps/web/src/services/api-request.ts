@@ -1,7 +1,7 @@
 import { isValidUrl } from "@/utils/is-valid-url.util";
 import { ResponseWrapper } from "@/types/response-wrapper.types";
 import { toast } from "sonner";
-import { authLog } from "@/lib/auth-debug";
+import { authLog } from "@/utils/debug.utils";
 
 export interface ApiRequestOptions extends RequestInit {
   hideToastOnNetworkError?: boolean;

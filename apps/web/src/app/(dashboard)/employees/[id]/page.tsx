@@ -1,4 +1,4 @@
-import { EmployeeProfilePage } from "@/components/employee/EmployeeProfilePage";
+import { EmployeeProfilePage } from "@/components/Employees/Profile/EmployeeProfilePage";
 
 export default function EmployeePage() {
   return <EmployeeProfilePage />;

@@ -97,7 +97,10 @@ export default function LoginPage() {
                 type="button"
                 variant="ghost"
                 size="icon-sm"
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                // Centrowanie przez inset-y-0 + my-auto (bez transform): bazowe
+                // `active:translate-y-px` z Button nadpisywało -translate-y-1/2,
+                // przez co przycisk "skakał" w dół przy kliknięciu.
+                className="absolute inset-y-0 right-1.5 my-auto text-muted-foreground hover:text-foreground active:not-aria-[haspopup]:translate-y-0"
                 aria-label="Pokaż hasło"
                 onClick={() => setIsPasswordVisible(!isPasswordVisible)}
               >

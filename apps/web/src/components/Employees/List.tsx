@@ -22,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 
 const COLUMN_WIDTHS = ["w-[16%]", "w-[16%]", "w-[28%]", "w-[20%]", "w-[20%]"];
@@ -95,7 +96,9 @@ export default function List() {
   return (
     <div className="min-h-0 flex-1 overflow-hidden px-6 py-5">
       <Card className="flex h-full flex-col overflow-hidden border border-border p-0 shadow-sm">
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        {/* Jak w kalendarzu: kontener Table nie może mieć własnego overflow,
+            inaczej sticky nagłówek przykleja się do niego zamiast do tego scrolla */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-none *:data-[slot=table-container]:overflow-visible">
           <Table>
             <TableHeader>
               <TableRow>
@@ -140,20 +143,16 @@ export default function List() {
                       {employee.position}
                     </TableCell>
                     <TableCell>
-                      <span className="inline-flex h-5 items-center gap-1 rounded-full border border-border bg-secondary px-2.5 text-xs font-medium text-secondary-foreground">
-                        <MapPin size={10} />
+                      <Badge variant="secondary">
+                        <MapPin data-icon="inline-start" />
                         {employee.locationName}
-                      </span>
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       {!employee.ok ? (
-                        <span className="inline-flex h-5 items-center rounded-full border border-destructive/35 bg-destructive/10 px-2.5 text-xs font-semibold text-destructive">
-                          Do uzupełnienia
-                        </span>
+                        <Badge variant="destructive">Do uzupełnienia</Badge>
                       ) : (
-                        <span className="inline-flex h-5 items-center rounded-full border border-border bg-secondary px-2.5 text-xs font-medium text-secondary-foreground">
-                          OK
-                        </span>
+                        <Badge variant="success">OK</Badge>
                       )}
                     </TableCell>
                   </TableRow>

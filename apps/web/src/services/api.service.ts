@@ -9,7 +9,7 @@ import {
   Leave,
 } from "@/types";
 import { apiRequest } from "./api-request";
-import { UpdateEmployeeAttendanceDto } from "@/components/employee/calendar/types";
+import { UpdateEmployeeAttendanceDto } from "@/utils/calendar.types";
 
 export class ApiService {
   static async login(email: string, password: string): Promise<UserProfile> {

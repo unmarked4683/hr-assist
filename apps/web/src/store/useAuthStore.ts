@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { authLog } from "@/lib/auth-debug";
+import { authLog } from "@/utils/debug.utils";
 
 export interface UserProfile {
   id: string;

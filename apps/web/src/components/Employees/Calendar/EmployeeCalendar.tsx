@@ -6,28 +6,36 @@ import { Loader2 } from "lucide-react";
 import { SectionErrorBlock } from "@/components/ui/section-error-block";
 import { DateControls } from "./DateControls";
 import { CalendarTable } from "./CalendarTable";
-import { CalendarRecord, AttendanceStatus } from "./types";
+import { CalendarRecord, AttendanceStatus } from "@/utils/calendar.types";
 import { ApiService } from "@/services/api.service";
 import { Absence } from "@/types";
 import { QueryKeysService } from "@/services/query-keys.service";
-import { calendarLog } from "./debug";
+import { calendarLog } from "@/utils/debug.utils";
+import { WorkScheduleInfo } from "@/utils/day.utils";
 import {
   clampPeriod,
+  getMaxCalendarPeriod,
   MIN_CALENDAR_PERIOD,
   shiftPeriod,
   toCalendarPeriod,
-} from "./month.utils";
+} from "@/utils/month.utils";
 
 interface EmployeeCalendarProps {
   employeeId: string;
+  /** Harmonogram pracownika — źródło godzin nominalnych i realnych. */
+  schedule: WorkScheduleInfo;
 }
 
-export function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) {
+export function EmployeeCalendar({
+  employeeId,
+  schedule,
+}: EmployeeCalendarProps) {
   const today = useMemo(() => new Date(), []);
   // Rok i miesiąc w jednym stanie — zmiana przez granicę roku (grudzień ↔ styczeń)
   // jest atomowa, a szybkie kliknięcia liczą się od najnowszej wartości, nie z domknięcia.
   // Miesiące w zakresie 1-12 (np. styczeń = 1, wrzesień = 9).
-  // Każda zmiana przechodzi przez `clampPeriod` — nie schodzimy przed datę startu aplikacji.
+  // Każda zmiana przechodzi przez `clampPeriod` — zakres od daty startu aplikacji
+  // do grudnia roku bieżący + 5.
   const [{ year, month }, setPeriod] = useState(() =>
     clampPeriod(toCalendarPeriod(today)),
   );
@@ -136,6 +144,7 @@ export function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) {
         month={month}
         year={year}
         minPeriod={MIN_CALENDAR_PERIOD}
+        maxPeriod={getMaxCalendarPeriod(today)}
         onMonthChange={handleMonthChange}
         onYearChange={handleYearChange}
         onPrevMonth={goToPrevMonth}
@@ -160,6 +169,7 @@ export function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) {
           year={year}
           month={month} // Przekazujemy czyste 1-12
           attendanceByDate={attendanceByDate}
+          schedule={schedule}
           scrollToTodaySignal={scrollToTodaySignal}
         />
       )}
