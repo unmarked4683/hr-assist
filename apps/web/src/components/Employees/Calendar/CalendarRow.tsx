@@ -20,6 +20,16 @@ import {
   WorkScheduleInfo,
 } from "@/utils/day.utils";
 
+/** Kolor chwilowego podświetlenia wiersza po przewinięciu do niego. */
+export type RowHighlightTone = "unexcused" | "today";
+
+// Czerwone — dzień z listy nieobecności NN, zielone — przycisk "Dziś".
+// `animate-none` wyłącza pulsowanie wiersza NN na czas podświetlenia.
+const HIGHLIGHT_CLASSES: Record<RowHighlightTone, string> = {
+  unexcused: "animate-none bg-destructive/15 ring-2 ring-destructive/60 ring-inset",
+  today: "animate-none bg-primary/15 ring-2 ring-primary/60 ring-inset",
+};
+
 interface CalendarRowProps {
   ref?: Ref<HTMLTableRowElement>;
   employeeId: string;
@@ -28,6 +38,8 @@ interface CalendarRowProps {
   holidayName: string | null;
   dayState: CalendarDayState;
   schedule: WorkScheduleInfo;
+  /** Chwilowe podświetlenie (wybór z listy NN albo "Dziś"); null — brak. */
+  highlightTone?: RowHighlightTone | null;
 }
 
 interface AttendanceChange {
@@ -43,6 +55,7 @@ export function CalendarRow({
   holidayName,
   dayState,
   schedule,
+  highlightTone = null,
 }: CalendarRowProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -99,19 +112,23 @@ export function CalendarRow({
     <>
       <TableRow
         ref={ref}
+        // Po tym atrybucie tabela znajduje wiersz, do którego ma przewinąć.
+        data-date-key={format(date, "yyyy-MM-dd")}
         onClick={handleRowClick}
         className={cn(
-          "transition-colors",
+          // Tło i obramowanie (ring = box-shadow) wygasają płynnie po zdjęciu podświetlenia.
+          "transition-[background-color,box-shadow] duration-500",
           isLocked
             ? "opacity-60 cursor-not-allowed bg-muted/20"
             : "cursor-pointer hover:bg-muted/40",
           isToday && "bg-muted/50 font-medium",
           isUnexcused && "bg-destructive/15 animate-pulse",
+          highlightTone && HIGHLIGHT_CLASSES[highlightTone],
         )}
       >
         {/* `relative group` jest wymagane przez TodayMarker (pozycjonowanie + rozwinięcie na hover) */}
         <TableCell className={cn("font-medium", isToday && "relative group")}>
-          {isToday && <TodayMarker />}
+          {isToday && <TodayMarker isFlashing={highlightTone === "today"} />}
           {format(date, "d MMMM yyyy", { locale: pl })}
         </TableCell>
         <TableCell className="capitalize text-muted-foreground">

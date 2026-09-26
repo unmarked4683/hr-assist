@@ -53,16 +53,42 @@ export const isBeforeMinPeriod = (
 export const getMaxCalendarPeriod = (today: Date = new Date()): CalendarPeriod =>
   toCalendarPeriod(endOfYear(addYears(today, APP_MAX_YEARS_AHEAD)));
 
-export const isAfterMaxPeriod = (period: CalendarPeriod): boolean =>
-  isAfter(periodStartDate(period), periodStartDate(getMaxCalendarPeriod()));
+const isAfterPeriod = (period: CalendarPeriod, other: CalendarPeriod): boolean =>
+  isAfter(periodStartDate(period), periodStartDate(other));
 
-/** Zwraca okres mieszczący się w zakresie `minPeriod` – `getMaxCalendarPeriod()`. */
+/** Zakres miesięcy (1-12), po których można się poruszać w kalendarzu pracownika. */
+export interface CalendarBounds {
+  min: CalendarPeriod;
+  max: CalendarPeriod;
+}
+
+/**
+ * Okres zatrudnienia przycięty do limitów aplikacji:
+ * - od: miesiąc zatrudnienia (nie wcześniej niż start aplikacji),
+ * - do: miesiąc zwolnienia, a bez zwolnienia — grudzień roku bieżący + 5.
+ */
+export const getEmploymentBounds = (
+  hireDate: Date | null,
+  firedDate: Date | null,
+  today: Date = new Date(),
+): CalendarBounds => {
+  const min = getMinCalendarPeriod(hireDate);
+  const appMax = getMaxCalendarPeriod(today);
+  const firedPeriod = firedDate ? toCalendarPeriod(firedDate) : null;
+  const max =
+    firedPeriod && isAfterPeriod(appMax, firedPeriod) ? firedPeriod : appMax;
+
+  // Zwolnienie przed początkiem zakresu — zostaje sam miesiąc początkowy.
+  return { min, max: isBeforeMinPeriod(max, min) ? min : max };
+};
+
+/** Zwraca okres mieszczący się w `bounds` (domyślnie: limity aplikacji). */
 export const clampPeriod = (
   period: CalendarPeriod,
-  minPeriod: CalendarPeriod = MIN_CALENDAR_PERIOD,
+  bounds: CalendarBounds = getEmploymentBounds(null, null),
 ): CalendarPeriod => {
-  if (isBeforeMinPeriod(period, minPeriod)) return minPeriod;
-  if (isAfterMaxPeriod(period)) return getMaxCalendarPeriod();
+  if (isBeforeMinPeriod(period, bounds.min)) return bounds.min;
+  if (isAfterPeriod(period, bounds.max)) return bounds.max;
   return period;
 };
 
@@ -70,9 +96,30 @@ export const clampPeriod = (
 export const shiftPeriod = (
   period: CalendarPeriod,
   delta: number,
-  minPeriod: CalendarPeriod = MIN_CALENDAR_PERIOD,
+  bounds?: CalendarBounds,
 ): CalendarPeriod =>
   clampPeriod(
     toCalendarPeriod(addMonths(periodStartDate(period), delta)),
-    minPeriod,
+    bounds,
   );
+
+/** Lata dostępne w `bounds` (np. zatrudnienie 08.2026–10.2028 → 2026, 2027, 2028). */
+export const getAvailableYears = ({ min, max }: CalendarBounds): number[] =>
+  Array.from({ length: max.year - min.year + 1 }, (_, index) => min.year + index);
+
+/**
+ * Miesiące (1-12) dostępne w danym roku — w roku zatrudnienia od jego miesiąca,
+ * w roku zwolnienia do jego miesiąca, w latach pomiędzy wszystkie 12.
+ */
+export const getAvailableMonths = (
+  year: number,
+  { min, max }: CalendarBounds,
+): number[] => {
+  const firstMonth = year === min.year ? min.month : 1;
+  const lastMonth = year === max.year ? max.month : 12;
+
+  return Array.from(
+    { length: Math.max(lastMonth - firstMonth + 1, 0) },
+    (_, index) => firstMonth + index,
+  );
+};

@@ -10,25 +10,24 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MONTH_NAMES } from "@/utils/calendar.types";
-import { CalendarPeriod } from "@/utils/month.utils";
+import {
+  CalendarBounds,
+  getAvailableMonths,
+  getAvailableYears,
+} from "@/utils/month.utils";
 
 // Przyciski shadcn przesuwają się o 1px przy kliknięciu — w kontrolkach dat to
 // wygląda jak "skok", więc wyłączamy to przesunięcie.
 const STABLE_BUTTON_CLASS = "active:not-aria-[haspopup]:translate-y-0";
 
-const buildYearOptions = (firstYear: number, lastYear: number): number[] =>
-  Array.from(
-    { length: Math.max(lastYear - firstYear + 1, 1) },
-    (_, index) => firstYear + index,
-  );
-
 interface DateControlsProps {
   month: number; // 1-12
   year: number;
-  /** Najwcześniejszy dostępny miesiąc (1-12) — wcześniejsze są zablokowane. */
-  minPeriod: CalendarPeriod;
-  /** Najpóźniejszy dostępny miesiąc (1-12) — późniejsze są zablokowane. */
-  maxPeriod: CalendarPeriod;
+  /**
+   * Okres zatrudnienia (miesiące 1-12) — listy lat i miesięcy zawierają tylko
+   * wartości z tego zakresu, pozostałych w ogóle nie pokazujemy.
+   */
+  bounds: CalendarBounds;
   onMonthChange: (month: number) => void;
   onYearChange: (year: number) => void;
   onPrevMonth: () => void;
@@ -39,26 +38,23 @@ interface DateControlsProps {
 export function DateControls({
   month,
   year,
-  minPeriod,
-  maxPeriod,
+  bounds,
   onMonthChange,
   onYearChange,
   onPrevMonth,
   onNextMonth,
   onToday,
 }: DateControlsProps) {
-  const yearOptions = buildYearOptions(minPeriod.year, maxPeriod.year);
+  const yearOptions = getAvailableYears(bounds);
+  const monthOptions = getAvailableMonths(year, bounds);
+
   const isAtMinPeriod =
-    year < minPeriod.year ||
-    (year === minPeriod.year && month <= minPeriod.month);
+    year < bounds.min.year ||
+    (year === bounds.min.year && month <= bounds.min.month);
 
   const isAtMaxPeriod =
-    year > maxPeriod.year ||
-    (year === maxPeriod.year && month >= maxPeriod.month);
-
-  const isMonthOutOfRange = (monthOption: number): boolean =>
-    (year === minPeriod.year && monthOption < minPeriod.month) ||
-    (year === maxPeriod.year && monthOption > maxPeriod.month);
+    year > bounds.max.year ||
+    (year === bounds.max.year && month >= bounds.max.month);
 
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2">
@@ -84,19 +80,11 @@ export function DateControls({
         </SelectTrigger>
         <SelectContent alignItemWithTrigger={false}>
           {/* Miesiące w zakresie 1-12, a MONTH_NAMES indeksowane od 0 */}
-          {MONTH_NAMES.map((name, index) => {
-            const monthOption = index + 1;
-
-            return (
-              <SelectItem
-                key={name}
-                value={monthOption.toString()}
-                disabled={isMonthOutOfRange(monthOption)}
-              >
-                {name}
-              </SelectItem>
-            );
-          })}
+          {monthOptions.map((monthOption) => (
+            <SelectItem key={monthOption} value={monthOption.toString()}>
+              {MONTH_NAMES[monthOption - 1]}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 

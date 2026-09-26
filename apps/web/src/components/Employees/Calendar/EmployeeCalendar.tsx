@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { SectionErrorBlock } from "@/components/ui/section-error-block";
 import { DateControls } from "./DateControls";
-import { CalendarTable } from "./CalendarTable";
+import { CalendarTable, FocusedDay } from "./CalendarTable";
+import { RowHighlightTone } from "./CalendarRow";
+import { UnexcusedAbsencesBell } from "./UnexcusedAbsencesBell";
 import { CalendarRecord, AttendanceStatus } from "@/utils/calendar.types";
 import { ApiService } from "@/services/api.service";
 import { Absence } from "@/types";
@@ -14,11 +16,14 @@ import { calendarLog } from "@/utils/debug.utils";
 import { parseDateOnly, WorkScheduleInfo } from "@/utils/day.utils";
 import {
   clampPeriod,
-  getMaxCalendarPeriod,
-  getMinCalendarPeriod,
+  getEmploymentBounds,
   shiftPeriod,
   toCalendarPeriod,
 } from "@/utils/month.utils";
+import { format, parseISO } from "date-fns";
+
+/** Jak długo wskazany dzień (lista NN / "Dziś") pozostaje podświetlony. */
+const FOCUS_HIGHLIGHT_MS = 1500;
 
 interface EmployeeCalendarProps {
   employeeId: string;
@@ -26,26 +31,46 @@ interface EmployeeCalendarProps {
   schedule: WorkScheduleInfo;
   /** Data zatrudnienia z backendu (ISO) — dolna granica kalendarza. */
   employmentDate: string;
+  /** Moment zwolnienia z backendu (ISO) lub null — górna granica kalendarza. */
+  firedAt: string | null;
 }
 
 export function EmployeeCalendar({
   employeeId,
   schedule,
   employmentDate,
+  firedAt,
 }: EmployeeCalendarProps) {
   const today = useMemo(() => new Date(), []);
   const hireDate = useMemo(() => parseDateOnly(employmentDate), [employmentDate]);
-  // Miesiąc zatrudnienia, ale nie wcześniej niż start aplikacji (styczeń 2026).
-  const minPeriod = useMemo(() => getMinCalendarPeriod(hireDate), [hireDate]);
+  // `firedAt` to znacznik czasu (timestamptz), więc parsujemy go w całości —
+  // dzień zwolnienia liczymy w strefie lokalnej.
+  const firedDate = useMemo(() => (firedAt ? parseISO(firedAt) : null), [firedAt]);
+  // Okres zatrudnienia: od miesiąca zatrudnienia (min. styczeń 2026) do miesiąca
+  // zwolnienia (bez zwolnienia — grudzień roku bieżący + 5).
+  const bounds = useMemo(
+    () => getEmploymentBounds(hireDate, firedDate, today),
+    [hireDate, firedDate, today],
+  );
   // Rok i miesiąc w jednym stanie — zmiana przez granicę roku (grudzień ↔ styczeń)
   // jest atomowa, a szybkie kliknięcia liczą się od najnowszej wartości, nie z domknięcia.
   // Miesiące w zakresie 1-12 (np. styczeń = 1, wrzesień = 9).
-  // Każda zmiana przechodzi przez `clampPeriod` — zakres od miesiąca zatrudnienia
-  // (min. start aplikacji) do grudnia roku bieżący + 5.
+  // Każda zmiana przechodzi przez `clampPeriod`, więc stan nie wyjdzie poza `bounds`.
   const [{ year, month }, setPeriod] = useState(() =>
-    clampPeriod(toCalendarPeriod(today), minPeriod),
+    clampPeriod(toCalendarPeriod(today), bounds),
   );
-  const [scrollToTodaySignal, setScrollToTodaySignal] = useState(0);
+  // Dzień wskazany z listy nieobecności NN (czerwony) albo przyciskiem "Dziś"
+  // (zielony) — tabela przewija się do niego i chwilowo go podświetla;
+  // `requestId` pozwala ponownie wskazać ten sam dzień.
+  const [focusedDay, setFocusedDay] = useState<FocusedDay | null>(null);
+  const focusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(
+    () => () => {
+      if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     calendarLog("period changed", { employeeId, year, month });
@@ -119,45 +144,73 @@ export function EmployeeCalendar({
 
   const goToPrevMonth = () => {
     calendarLog("prev month clicked");
-    setPeriod((prev) => shiftPeriod(prev, -1, minPeriod));
+    setPeriod((prev) => shiftPeriod(prev, -1, bounds));
   };
 
   const goToNextMonth = () => {
     calendarLog("next month clicked");
-    setPeriod((prev) => shiftPeriod(prev, 1, minPeriod));
+    setPeriod((prev) => shiftPeriod(prev, 1, bounds));
+  };
+
+  // Przejście do miesiąca danego dnia, przewinięcie do wiersza i chwilowe
+  // podświetlenie w podanym kolorze.
+  const focusDay = (date: Date, tone: RowHighlightTone) => {
+    setPeriod(clampPeriod(toCalendarPeriod(date), bounds));
+    setFocusedDay((prev) => ({
+      dateKey: format(date, "yyyy-MM-dd"),
+      tone,
+      requestId: (prev?.requestId ?? 0) + 1,
+    }));
+
+    if (focusTimeoutRef.current) clearTimeout(focusTimeoutRef.current);
+    focusTimeoutRef.current = setTimeout(
+      () => setFocusedDay(null),
+      FOCUS_HIGHLIGHT_MS,
+    );
+  };
+
+  const handleSelectAbsence = (date: Date) => {
+    calendarLog("unexcused absence selected", {
+      dateKey: format(date, "yyyy-MM-dd"),
+    });
+    focusDay(date, "unexcused");
   };
 
   const goToToday = () => {
     calendarLog("today clicked");
-    setPeriod(clampPeriod(toCalendarPeriod(today), minPeriod));
-    setScrollToTodaySignal((prev) => prev + 1);
+    focusDay(today, "today");
   };
 
   const handleMonthChange = (nextMonth: number) => {
     calendarLog("month selected", { month: nextMonth });
-    setPeriod((prev) => clampPeriod({ ...prev, month: nextMonth }, minPeriod));
+    setPeriod((prev) => clampPeriod({ ...prev, month: nextMonth }, bounds));
   };
 
-  // Po zmianie roku na rok zatrudnienia miesiąc sprzed zatrudnienia zostaje
-  // przesunięty na pierwszy dozwolony.
+  // Po zmianie roku na rok zatrudnienia/zwolnienia miesiąc spoza okresu
+  // zatrudnienia zostaje przesunięty na najbliższy dozwolony.
   const handleYearChange = (nextYear: number) => {
     calendarLog("year selected", { year: nextYear });
-    setPeriod((prev) => clampPeriod({ ...prev, year: nextYear }, minPeriod));
+    setPeriod((prev) => clampPeriod({ ...prev, year: nextYear }, bounds));
   };
 
   return (
     <div className="flex h-full min-h-0 flex-col gap-3">
-      <DateControls
-        month={month}
-        year={year}
-        minPeriod={minPeriod}
-        maxPeriod={getMaxCalendarPeriod(today)}
-        onMonthChange={handleMonthChange}
-        onYearChange={handleYearChange}
-        onPrevMonth={goToPrevMonth}
-        onNextMonth={goToNextMonth}
-        onToday={goToToday}
-      />
+      <div className="flex shrink-0 items-center justify-between gap-2">
+        <DateControls
+          month={month}
+          year={year}
+          bounds={bounds}
+          onMonthChange={handleMonthChange}
+          onYearChange={handleYearChange}
+          onPrevMonth={goToPrevMonth}
+          onNextMonth={goToNextMonth}
+          onToday={goToToday}
+        />
+        <UnexcusedAbsencesBell
+          employeeId={employeeId}
+          onSelectDate={handleSelectAbsence}
+        />
+      </div>
 
       {isLoading ? (
         <div className="flex flex-1 min-h-0 items-center justify-center gap-2 rounded-xl border border-border bg-card text-sm text-muted-foreground">
@@ -178,7 +231,7 @@ export function EmployeeCalendar({
           attendanceByDate={attendanceByDate}
           schedule={schedule}
           hireDate={hireDate}
-          scrollToTodaySignal={scrollToTodaySignal}
+          focusedDay={focusedDay}
         />
       )}
     </div>

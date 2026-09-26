@@ -131,6 +131,7 @@ export function EmployeeProfilePage() {
               workHours: employee.workHours,
             }}
             employmentDate={employee.employmentDate}
+            firedAt={employee.firedAt}
           />
         </CardContent>
       </Card>

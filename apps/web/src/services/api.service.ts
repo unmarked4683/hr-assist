@@ -86,6 +86,18 @@ export class ApiService {
     return data;
   }
 
+  static async getEmployeeAbsencesByYear(
+    id: string,
+    year: number,
+    signal?: AbortSignal,
+  ): Promise<Absences> {
+    const data = await apiRequest<Absences>(
+      `/api/employees/${id}/attendance/absences?year=${year}`,
+      { signal },
+    );
+    return data;
+  }
+
   static async updateEmployeeAttendance(
     id: string,
     data: UpdateEmployeeAttendanceDto,

@@ -33,8 +33,9 @@ export const refreshAttendanceCaches = async (
   const affectsLeave =
     isLeaveStatus(newStatus) || isLeaveStatus(previousStatus);
 
-  // 1. Inwalidujemy absencje w kalendarzu dla danego miesiąca, dane
-  //    o urlopach (jeśli dotyczy) i odświeżamy szczegóły pracownika
+  // 1. Inwalidujemy absencje w kalendarzu dla danego miesiąca, roczną listę
+  //    absencji (dzwonek NN), dane o urlopach (jeśli dotyczy) i odświeżamy
+  //    szczegóły pracownika
   await Promise.all([
     queryClient.invalidateQueries({
       queryKey: QueryKeysService.attendancePerMonth({
@@ -42,6 +43,9 @@ export const refreshAttendanceCaches = async (
         year,
         month,
       }),
+    }),
+    queryClient.invalidateQueries({
+      queryKey: QueryKeysService.absencesPerYear({ employeeId, year }),
     }),
     affectsLeave
       ? queryClient.invalidateQueries({

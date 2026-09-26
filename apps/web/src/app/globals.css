@@ -52,6 +52,31 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+/* Delikatne "dzwonienie" ikony dzwonka przy nieobecnościach NN — krótki ruch,
+   potem pauza, żeby nie rozpraszało. */
+@theme {
+  --animate-bell-ring: bell-ring 2.4s ease-in-out infinite;
+
+  @keyframes bell-ring {
+    0%,
+    30%,
+    100% {
+      transform: rotate(0deg);
+    }
+    5%,
+    15% {
+      transform: rotate(14deg);
+    }
+    10%,
+    20% {
+      transform: rotate(-14deg);
+    }
+    25% {
+      transform: rotate(6deg);
+    }
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
