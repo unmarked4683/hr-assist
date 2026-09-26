@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ApiService } from "@/services/api.service";
-import { AddEmployeeDto } from "@/types";
+import { CreateEmployeeDto } from "@/types";
 import { ConfirmModal } from "../../ConfirmModal/ConfirmModal";
 import { Form } from "../Form/Form";
 import { FormHandle } from "../Form/Form.types";
@@ -35,8 +35,8 @@ export function EmployeeModal({ isOpen, onClose }: EmployeeModalProps) {
   );
 
   const employeeMutation = useMutation({
-    mutationFn: async (addEmployeeDto: AddEmployeeDto) => {
-      return await ApiService.addEmployee(addEmployeeDto);
+    mutationFn: async (addEmployeeDto: CreateEmployeeDto) => {
+      return await ApiService.createEmployee(addEmployeeDto);
     },
     onSuccess: () => {
       toast.success("Pracownik dodany pomyślnie");
@@ -55,7 +55,7 @@ export function EmployeeModal({ isOpen, onClose }: EmployeeModalProps) {
 
   const confirmAddEmployee = () => {
     if (!pendingData) return;
-    employeeMutation.mutate(pendingData as unknown as AddEmployeeDto);
+    employeeMutation.mutate(pendingData as unknown as CreateEmployeeDto);
     queryClient.setQueryData(
       LAST_EMPLOYEE_DEFAULTS_QUERY_KEY,
       pickRememberedFields(pendingData),

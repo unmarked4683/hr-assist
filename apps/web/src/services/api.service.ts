@@ -1,12 +1,13 @@
 import { UserProfile } from "@/store/useAuthStore";
 import {
   Absences,
-  AddEmployeeDto,
+  CreateEmployeeDto,
   CompanyNameAndId,
   Employee,
   EmployeesList,
   Holiday,
   Leave,
+  UpdateEmployeeDto,
 } from "@/types";
 import { apiRequest } from "./api-request";
 import { UpdateEmployeeAttendanceDto } from "@/utils/calendar.types";
@@ -48,10 +49,12 @@ export class ApiService {
     return data;
   }
 
-  static async addEmployee(employee: AddEmployeeDto): Promise<Employee> {
+  static async createEmployee(
+    createEmployeeDto: CreateEmployeeDto,
+  ): Promise<Employee> {
     const data = await apiRequest<Employee>("/api/employees", {
       method: "POST",
-      body: JSON.stringify(employee),
+      body: JSON.stringify(createEmployeeDto),
     });
     return data;
   }
@@ -107,6 +110,17 @@ export class ApiService {
       body: JSON.stringify(data),
     });
     return response;
+  }
+
+  static async udpateEmployee(
+    id: string,
+    dto: UpdateEmployeeDto,
+  ): Promise<Employee> {
+    const data = await apiRequest<Employee>(`/api/employees/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(dto),
+    });
+    return data;
   }
 
   static async getEmployeeLeave(id: string): Promise<Leave> {
