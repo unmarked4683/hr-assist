@@ -4,7 +4,7 @@ import { Header } from "./Header";
 import { Nav } from "./Nav";
 import { UserSection } from "./UserSection";
 
-export const Sidebar = () => {
+export function Sidebar() {
   return (
     <aside className="w-60 shrink-0 h-screen flex flex-col bg-sidebar border-r border-sidebar-border overflow-visible">
       <Header />
@@ -12,4 +12,4 @@ export const Sidebar = () => {
       <UserSection />
     </aside>
   );
-};
+}

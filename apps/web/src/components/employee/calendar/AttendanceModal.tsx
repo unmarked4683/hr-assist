@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -11,8 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AttendanceStatus, LEAVE_ATTENDANCE_STATUSES, STATUS_PRESENTATION } from "./types";
-import { QueryKeysService } from "@/services/query-keys.service";
+import { AttendanceStatus, STATUS_PRESENTATION } from "./types";
 
 interface AttendanceModalProps {
   isOpen: boolean;
@@ -20,7 +18,6 @@ interface AttendanceModalProps {
   date: Date;
   currentStatus: AttendanceStatus | null;
   onUpdate: (status: AttendanceStatus) => Promise<void>;
-  employeeId: string;
 }
 
 const STATUS_OPTIONS = Object.values(AttendanceStatus);
@@ -31,13 +28,11 @@ export function AttendanceModal({
   date,
   currentStatus,
   onUpdate,
-  employeeId,
 }: AttendanceModalProps) {
   const [selectedStatus, setSelectedStatus] = useState<AttendanceStatus>(
     currentStatus ?? AttendanceStatus.OB,
   );
   const [isSaving, setIsSaving] = useState(false);
-  const queryClient = useQueryClient();
 
   const formattedDate = format(date, "d MMMM yyyy", { locale: pl });
 
@@ -52,14 +47,7 @@ export function AttendanceModal({
       return;
     }
 
-    // Status frekwencji został zapisany — dopiero teraz unieważniamy cache urlopów,
-    // jeśli wybrany status jest jednym z typów urlopu.
-    if (employeeId && LEAVE_ATTENDANCE_STATUSES.includes(selectedStatus)) {
-      queryClient.invalidateQueries({
-        queryKey: QueryKeysService.employeeLeave({ employeeId }),
-      });
-    }
-
+    // Odświeżenie cache (kalendarz, urlopy, pracownik) robi mutacja w CalendarRow.
     setIsSaving(false);
     onClose();
   };

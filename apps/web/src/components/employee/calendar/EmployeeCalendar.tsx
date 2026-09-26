@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 import { SectionErrorBlock } from "@/components/ui/section-error-block";
@@ -10,6 +10,13 @@ import { CalendarRecord, AttendanceStatus } from "./types";
 import { ApiService } from "@/services/api.service";
 import { Absence } from "@/types";
 import { QueryKeysService } from "@/services/query-keys.service";
+import { calendarLog } from "./debug";
+import {
+  clampPeriod,
+  MIN_CALENDAR_PERIOD,
+  shiftPeriod,
+  toCalendarPeriod,
+} from "./month.utils";
 
 interface EmployeeCalendarProps {
   employeeId: string;
@@ -17,10 +24,18 @@ interface EmployeeCalendarProps {
 
 export function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) {
   const today = useMemo(() => new Date(), []);
-  const [year, setYear] = useState(() => today.getFullYear());
-  // Miesiące od razu w zakresie 1-12 (np. styczeń = 1, wrzesień = 9)
-  const [month, setMonth] = useState(() => today.getMonth() + 1);
+  // Rok i miesiąc w jednym stanie — zmiana przez granicę roku (grudzień ↔ styczeń)
+  // jest atomowa, a szybkie kliknięcia liczą się od najnowszej wartości, nie z domknięcia.
+  // Miesiące w zakresie 1-12 (np. styczeń = 1, wrzesień = 9).
+  // Każda zmiana przechodzi przez `clampPeriod` — nie schodzimy przed datę startu aplikacji.
+  const [{ year, month }, setPeriod] = useState(() =>
+    clampPeriod(toCalendarPeriod(today)),
+  );
   const [scrollToTodaySignal, setScrollToTodaySignal] = useState(0);
+
+  useEffect(() => {
+    calendarLog("period changed", { employeeId, year, month });
+  }, [employeeId, year, month]);
 
   const {
     data: attendance,
@@ -34,18 +49,44 @@ export function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) {
       year,
       month, // Wędruje wprost 1-12
     }),
-    queryFn: async () => {
-      const absences = await ApiService.getEmployeeAbsencesByMonth(
-        employeeId,
-        year,
-        month,
+    // Parametry czytamy z klucza, a nie z domknięcia — zapytanie zawsze dotyczy
+    // dokładnie tego miesiąca, pod którym zostanie zapisane w cache.
+    // `signal` anuluje żądanie, gdy użytkownik przejdzie do innego miesiąca.
+    queryFn: async ({ queryKey, signal }) => {
+      const [, keyEmployeeId, , keyYear, keyMonth] = queryKey;
+      calendarLog("request started", {
+        employeeId: keyEmployeeId,
+        year: keyYear,
+        month: keyMonth,
+      });
+
+      signal.addEventListener("abort", () =>
+        calendarLog("request cancelled", { year: keyYear, month: keyMonth }),
       );
-      const records: CalendarRecord[] = (
-        Array.isArray(absences) ? absences : []
-      ).map((item: Absence) => ({
-        date: item.date,
-        status: item.type as AttendanceStatus,
-      }));
+
+      const absences = await ApiService.getEmployeeAbsencesByMonth(
+        keyEmployeeId,
+        keyYear,
+        keyMonth,
+        signal,
+      );
+
+      // Odrzucamy rekordy spoza żądanego miesiąca, żeby nie trafiły do złego widoku.
+      const monthPrefix = `${keyYear}-${String(keyMonth).padStart(2, "0")}`;
+      const items = Array.isArray(absences) ? absences : [];
+      const records: CalendarRecord[] = items
+        .filter((item: Absence) => item.date?.startsWith(monthPrefix))
+        .map((item: Absence) => ({
+          date: item.date,
+          status: item.type as AttendanceStatus,
+        }));
+
+      calendarLog("response received", {
+        year: keyYear,
+        month: keyMonth,
+        received: items.length,
+        kept: records.length,
+      });
 
       return records;
     },
@@ -63,27 +104,30 @@ export function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) {
   }, [attendance]);
 
   const goToPrevMonth = () => {
-    if (month === 1) {
-      setMonth(12);
-      setYear((prev) => prev - 1);
-    } else {
-      setMonth((prev) => prev - 1);
-    }
+    calendarLog("prev month clicked");
+    setPeriod((prev) => shiftPeriod(prev, -1));
   };
 
   const goToNextMonth = () => {
-    if (month === 12) {
-      setMonth(1);
-      setYear((prev) => prev + 1);
-    } else {
-      setMonth((prev) => prev + 1);
-    }
+    calendarLog("next month clicked");
+    setPeriod((prev) => shiftPeriod(prev, 1));
   };
 
   const goToToday = () => {
-    setYear(today.getFullYear());
-    setMonth(today.getMonth() + 1);
+    calendarLog("today clicked");
+    setPeriod(clampPeriod(toCalendarPeriod(today)));
     setScrollToTodaySignal((prev) => prev + 1);
+  };
+
+  const handleMonthChange = (nextMonth: number) => {
+    calendarLog("month selected", { month: nextMonth });
+    setPeriod((prev) => clampPeriod({ ...prev, month: nextMonth }));
+  };
+
+  // Po zmianie roku na rok startu miesiąc sprzed startu zostaje przesunięty na pierwszy dozwolony.
+  const handleYearChange = (nextYear: number) => {
+    calendarLog("year selected", { year: nextYear });
+    setPeriod((prev) => clampPeriod({ ...prev, year: nextYear }));
   };
 
   return (
@@ -91,8 +135,9 @@ export function EmployeeCalendar({ employeeId }: EmployeeCalendarProps) {
       <DateControls
         month={month}
         year={year}
-        onMonthChange={setMonth}
-        onYearChange={setYear}
+        minPeriod={MIN_CALENDAR_PERIOD}
+        onMonthChange={handleMonthChange}
+        onYearChange={handleYearChange}
         onPrevMonth={goToPrevMonth}
         onNextMonth={goToNextMonth}
         onToday={goToToday}

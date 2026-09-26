@@ -1,3 +1,5 @@
+import { isValid, parse } from "date-fns";
+
 const MONTH_CENTURY_OFFSETS: Array<{ base: number; offset: number }> = [
   { base: 1800, offset: 80 },
   { base: 1900, offset: 0 },
@@ -6,7 +8,7 @@ const MONTH_CENTURY_OFFSETS: Array<{ base: number; offset: number }> = [
   { base: 2200, offset: 60 },
 ];
 
-export function getBirthDateFromPesel(pesel: string): Date | null {
+export const getBirthDateFromPesel = (pesel: string): Date | null => {
   if (!/^\d{11}$/.test(pesel)) return null;
 
   const year = parseInt(pesel.slice(0, 2), 10);
@@ -18,14 +20,12 @@ export function getBirthDateFromPesel(pesel: string): Date | null {
   );
   if (!century) return null;
 
-  const month = monthRaw - century.offset;
+  const month = monthRaw - century.offset; // 1-12
   const fullYear = century.base + year;
-  const date = new Date(fullYear, month - 1, day);
 
-  const isValid =
-    date.getFullYear() === fullYear &&
-    date.getMonth() === month - 1 &&
-    date.getDate() === day;
+  // Ścisłe parsowanie date-fns odrzuca nieistniejące daty (np. 31 lutego)
+  // i przyjmuje miesiąc 1-12 — bez ręcznego przeliczania na indeks `Date`.
+  const date = parse(`${fullYear}-${month}-${day}`, "yyyy-M-d", new Date());
 
-  return isValid ? date : null;
-}
+  return isValid(date) ? date : null;
+};

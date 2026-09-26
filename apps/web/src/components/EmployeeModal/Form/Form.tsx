@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle } from "react";
+import { useImperativeHandle } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,12 +24,9 @@ import { EndInput } from "./Inputs/WorkSchedule/EndInput";
 import { EmploymentDateInput } from "./Inputs/EmploymentDateInput";
 import { ContractTypeField } from "./Inputs/ContractTypeField";
 import { LeaveToggle } from "./Inputs/LeaveToggle";
-import { FormHandle, FormProps } from "./Form.types";
+import { FormProps } from "./Form.types";
 
-export const Form = forwardRef<FormHandle, FormProps>(function Form(
-  { onSubmit, onCancel },
-  ref,
-) {
+export function Form({ ref, onSubmit, onCancel }: FormProps) {
   const queryClient = useQueryClient();
   // Podpowiadamy ostatnio używane wartości (lokalizacja, stanowisko, etat, godziny, urlop).
   const rememberedDefaults = queryClient.getQueryData<RememberedEmployeeFields>(
@@ -102,4 +99,4 @@ export const Form = forwardRef<FormHandle, FormProps>(function Form(
       </form>
     </FormProvider>
   );
-});
+}

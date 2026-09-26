@@ -81,14 +81,12 @@ export const STATUS_PRESENTATION: Record<AttendanceStatus, StatusPresentation> =
   };
 
 /** Zwraca etykietę statusu — jedyne miejsce, które o niej "wie". */
-export function getStatusLabel(status: AttendanceStatus): string {
-  return STATUS_PRESENTATION[status].label;
-}
+export const getStatusLabel = (status: AttendanceStatus): string =>
+  STATUS_PRESENTATION[status].label;
 
 /** Zwraca skrót statusu — jedyne miejsce, które o nim "wie". */
-export function getStatusCode(status: AttendanceStatus): string {
-  return STATUS_PRESENTATION[status].code;
-}
+export const getStatusCode = (status: AttendanceStatus): string =>
+  STATUS_PRESENTATION[status].code;
 
 /** Statusy traktowane jako urlop — po ich zapisaniu odświeżamy dane o urlopach. */
 export const LEAVE_ATTENDANCE_STATUSES: readonly AttendanceStatus[] = [

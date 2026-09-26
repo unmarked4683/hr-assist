@@ -1,13 +1,7 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef } from "react";
-import {
-  eachDayOfInterval,
-  endOfMonth,
-  format,
-  isSameMonth,
-  startOfMonth,
-} from "date-fns";
+import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import { eachDayOfInterval, endOfMonth, format, isSameMonth } from "date-fns";
 import { Card } from "@/components/ui/card";
 import {
   Table,
@@ -20,6 +14,8 @@ import { CalendarRow } from "./CalendarRow";
 import { AttendanceStatus } from "./types";
 import { useHolidays } from "@/hooks/use-holidays";
 import { polishName } from "@/app/(dashboard)/holidays/holidays-translations";
+import { calendarLog } from "./debug";
+import { periodStartDate } from "./month.utils";
 
 const COLUMNS = [
   "Data",
@@ -68,7 +64,7 @@ export function CalendarTable({
   }, [holidays]);
 
   const monthStart = useMemo(
-    () => startOfMonth(new Date(year, month - 1, 1)),
+    () => periodStartDate({ year, month }),
     [year, month],
   );
   const monthEnd = useMemo(() => endOfMonth(monthStart), [monthStart]);
@@ -81,6 +77,16 @@ export function CalendarTable({
   const today = useMemo(() => new Date(), []);
   const isCurrentMonth = isSameMonth(monthStart, today);
   const todayKey = format(today, "yyyy-MM-dd");
+
+  useEffect(() => {
+    calendarLog("table rendered", {
+      year,
+      month,
+      firstDay: format(monthStart, "yyyy-MM-dd"),
+      days: days.length,
+      records: attendanceByDate.size,
+    });
+  }, [year, month, monthStart, days, attendanceByDate]);
 
   useLayoutEffect(() => {
     if (!isCurrentMonth) return;

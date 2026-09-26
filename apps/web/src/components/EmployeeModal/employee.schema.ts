@@ -1,7 +1,9 @@
 import { ContractType, Location } from "@/types";
 import { z } from "zod";
+import { format } from "date-fns";
 import { validatePolish } from "validate-polish";
 import { ApiService } from "@/services/api.service";
+import { APP_START_DATE } from "@/lib/constants";
 
 const fullHourRegex = /^([01]\d|2[0-3]):00/;
 
@@ -9,10 +11,10 @@ const parseHourToNumber = (timeStr: string): number => {
   return parseInt(timeStr.split(":")[0], 10);
 };
 
-async function isPeselTaken(pesel: string): Promise<boolean> {
+const isPeselTaken = async (pesel: string): Promise<boolean> => {
   const isAvailable: boolean = await ApiService.isPeselAvailable(pesel);
   return !isAvailable;
-}
+};
 
 export const employeeSchema = z
   .object({
@@ -100,16 +102,16 @@ export const LAST_EMPLOYEE_DEFAULTS_QUERY_KEY = [
   "employeeFormLastDefaults",
 ] as const;
 
-export function pickRememberedFields(
+export const pickRememberedFields = (
   data: EmployeeFormValues,
-): RememberedEmployeeFields {
+): RememberedEmployeeFields => {
   const { location, position, workHours, workSchedule, leave } = data;
   return { location, position, workHours, workSchedule, leave };
-}
+};
 
-export function getDefaultEmployeeFormValues(
+export const getDefaultEmployeeFormValues = (
   initialData?: Partial<EmployeeFormValues>,
-): EmployeeFormValues {
+): EmployeeFormValues => {
   return {
     name: "",
     surname: "",
@@ -122,11 +124,11 @@ export function getDefaultEmployeeFormValues(
       start: "08:00",
       end: "16:00",
     },
-    employmentDate: new Date().toISOString().split("T")[0],
+    employmentDate: format(new Date(), "yyyy-MM-dd"),
     contractType: ContractType.EMPLOYMENT_CONTRACT,
     leave: 20,
     ...initialData,
   };
-}
+};
 
-export const EARLIEST_EMPLOYMENT_DATE = new Date(2026, 0, 1);
+export const EARLIEST_EMPLOYMENT_DATE = APP_START_DATE;

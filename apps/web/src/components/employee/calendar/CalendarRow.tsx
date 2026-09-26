@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useState } from "react";
+import { Ref, useState } from "react";
 import { format, isWeekend } from "date-fns";
 import { pl } from "date-fns/locale";
 import { TableCell, TableRow } from "@/components/ui/table";
@@ -8,6 +8,7 @@ import { StatusIndicator } from "./StatusIndicator";
 import {
   AttendanceStatus,
   DEFAULT_SCHEDULE,
+  LEAVE_ATTENDANCE_STATUSES,
   NOMINAL_WORK_HOURS,
 } from "./types";
 import { cn } from "@/lib/utils";
@@ -16,8 +17,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ApiService } from "@/services/api.service";
 import { QueryKeysService } from "@/services/query-keys.service";
 import { Employee, EmployeesList } from "@/types";
+import { toCalendarPeriod } from "./month.utils";
 
 interface CalendarRowProps {
+  ref?: Ref<HTMLTableRowElement>;
   employeeId: string;
   date: Date;
   rawStatus?: AttendanceStatus;
@@ -27,186 +30,205 @@ interface CalendarRowProps {
   holidaysMap?: Map<string, string>;
 }
 
-export const CalendarRow = forwardRef<HTMLTableRowElement, CalendarRowProps>(
-  (
-    { employeeId, date, rawStatus, isToday, isFuture, holidaysMap = new Map() },
-    ref,
-  ) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const queryClient = useQueryClient();
-    const weekdayLabel = format(date, "EEEE", { locale: pl });
-    const weekend = isWeekend(date);
+interface AttendanceChange {
+  newStatus: AttendanceStatus;
+  previousStatus: AttendanceStatus | null;
+}
 
-    const formattedDateString = format(date, "yyyy-MM-dd");
-    const holidayName = holidaysMap.get(formattedDateString) || null;
+const isLeaveStatus = (status: AttendanceStatus | null): boolean =>
+  status !== null && LEAVE_ATTENDANCE_STATUSES.includes(status);
 
-    const isDisabled = weekend || isFuture || Boolean(holidayName);
+export function CalendarRow({
+  ref,
+  employeeId,
+  date,
+  rawStatus,
+  isToday,
+  isFuture,
+  holidaysMap = new Map(),
+}: CalendarRowProps) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+  const weekdayLabel = format(date, "EEEE", { locale: pl });
+  const weekend = isWeekend(date);
 
-    const effectiveStatus: AttendanceStatus | null = holidayName
+  const formattedDateString = format(date, "yyyy-MM-dd");
+  const holidayName = holidaysMap.get(formattedDateString) || null;
+
+  const isDisabled = weekend || isFuture || Boolean(holidayName);
+
+  const effectiveStatus: AttendanceStatus | null = holidayName
+    ? null
+    : weekend || isFuture
       ? null
-      : weekend || isFuture
-        ? null
-        : rawStatus || AttendanceStatus.OB;
+      : rawStatus || AttendanceStatus.OB;
 
-    const isUnexcused = effectiveStatus === AttendanceStatus.NN;
+  const isUnexcused = effectiveStatus === AttendanceStatus.NN;
 
-    const mutation = useMutation({
-      mutationFn: async (newStatus: AttendanceStatus) => {
-        if (!employeeId) throw new Error("Brak ID pracownika w URL");
-        const dateString: string = format(date, "yyyy-MM-dd");
-        await ApiService.updateEmployeeAttendance(employeeId, {
-          status: newStatus,
-          date: dateString,
-        });
-      },
-      onSuccess: async () => {
-        const year = parseInt(format(date, "yyyy"), 10);
-        const month = parseInt(format(date, "M"), 10);
+  const mutation = useMutation({
+    mutationFn: async ({ newStatus }: AttendanceChange) => {
+      if (!employeeId) throw new Error("Brak ID pracownika w URL");
+      const dateString: string = format(date, "yyyy-MM-dd");
+      await ApiService.updateEmployeeAttendance(employeeId, {
+        status: newStatus,
+        date: dateString,
+      });
+    },
+    onSuccess: async (_data, { newStatus, previousStatus }) => {
+      const { year, month } = toCalendarPeriod(date);
 
-        // 1. Inwalidujemy absencje w kalendarzu dla danego miesiąca
-        await queryClient.invalidateQueries({
+      // Urlop mógł zostać dodany (nowy status to urlop) albo usunięty
+      // (np. UW → OB, backend kasuje wtedy absencję) — w obu przypadkach
+      // zmienia się pula dni urlopowych.
+      const affectsLeave =
+        isLeaveStatus(newStatus) || isLeaveStatus(previousStatus);
+
+      // 1. Inwalidujemy absencje w kalendarzu dla danego miesiąca, dane
+      //    o urlopach (jeśli dotyczy) i odświeżamy szczegóły pracownika
+      await Promise.all([
+        queryClient.invalidateQueries({
           queryKey: QueryKeysService.attendancePerMonth({
             employeeId,
             year,
             month,
           }),
-        });
-
-        // 2. Odświeżamy szczegóły TEGO JEDNEGO pracownika z backendu
-        await queryClient.refetchQueries({
+        }),
+        affectsLeave
+          ? queryClient.invalidateQueries({
+              queryKey: QueryKeysService.employeeLeave({ employeeId }),
+            })
+          : Promise.resolve(),
+        queryClient.refetchQueries({
           queryKey: QueryKeysService.employeeDetails({ employeeId }),
-        });
+        }),
+      ]);
 
-        // 3. Pobieramy ten świeży obiekt z cache szczegółów pracownika
-        const updatedEmployee = queryClient.getQueryData<Employee>(
-          QueryKeysService.employeeDetails({ employeeId }),
-        );
+      // 2. Pobieramy świeży obiekt z cache szczegółów pracownika
+      const updatedEmployee = queryClient.getQueryData<Employee>(
+        QueryKeysService.employeeDetails({ employeeId }),
+      );
 
-        // 4. Podmieniamy go na liście głównej bez ponownego pobierania całej listy!
-        queryClient.setQueryData(
-          QueryKeysService.employeesList(),
-          (oldData: EmployeesList | undefined) => {
-            if (!oldData) return oldData;
+      // 3. Podmieniamy go na liście głównej bez ponownego pobierania całej listy!
+      queryClient.setQueryData(
+        QueryKeysService.employeesList(),
+        (oldData: EmployeesList | undefined) => {
+          if (!oldData) return oldData;
 
-            const list = Array.isArray(oldData)
-              ? oldData
-              : (oldData as EmployeesList);
-            if (!Array.isArray(list)) return oldData;
+          const list = Array.isArray(oldData)
+            ? oldData
+            : (oldData as EmployeesList);
+          if (!Array.isArray(list)) return oldData;
 
-            // Jeśli z jakiegoś powodu nie mamy nowego obiektu, zostawiamy stare dane
-            if (!updatedEmployee) return oldData;
+          // Jeśli z jakiegoś powodu nie mamy nowego obiektu, zostawiamy stare dane
+          if (!updatedEmployee) return oldData;
 
-            const updatedList = list.map((emp: Employee) => {
-              if (emp.id === employeeId) {
-                return updatedEmployee; // <-- Wrzucamy świeży obiekt z backendu!
-              }
-              return emp;
-            });
+          const updatedList = list.map((emp: Employee) => {
+            if (emp.id === employeeId) {
+              return updatedEmployee; // <-- Wrzucamy świeży obiekt z backendu!
+            }
+            return emp;
+          });
 
-            return Array.isArray(oldData)
-              ? updatedList
-              : { ...(oldData as EmployeesList), employees: updatedList };
-          },
-        );
+          return Array.isArray(oldData)
+            ? updatedList
+            : { ...(oldData as EmployeesList), employees: updatedList };
+        },
+      );
 
-        setIsModalOpen(false);
-      },
-      onError: (error) => {
-        console.error("Błąd podczas aktualizacji frekwencji:", error);
-      },
-    });
+      setIsModalOpen(false);
+    },
+    onError: (error) => {
+      console.error("Błąd podczas aktualizacji frekwencji:", error);
+    },
+  });
 
-    const handleRowClick = () => {
-      if (isDisabled) return;
-      setIsModalOpen(true);
-    };
+  const handleRowClick = () => {
+    if (isDisabled) return;
+    setIsModalOpen(true);
+  };
 
-    const handleUpdateStatus = async (newStatus: AttendanceStatus) => {
-      await mutation.mutateAsync(newStatus);
-    };
+  const handleUpdateStatus = async (newStatus: AttendanceStatus) => {
+    await mutation.mutateAsync({ newStatus, previousStatus: effectiveStatus });
+  };
 
-    return (
-      <>
-        <TableRow
-          ref={ref}
-          onClick={handleRowClick}
-          className={cn(
-            "transition-colors",
-            isDisabled
-              ? "opacity-60 cursor-not-allowed bg-muted/20"
-              : "cursor-pointer hover:bg-muted/40",
-            isToday && "bg-muted/50 font-medium",
-            isUnexcused && "bg-destructive/15 animate-pulse",
-          )}
-        >
-          <TableCell className="font-medium">
-            {format(date, "d MMMM yyyy", { locale: pl })}
-          </TableCell>
-          <TableCell className="capitalize text-muted-foreground">
-            {weekdayLabel}
-          </TableCell>
-          <TableCell>
-            {holidayName ? (
-              <span
-                title="Święto ustawowo wolne"
-                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 cursor-help"
-              >
-                ŚUW
-              </span>
-            ) : (
-              <div
-                className={cn(
-                  isUnexcused && "inline-block animate-pulse duration-1000",
-                )}
-              >
-                <StatusIndicator status={effectiveStatus} />
-              </div>
-            )}
-          </TableCell>
-
-          {holidayName ? (
-            <TableCell
-              colSpan={3}
-              className="text-center font-medium text-muted-foreground bg-muted/10 italic"
-            >
-              {holidayName}
-            </TableCell>
-          ) : (
-            <>
-              <TableCell className="text-muted-foreground">
-                {isDisabled
-                  ? "—"
-                  : `${DEFAULT_SCHEDULE.start} - ${DEFAULT_SCHEDULE.end}`}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {isDisabled ? "—" : `${NOMINAL_WORK_HOURS}h`}
-              </TableCell>
-              <TableCell className="text-muted-foreground">
-                {isDisabled
-                  ? "—"
-                  : isUnexcused
-                    ? "0h"
-                    : `${NOMINAL_WORK_HOURS}h`}
-              </TableCell>
-            </>
-          )}
-        </TableRow>
-
-        {!isDisabled && (
-          <AttendanceModal
-            isOpen={isModalOpen}
-            onClose={() => {
-              if (!mutation.isPending) setIsModalOpen(false);
-            }}
-            date={date}
-            currentStatus={effectiveStatus}
-            onUpdate={handleUpdateStatus}
-            employeeId={employeeId}
-          />
+  return (
+    <>
+      <TableRow
+        ref={ref}
+        onClick={handleRowClick}
+        className={cn(
+          "transition-colors",
+          isDisabled
+            ? "opacity-60 cursor-not-allowed bg-muted/20"
+            : "cursor-pointer hover:bg-muted/40",
+          isToday && "bg-muted/50 font-medium",
+          isUnexcused && "bg-destructive/15 animate-pulse",
         )}
-      </>
-    );
-  },
-);
+      >
+        <TableCell className="font-medium">
+          {format(date, "d MMMM yyyy", { locale: pl })}
+        </TableCell>
+        <TableCell className="capitalize text-muted-foreground">
+          {weekdayLabel}
+        </TableCell>
+        <TableCell>
+          {holidayName ? (
+            <span
+              title="Święto ustawowo wolne"
+              className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 cursor-help"
+            >
+              ŚUW
+            </span>
+          ) : (
+            <div
+              className={cn(
+                isUnexcused && "inline-block animate-pulse duration-1000",
+              )}
+            >
+              <StatusIndicator status={effectiveStatus} />
+            </div>
+          )}
+        </TableCell>
 
-CalendarRow.displayName = "CalendarRow";
+        {holidayName ? (
+          <TableCell
+            colSpan={3}
+            className="text-center font-medium text-muted-foreground bg-muted/10 italic"
+          >
+            {holidayName}
+          </TableCell>
+        ) : (
+          <>
+            <TableCell className="text-muted-foreground">
+              {isDisabled
+                ? "—"
+                : `${DEFAULT_SCHEDULE.start} - ${DEFAULT_SCHEDULE.end}`}
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+              {isDisabled ? "—" : `${NOMINAL_WORK_HOURS}h`}
+            </TableCell>
+            <TableCell className="text-muted-foreground">
+              {isDisabled
+                ? "—"
+                : isUnexcused
+                  ? "0h"
+                  : `${NOMINAL_WORK_HOURS}h`}
+            </TableCell>
+          </>
+        )}
+      </TableRow>
+
+      {!isDisabled && (
+        <AttendanceModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            if (!mutation.isPending) setIsModalOpen(false);
+          }}
+          date={date}
+          currentStatus={effectiveStatus}
+          onUpdate={handleUpdateStatus}
+        />
+      )}
+    </>
+  );
+}

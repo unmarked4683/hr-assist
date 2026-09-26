@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { authLog } from "@/lib/auth-debug";
 
 export interface UserProfile {
   id: string;
@@ -27,6 +28,12 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "auth-storage",
       onRehydrateStorage: () => (state) => {
+        // Użytkownik z localStorage NIE jest weryfikowany z backendem — UI może
+        // uważać sesję za aktywną, mimo że token w ciasteczku już wygasł.
+        authLog("auth store rehydrated from localStorage", {
+          hasUser: Boolean(state?.user),
+        });
+
         if (state?.user) {
           const { createdAt, updatedAt, ...user } = state.user;
           state.user = {

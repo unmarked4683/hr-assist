@@ -9,17 +9,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getYear } from "date-fns";
 import { MONTH_NAMES } from "./types";
+import { CalendarPeriod } from "./month.utils";
 
-const CURRENT_YEAR = new Date().getFullYear();
-const YEAR_OPTIONS = Array.from(
-  { length: 7 },
-  (_, index) => CURRENT_YEAR - 5 + index,
-);
+// Lista lat kończy się na roku następnym względem bieżącego.
+const LAST_YEAR_OPTION = getYear(new Date()) + 1;
+
+const buildYearOptions = (firstYear: number): number[] =>
+  Array.from(
+    { length: Math.max(LAST_YEAR_OPTION - firstYear + 1, 1) },
+    (_, index) => firstYear + index,
+  );
 
 interface DateControlsProps {
-  month: number;
+  month: number; // 1-12
   year: number;
+  /** Najwcześniejszy dostępny miesiąc (1-12) — wcześniejsze są zablokowane. */
+  minPeriod: CalendarPeriod;
   onMonthChange: (month: number) => void;
   onYearChange: (year: number) => void;
   onPrevMonth: () => void;
@@ -30,18 +37,28 @@ interface DateControlsProps {
 export function DateControls({
   month,
   year,
+  minPeriod,
   onMonthChange,
   onYearChange,
   onPrevMonth,
   onNextMonth,
   onToday,
 }: DateControlsProps) {
+  const yearOptions = buildYearOptions(minPeriod.year);
+  const isAtMinPeriod =
+    year < minPeriod.year ||
+    (year === minPeriod.year && month <= minPeriod.month);
+
+  const isMonthBeforeMin = (monthOption: number): boolean =>
+    year === minPeriod.year && monthOption < minPeriod.month;
+
   return (
     <div className="flex shrink-0 flex-wrap items-center gap-2">
       <Button
         variant="outline"
         size="icon"
         onClick={onPrevMonth}
+        disabled={isAtMinPeriod}
         aria-label="Poprzedni miesiąc"
       >
         <ChevronLeft />
@@ -52,14 +69,25 @@ export function DateControls({
         onValueChange={(value) => onMonthChange(Number(value))}
       >
         <SelectTrigger className="w-40">
-          <SelectValue placeholder="Miesiąc">{MONTH_NAMES[month]}</SelectValue>
+          <SelectValue placeholder="Miesiąc">
+            {MONTH_NAMES[month - 1]}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent alignItemWithTrigger={false}>
-          {MONTH_NAMES.map((name, index) => (
-            <SelectItem key={name} value={index.toString()}>
-              {name}
-            </SelectItem>
-          ))}
+          {/* Miesiące w zakresie 1-12, a MONTH_NAMES indeksowane od 0 */}
+          {MONTH_NAMES.map((name, index) => {
+            const monthOption = index + 1;
+
+            return (
+              <SelectItem
+                key={name}
+                value={monthOption.toString()}
+                disabled={isMonthBeforeMin(monthOption)}
+              >
+                {name}
+              </SelectItem>
+            );
+          })}
         </SelectContent>
       </Select>
 
@@ -71,7 +99,7 @@ export function DateControls({
           <SelectValue placeholder="Rok">{year}</SelectValue>
         </SelectTrigger>
         <SelectContent alignItemWithTrigger={false}>
-          {YEAR_OPTIONS.map((yearOption) => (
+          {yearOptions.map((yearOption) => (
             <SelectItem key={yearOption} value={yearOption.toString()}>
               {yearOption}
             </SelectItem>

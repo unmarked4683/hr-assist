@@ -1,6 +1,7 @@
 import { isValidUrl } from "@/utils/is-valid-url.util";
 import { ResponseWrapper } from "@/types/response-wrapper.types";
 import { toast } from "sonner";
+import { authLog } from "@/lib/auth-debug";
 
 export interface ApiRequestOptions extends RequestInit {
   hideToastOnNetworkError?: boolean;
@@ -18,6 +19,23 @@ export const apiRequest = async <T>(
   const url: string = isUrl
     ? endpointOrUrl
     : new URL(endpointOrUrl, baseUrl).toString();
+
+  const method = fetchOptions.method ?? "GET";
+  const isServer = typeof window === "undefined";
+  authLog("request start", {
+    method,
+    url,
+    credentials: "include",
+    // Na serwerze `credentials: "include"` nic nie robi — ciasteczko trafi do
+    // backendu tylko wtedy, gdy ktoś jawnie przekaże nagłówek Cookie.
+    ...(isServer
+      ? {
+          forwardsCookieHeader: Boolean(
+            new Headers(fetchOptions.headers).get("cookie"),
+          ),
+        }
+      : { documentReadyState: document.readyState }),
+  });
 
   let response: Response;
   try {
@@ -51,6 +69,12 @@ export const apiRequest = async <T>(
     }
     throw error;
   }
+
+  authLog(response.status === 401 ? "request 401 UNAUTHORIZED" : "request end", {
+    method,
+    url,
+    status: response.status,
+  });
 
   const { data, ok, errors }: ResponseWrapper<T> = await response.json();
 

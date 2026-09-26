@@ -77,9 +77,11 @@ export class ApiService {
     id: string,
     year: number,
     month: number,
+    signal?: AbortSignal,
   ): Promise<Absences> {
     const data = await apiRequest<Absences>(
       `/api/employees/${id}/attendance/absences?year=${year}&month=${month}`,
+      { signal },
     );
     return data;
   }

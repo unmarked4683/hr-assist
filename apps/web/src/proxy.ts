@@ -1,10 +1,20 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { authLog, describeJwtExpiry } from "@/lib/auth-debug";
 
 export function proxy(request: NextRequest) {
-  const isAuthorized: boolean = !!request.cookies.get("accessToken")?.value;
+  const accessToken = request.cookies.get("accessToken")?.value;
+  const isAuthorized: boolean = !!accessToken;
 
   const { pathname } = request.nextUrl;
+
+  // Proxy sprawdza tylko OBECNOŚĆ ciasteczka — logujemy też ważność tokenu,
+  // żeby zobaczyć przypadek "przepuszczony przez proxy, a backend zwraca 401".
+  authLog("proxy", {
+    pathname,
+    isAuthorized,
+    ...describeJwtExpiry(accessToken),
+  });
 
   const isLoginPage: boolean = pathname === "/login";
   const isRootPage: boolean = pathname === "/";
