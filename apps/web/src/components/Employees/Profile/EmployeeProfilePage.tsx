@@ -130,6 +130,7 @@ export function EmployeeProfilePage() {
               end: employee.workSchedule.end,
               workHours: employee.workHours,
             }}
+            employmentDate={employee.employmentDate}
           />
         </CardContent>
       </Card>

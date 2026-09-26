@@ -27,12 +27,23 @@ export const toCalendarPeriod = (date: Date): CalendarPeriod => ({
 export const periodStartDate = ({ year, month }: CalendarPeriod): Date =>
   startOfMonth(new Date(year, month - 1, 1));
 
-/** Najwcześniejszy miesiąc dostępny w kalendarzu — wynika z daty startu aplikacji. */
+/** Globalnie najwcześniejszy miesiąc kalendarza — wynika z daty startu aplikacji. */
 export const MIN_CALENDAR_PERIOD: CalendarPeriod =
   toCalendarPeriod(APP_START_DATE);
 
-export const isBeforeMinPeriod = (period: CalendarPeriod): boolean =>
-  isBefore(periodStartDate(period), periodStartDate(MIN_CALENDAR_PERIOD));
+/**
+ * Najwcześniejszy miesiąc dla konkretnego pracownika: miesiąc zatrudnienia,
+ * ale nigdy wcześniej niż start aplikacji (np. zatrudniony 16.09.2026 → wrzesień 2026).
+ */
+export const getMinCalendarPeriod = (hireDate: Date | null): CalendarPeriod =>
+  hireDate && isAfter(hireDate, APP_START_DATE)
+    ? toCalendarPeriod(hireDate)
+    : MIN_CALENDAR_PERIOD;
+
+export const isBeforeMinPeriod = (
+  period: CalendarPeriod,
+  minPeriod: CalendarPeriod = MIN_CALENDAR_PERIOD,
+): boolean => isBefore(periodStartDate(period), periodStartDate(minPeriod));
 
 /**
  * Najpóźniejszy miesiąc dostępny w kalendarzu: grudzień roku bieżący + 5
@@ -45,9 +56,12 @@ export const getMaxCalendarPeriod = (today: Date = new Date()): CalendarPeriod =
 export const isAfterMaxPeriod = (period: CalendarPeriod): boolean =>
   isAfter(periodStartDate(period), periodStartDate(getMaxCalendarPeriod()));
 
-/** Zwraca okres mieszczący się w zakresie `MIN_CALENDAR_PERIOD` – `getMaxCalendarPeriod()`. */
-export const clampPeriod = (period: CalendarPeriod): CalendarPeriod => {
-  if (isBeforeMinPeriod(period)) return MIN_CALENDAR_PERIOD;
+/** Zwraca okres mieszczący się w zakresie `minPeriod` – `getMaxCalendarPeriod()`. */
+export const clampPeriod = (
+  period: CalendarPeriod,
+  minPeriod: CalendarPeriod = MIN_CALENDAR_PERIOD,
+): CalendarPeriod => {
+  if (isBeforeMinPeriod(period, minPeriod)) return minPeriod;
   if (isAfterMaxPeriod(period)) return getMaxCalendarPeriod();
   return period;
 };
@@ -56,5 +70,9 @@ export const clampPeriod = (period: CalendarPeriod): CalendarPeriod => {
 export const shiftPeriod = (
   period: CalendarPeriod,
   delta: number,
+  minPeriod: CalendarPeriod = MIN_CALENDAR_PERIOD,
 ): CalendarPeriod =>
-  clampPeriod(toCalendarPeriod(addMonths(periodStartDate(period), delta)));
+  clampPeriod(
+    toCalendarPeriod(addMonths(periodStartDate(period), delta)),
+    minPeriod,
+  );

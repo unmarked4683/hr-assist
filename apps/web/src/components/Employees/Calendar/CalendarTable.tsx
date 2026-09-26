@@ -56,6 +56,8 @@ interface CalendarTableProps {
   month: number; // oczekiwane 1-12
   attendanceByDate: Map<string, AttendanceStatus>;
   schedule: WorkScheduleInfo;
+  /** Dni przed tą datą są zablokowane i puste ("—"). */
+  hireDate: Date | null;
   scrollToTodaySignal: number;
 }
 
@@ -91,6 +93,7 @@ export function CalendarTable({
   month,
   attendanceByDate,
   schedule,
+  hireDate,
   scrollToTodaySignal,
 }: CalendarTableProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -120,22 +123,32 @@ export function CalendarTable({
         (date) => {
           const dateKey = format(date, "yyyy-MM-dd");
           const holidayName = holidaysMap.get(dateKey) ?? null;
+          const state = describeCalendarDay({
+            date,
+            today,
+            rawStatus: attendanceByDate.get(dateKey),
+            holidayName,
+            workHours: schedule.workHours,
+            hireDate,
+          });
 
           return {
             date,
             dateKey,
-            holidayName,
-            state: describeCalendarDay({
-              date,
-              today,
-              rawStatus: attendanceByDate.get(dateKey),
-              holidayName,
-              workHours: schedule.workHours,
-            }),
+            // Święto przed zatrudnieniem też jest tylko "—" — bez ŚUW i nazwy.
+            holidayName: state.kind === "holiday" ? holidayName : null,
+            state,
           };
         },
       ),
-    [monthStart, holidaysMap, today, attendanceByDate, schedule.workHours],
+    [
+      monthStart,
+      holidaysMap,
+      today,
+      attendanceByDate,
+      schedule.workHours,
+      hireDate,
+    ],
   );
 
   const totals = useMemo(() => sumMonthHours(entries), [entries]);

@@ -11,11 +11,11 @@ import { ApiService } from "@/services/api.service";
 import { Absence } from "@/types";
 import { QueryKeysService } from "@/services/query-keys.service";
 import { calendarLog } from "@/utils/debug.utils";
-import { WorkScheduleInfo } from "@/utils/day.utils";
+import { parseDateOnly, WorkScheduleInfo } from "@/utils/day.utils";
 import {
   clampPeriod,
   getMaxCalendarPeriod,
-  MIN_CALENDAR_PERIOD,
+  getMinCalendarPeriod,
   shiftPeriod,
   toCalendarPeriod,
 } from "@/utils/month.utils";
@@ -24,20 +24,26 @@ interface EmployeeCalendarProps {
   employeeId: string;
   /** Harmonogram pracownika — źródło godzin nominalnych i realnych. */
   schedule: WorkScheduleInfo;
+  /** Data zatrudnienia z backendu (ISO) — dolna granica kalendarza. */
+  employmentDate: string;
 }
 
 export function EmployeeCalendar({
   employeeId,
   schedule,
+  employmentDate,
 }: EmployeeCalendarProps) {
   const today = useMemo(() => new Date(), []);
+  const hireDate = useMemo(() => parseDateOnly(employmentDate), [employmentDate]);
+  // Miesiąc zatrudnienia, ale nie wcześniej niż start aplikacji (styczeń 2026).
+  const minPeriod = useMemo(() => getMinCalendarPeriod(hireDate), [hireDate]);
   // Rok i miesiąc w jednym stanie — zmiana przez granicę roku (grudzień ↔ styczeń)
   // jest atomowa, a szybkie kliknięcia liczą się od najnowszej wartości, nie z domknięcia.
   // Miesiące w zakresie 1-12 (np. styczeń = 1, wrzesień = 9).
-  // Każda zmiana przechodzi przez `clampPeriod` — zakres od daty startu aplikacji
-  // do grudnia roku bieżący + 5.
+  // Każda zmiana przechodzi przez `clampPeriod` — zakres od miesiąca zatrudnienia
+  // (min. start aplikacji) do grudnia roku bieżący + 5.
   const [{ year, month }, setPeriod] = useState(() =>
-    clampPeriod(toCalendarPeriod(today)),
+    clampPeriod(toCalendarPeriod(today), minPeriod),
   );
   const [scrollToTodaySignal, setScrollToTodaySignal] = useState(0);
 
@@ -113,29 +119,30 @@ export function EmployeeCalendar({
 
   const goToPrevMonth = () => {
     calendarLog("prev month clicked");
-    setPeriod((prev) => shiftPeriod(prev, -1));
+    setPeriod((prev) => shiftPeriod(prev, -1, minPeriod));
   };
 
   const goToNextMonth = () => {
     calendarLog("next month clicked");
-    setPeriod((prev) => shiftPeriod(prev, 1));
+    setPeriod((prev) => shiftPeriod(prev, 1, minPeriod));
   };
 
   const goToToday = () => {
     calendarLog("today clicked");
-    setPeriod(clampPeriod(toCalendarPeriod(today)));
+    setPeriod(clampPeriod(toCalendarPeriod(today), minPeriod));
     setScrollToTodaySignal((prev) => prev + 1);
   };
 
   const handleMonthChange = (nextMonth: number) => {
     calendarLog("month selected", { month: nextMonth });
-    setPeriod((prev) => clampPeriod({ ...prev, month: nextMonth }));
+    setPeriod((prev) => clampPeriod({ ...prev, month: nextMonth }, minPeriod));
   };
 
-  // Po zmianie roku na rok startu miesiąc sprzed startu zostaje przesunięty na pierwszy dozwolony.
+  // Po zmianie roku na rok zatrudnienia miesiąc sprzed zatrudnienia zostaje
+  // przesunięty na pierwszy dozwolony.
   const handleYearChange = (nextYear: number) => {
     calendarLog("year selected", { year: nextYear });
-    setPeriod((prev) => clampPeriod({ ...prev, year: nextYear }));
+    setPeriod((prev) => clampPeriod({ ...prev, year: nextYear }, minPeriod));
   };
 
   return (
@@ -143,7 +150,7 @@ export function EmployeeCalendar({
       <DateControls
         month={month}
         year={year}
-        minPeriod={MIN_CALENDAR_PERIOD}
+        minPeriod={minPeriod}
         maxPeriod={getMaxCalendarPeriod(today)}
         onMonthChange={handleMonthChange}
         onYearChange={handleYearChange}
@@ -170,6 +177,7 @@ export function EmployeeCalendar({
           month={month} // Przekazujemy czyste 1-12
           attendanceByDate={attendanceByDate}
           schedule={schedule}
+          hireDate={hireDate}
           scrollToTodaySignal={scrollToTodaySignal}
         />
       )}

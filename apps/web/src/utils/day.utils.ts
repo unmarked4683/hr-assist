@@ -1,4 +1,4 @@
-import { isAfter, isWeekend, startOfDay } from "date-fns";
+import { isAfter, isBefore, isWeekend, parseISO, startOfDay } from "date-fns";
 import { AttendanceStatus } from "./calendar.types";
 
 /** Harmonogram pracownika używany do wyliczeń godzin w kalendarzu. */
@@ -8,13 +8,20 @@ export interface WorkScheduleInfo {
   workHours: number;
 }
 
-export type CalendarDayKind = "weekend" | "holiday" | "workday";
+export type CalendarDayKind =
+  | "preEmployment"
+  | "weekend"
+  | "holiday"
+  | "workday";
 
 export interface CalendarDayState {
   kind: CalendarDayKind;
   /** Dzień po dzisiejszym — można go planować, ale jeszcze się nie odbył. */
   isFuture: boolean;
-  /** Weekend i święto są zawsze zablokowane — także w przyszłości. */
+  /**
+   * Weekend, święto i dni przed zatrudnieniem są zawsze zablokowane — także
+   * w przyszłości.
+   */
   isLocked: boolean;
   /**
    * Status do wyświetlenia:
@@ -38,7 +45,17 @@ interface DescribeCalendarDayParams {
   rawStatus: AttendanceStatus | undefined;
   holidayName: string | null;
   workHours: number;
+  /** Data zatrudnienia — dni wcześniejsze nie mają statusu ani godzin. */
+  hireDate: Date | null;
 }
+
+/**
+ * Parsuje datę z backendu (np. "2026-09-16T00:00:00.000Z") jako dzień w strefie
+ * lokalnej — bierzemy tylko część YYYY-MM-DD, żeby strefa czasowa nie
+ * przesunęła dnia.
+ */
+export const parseDateOnly = (value: string): Date =>
+  parseISO(value.slice(0, 10));
 
 /** Realne godziny dla statusu — JEDYNE miejsce z regułą "tylko OB liczy się do godzin". */
 export const getRealHours = (
@@ -52,13 +69,20 @@ export const describeCalendarDay = ({
   rawStatus,
   holidayName,
   workHours,
+  hireDate,
 }: DescribeCalendarDayParams): CalendarDayState => {
   const isFuture = isAfter(startOfDay(date), startOfDay(today));
-  const kind: CalendarDayKind = holidayName
-    ? "holiday"
-    : isWeekend(date)
-      ? "weekend"
-      : "workday";
+  // Dni sprzed zatrudnienia mają pierwszeństwo przed świętami i weekendami —
+  // przed początkiem umowy nie pokazujemy niczego poza datą.
+  const isBeforeHire =
+    hireDate !== null && isBefore(startOfDay(date), startOfDay(hireDate));
+  const kind: CalendarDayKind = isBeforeHire
+    ? "preEmployment"
+    : holidayName
+      ? "holiday"
+      : isWeekend(date)
+        ? "weekend"
+        : "workday";
 
   if (kind !== "workday") {
     return {
