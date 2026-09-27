@@ -134,4 +134,11 @@ export class ApiService {
     );
     return data;
   }
+
+  static async deleteEmployee(id: string): Promise<null> {
+    const data = await apiRequest<null>(`/api/employees/${id}`, {
+      method: "DELETE",
+    });
+    return data;
+  }
 }

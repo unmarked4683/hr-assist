@@ -1,6 +1,16 @@
 import { ContractType, Location } from "@/types";
 import { z } from "zod";
-import { format } from "date-fns";
+import {
+  addYears,
+  endOfYear,
+  format,
+  isAfter,
+  isBefore,
+  isValid,
+  parseISO,
+  startOfDay,
+} from "date-fns";
+import { pl } from "date-fns/locale";
 import { validatePolish } from "validate-polish";
 import { ApiService } from "@/services/api.service";
 import { APP_START_DATE } from "@/lib/constants";
@@ -15,6 +25,16 @@ const isPeselTaken = async (pesel: string): Promise<boolean> => {
   const isAvailable: boolean = await ApiService.isPeselAvailable(pesel);
   return !isAvailable;
 };
+
+/** Employment date lower bound — the app start date (2026-01-01). */
+export const EARLIEST_EMPLOYMENT_DATE = APP_START_DATE;
+
+/** Employment date upper bound — 31 December of next year (e.g. 2027-12-31 in 2026). */
+export const getLatestEmploymentDate = (today: Date = new Date()): Date =>
+  startOfDay(endOfYear(addYears(today, 1)));
+
+const formatBoundDate = (date: Date): string =>
+  format(date, "d MMMM yyyy", { locale: pl });
 
 /** Dane edytowanego pracownika potrzebne do walidacji asynchronicznej. */
 export interface EditedEmployeeContext {
@@ -48,6 +68,12 @@ export const createEmployeeSchema = (edited?: EditedEmployeeContext) => {
     leaveChecks.set(leave, check);
     return check;
   };
+
+  // Resolved once per schema (i.e. per open form), so it follows the current year.
+  const latestEmploymentDate = getLatestEmploymentDate();
+  const employmentDateRangeMessage = `Data musi mieścić się w przedziale ${formatBoundDate(
+    EARLIEST_EMPLOYMENT_DATE,
+  )} – ${formatBoundDate(latestEmploymentDate)}`;
 
   return z
     .object({
@@ -92,7 +118,18 @@ export const createEmployeeSchema = (edited?: EditedEmployeeContext) => {
           .min(1, "Wyliczana automatycznie")
           .regex(fullHourRegex, { message: "Wymagana pełna godzina (HH:00)" }),
       }),
-      employmentDate: z.string().min(1, "Data rozpoczęcia jest wymagana"),
+      employmentDate: z
+        .string()
+        .min(1, "Data rozpoczęcia jest wymagana")
+        // "yyyy-MM-dd" parsed as a local date (not UTC, unlike `new Date(...)`).
+        .refine((value) => isValid(parseISO(value)), "Nieprawidłowa data")
+        .refine((value) => {
+          const date = parseISO(value);
+          return (
+            !isBefore(date, EARLIEST_EMPLOYMENT_DATE) &&
+            !isAfter(date, latestEmploymentDate)
+          );
+        }, employmentDateRangeMessage),
       contractType: z.enum(ContractType, { message: "Wybierz typ umowy" }),
       leave: z
         .union([z.literal(20), z.literal(26)], {
@@ -184,5 +221,3 @@ export const getDefaultEmployeeFormValues = (
     ...initialData,
   };
 };
-
-export const EARLIEST_EMPLOYMENT_DATE = APP_START_DATE;

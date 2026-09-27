@@ -210,11 +210,13 @@ export function EmployeeModal(props: EmployeeModalProps) {
       </Dialog>
 
       <ConfirmModal
-        isConfirmOpen={isConfirmOpen}
-        setIsConfirmOpen={setIsConfirmOpen}
-        message={text.confirmMessage}
-        confirmLabel={text.confirmLabel}
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
         onConfirm={handleConfirm}
+        title="Potwierdzenie"
+        message={text.confirmMessage}
+        confirmText={text.confirmLabel}
+        cancelText="Nie"
       />
     </>
   );

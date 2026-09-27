@@ -2,8 +2,9 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useParams, useRouter } from "next/navigation";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +16,8 @@ import { EmployeeInfoTab } from "./EmployeeInfoTab";
 import { EmployeeLeaveTab } from "./EmployeeLeaveTab";
 import { EmployeeCalendar } from "../Calendar/EmployeeCalendar";
 import { EmployeeModal } from "@/components/EmployeeModal/Modal/Modal";
+import { ConfirmModal } from "@/components/ConfirmModal/ConfirmModal";
+import { EmployeesList } from "@/types";
 
 type EmployeeTab = "dane" | "urlopy";
 
@@ -26,6 +29,44 @@ export function EmployeeProfilePage() {
   const tabsContentRef = useRef<HTMLDivElement>(null);
   const [tabsContentHeight, setTabsContentHeight] = useState<number>();
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const handleDeleteEmployee = async () => {
+    // Guard against multiple clicks while the request is in flight.
+    if (isDeleting) return;
+    const id = employeeId as string;
+
+    setIsDeleting(true);
+    try {
+      await ApiService.deleteEmployee(id);
+
+      // Drop the employee from the cached list right away, then refetch it.
+      // The profile query is left alone — removing it here would make the
+      // still-mounted profile refetch the deleted employee before the redirect.
+      queryClient.setQueryData<EmployeesList>(
+        QueryKeysService.employeesList(),
+        (list) => list?.filter((employee) => employee.id !== id),
+      );
+      void queryClient.invalidateQueries({
+        queryKey: QueryKeysService.employeesList(),
+      });
+
+      toast.success("Pracownik został usunięty");
+      setIsDeleteModalOpen(false);
+      router.replace("/employees");
+    } catch (error) {
+      toast.error(
+        error instanceof Error && error.message
+          ? error.message
+          : "Nie udało się usunąć pracownika",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useLayoutEffect(() => {
     const node = tabsContentRef.current;
@@ -97,6 +138,7 @@ export function EmployeeProfilePage() {
         name={employee.name}
         surname={employee.surname}
         onEdit={() => setIsEditOpen(true)}
+        onDelete={() => setIsDeleteModalOpen(true)}
       />
 
       {/* 3. Główna karta */}
@@ -148,6 +190,18 @@ export function EmployeeProfilePage() {
         employee={employee}
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
+      />
+
+      <ConfirmModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteEmployee}
+        title="Usuwanie pracownika"
+        message="Czy na pewno chcesz usunąć tego pracownika? Tej akcji nie można cofnąć."
+        confirmText="Usuń"
+        cancelText="Anuluj"
+        variant="danger"
+        isLoading={isDeleting}
       />
     </div>
   );

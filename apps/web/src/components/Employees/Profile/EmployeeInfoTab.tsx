@@ -1,27 +1,79 @@
 "use client";
 
+import { ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TabsContent } from "@/components/ui/tabs";
-import { Employee } from "@/types";
+import { ContractType, Employee } from "@/types";
+import { getLocationName } from "@/utils/employees.utils";
+import {
+  formatEmploymentDate,
+  formatSeniority,
+  formatWorkSchedule,
+  formatWorkTimeFraction,
+} from "@/utils/employee-profile.utils";
 
+/** 2 columns × 3 rows. */
 export const EMPLOYEE_INFO_ITEMS_PER_PAGE = 6;
 
 const NO_DATA = "Brak danych";
 
-type CompanyAddress = Employee["company"]["address"];
+const CONTRACT_TYPE_LABELS: Record<ContractType, string> = {
+  [ContractType.EMPLOYMENT_CONTRACT]: "UOP",
+};
 
-// Relacje firmy/adresu mogą nie przyjść z API (np. niepełna odpowiedź po zapisie) —
-// typy generowane zakładają ich obecność, więc zabezpieczamy się przy renderze.
-const formatCompanyAddress = (address: CompanyAddress | undefined): string => {
-  if (!address) return NO_DATA;
+interface EmployeeDetailItem {
+  title: string;
+  content: ReactNode;
+}
 
-  const streetLine = [address.street, address.houseNumber]
-    .filter(Boolean)
-    .join(" ");
-  const line = [streetLine, address.city].filter(Boolean).join(", ");
-  return line || NO_DATA;
+/**
+ * Profile details in display order — reorder, add or remove entries here;
+ * pagination follows the array (6 per page).
+ */
+const buildEmployeeDetails = (employee: Employee): EmployeeDetailItem[] => {
+  const companyName = employee.company?.name || NO_DATA;
+
+  return [
+    // Page 1
+    { title: "Stanowisko", content: employee.position },
+    { title: "Lokalizacja", content: getLocationName(employee.location) },
+    { title: "PESEL", content: employee.pesel },
+    {
+      title: "Godziny pracy",
+      content: formatWorkSchedule(
+        employee.workSchedule.start,
+        employee.workSchedule.end,
+        employee.workHours,
+      ),
+    },
+    {
+      title: "Wymiar etatu",
+      content: formatWorkTimeFraction(employee.workHours),
+    },
+    {
+      title: "Rodzaj umowy",
+      content:
+        CONTRACT_TYPE_LABELS[employee.contractType as ContractType] ?? NO_DATA,
+    },
+    // Page 2
+    {
+      title: "Data zatrudnienia",
+      content: formatEmploymentDate(employee.employmentDate),
+    },
+    { title: "Staż pracy", content: formatSeniority(employee.employmentDate) },
+    {
+      title: "Firma",
+      // `select-all` — one click selects the full name for copying; the tooltip
+      // shows it in full when the card truncates it.
+      content: (
+        <span title={companyName} className="select-all">
+          {companyName}
+        </span>
+      ),
+    },
+  ];
 };
 
 interface EmployeeInfoTabProps {
@@ -35,25 +87,7 @@ export function EmployeeInfoTab({
   currentPage,
   onPageChange,
 }: EmployeeInfoTabProps) {
-  const detailsList = [
-    { label: "PESEL", value: employee.pesel },
-    { label: "Stanowisko", value: employee.position },
-    { label: "Data zatrudnienia", value: employee.employmentDate },
-    {
-      label: "Godziny pracy",
-      value: `${employee.workSchedule.start.slice(0, 5)} - ${employee.workSchedule.end.slice(0, 5)} (${employee.workHours}h)`,
-    },
-    { label: "Firma", value: employee.company?.name || NO_DATA },
-    {
-      label: "Typ umowy",
-      value: employee.contractType === 1 ? "Umowa o pracę" : "Inna",
-    },
-    { label: "NIP", value: employee.company?.nip || NO_DATA },
-    {
-      label: "Adres firmy",
-      value: formatCompanyAddress(employee.company?.address),
-    },
-  ];
+  const detailsList = buildEmployeeDetails(employee);
 
   const totalPages = Math.ceil(detailsList.length / EMPLOYEE_INFO_ITEMS_PER_PAGE);
   const currentItems = detailsList.slice(
@@ -83,14 +117,14 @@ export function EmployeeInfoTab({
 
       <div className="grid flex-1 shrink-0 grid-cols-2 gap-3">
         {paddedItems.map((item, idx) => (
-          <div key={idx}>
+          <div key={item?.title ?? `empty-${idx}`}>
             {item ? (
               <Card className="flex flex-col space-y-1 bg-muted/40 p-3.5">
                 <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
-                  {item.label}
+                  {item.title}
                 </span>
                 <span className="truncate text-sm font-semibold text-foreground">
-                  {item.value}
+                  {item.content}
                 </span>
               </Card>
             ) : (

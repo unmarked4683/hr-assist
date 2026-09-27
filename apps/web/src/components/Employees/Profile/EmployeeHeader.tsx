@@ -6,9 +6,15 @@ interface EmployeeHeaderProps {
   name: string;
   surname: string;
   onEdit: () => void;
+  onDelete: () => void;
 }
 
-export function EmployeeHeader({ name, surname, onEdit }: EmployeeHeaderProps) {
+export function EmployeeHeader({
+  name,
+  surname,
+  onEdit,
+  onDelete,
+}: EmployeeHeaderProps) {
   const fullNameUpper = `${name} ${surname}`.toUpperCase();
 
   return (
@@ -31,6 +37,7 @@ export function EmployeeHeader({ name, surname, onEdit }: EmployeeHeaderProps) {
             size="icon"
             title="Usuń"
             className="text-destructive hover:text-destructive"
+            onClick={onDelete}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
