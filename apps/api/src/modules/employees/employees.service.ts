@@ -13,9 +13,8 @@ import { EmployeeEntity } from './entities/employee.entity';
 import { WorkScheduleDto } from './dto/work-schedule.dto';
 import { CompaniesService } from '../companies/companies.service';
 import { CompanyEntity } from '../companies/entities/company.entity';
-import { merge } from 'lodash';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, Not } from 'typeorm';
 import { EmployeeResponseDto } from './dto/employees-list.dto';
 import { AttendanceService } from '../attendance/attendance.service';
 
@@ -105,10 +104,36 @@ export class EmployeesService {
     return await employee.save();
   }
 
-  async update(id: string, dto: UpdateEmployeeDto): Promise<EmployeeEntity> {
-    const employee = await this.findOneById(id);
-    const merged = merge({}, employee, dto);
-    Object.assign(employee, merged);
+  async update(
+    id: string,
+    {
+      pesel,
+      company: companyId,
+      workSchedule,
+      workHours,
+      ...restDto
+    }: UpdateEmployeeDto,
+  ): Promise<EmployeeEntity> {
+    const employee: EmployeeEntity = await this.findOneById(id);
+
+    if (pesel && pesel !== employee.pesel) {
+      const isPeselTaken: boolean = await EmployeeEntity.existsBy({
+        pesel,
+        id: Not(id),
+      });
+      if (isPeselTaken) throw new ConflictException('Pesel is already taken');
+    }
+
+    Object.assign(employee, restDto);
+
+    if (companyId && companyId !== employee.company.id) {
+      employee.company.id = companyId;
+    }
+
+    if (workSchedule && workHours) {
+      this.validateWorkSchedule(workSchedule, workHours);
+    }
+
     return await employee.save();
   }
 

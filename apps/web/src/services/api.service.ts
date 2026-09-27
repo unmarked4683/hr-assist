@@ -112,7 +112,7 @@ export class ApiService {
     return response;
   }
 
-  static async udpateEmployee(
+  static async updateEmployee(
     id: string,
     dto: UpdateEmployeeDto,
   ): Promise<Employee> {
@@ -125,6 +125,13 @@ export class ApiService {
 
   static async getEmployeeLeave(id: string): Promise<Leave> {
     const data = await apiRequest<Leave>(`/api/employees/${id}/leaves`);
+    return data;
+  }
+
+  static async canLeaveBeSet(id: string, newLeave: 20 | 26): Promise<boolean> {
+    const data = await apiRequest<boolean>(
+      `/api/employees/${id}/leaves/can-be-set?leave=${newLeave}`,
+    );
     return data;
   }
 }

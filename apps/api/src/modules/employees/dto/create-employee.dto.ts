@@ -6,15 +6,16 @@ import {
   IsInt,
   IsNotEmpty,
   IsString,
+  IsUUID,
   Length,
   Max,
   Min,
-  MinLength,
   ValidateNested,
 } from 'class-validator';
 import { ContractType, ICreateEmployeeDto, Location } from '../employee.types';
 import { WorkScheduleDto } from './work-schedule.dto';
 import { IsPesel } from 'src/common/validators/is-pesel.validator';
+import { IsCompanyId } from 'src/common/validators/is-company-id.validator';
 
 export class CreateEmployeeDto implements ICreateEmployeeDto {
   @IsString()
@@ -38,7 +39,8 @@ export class CreateEmployeeDto implements ICreateEmployeeDto {
   location: Location;
 
   @IsString()
-  @MinLength(1)
+  @IsUUID(4)
+  @IsCompanyId()
   company: string;
 
   @IsInt()

@@ -65,7 +65,9 @@ export class EmployeeEntity extends BaseEntity implements IEmployeeEntity {
   @JoinColumn({ name: 'fired_by_id' })
   firedBy: UserEntity | null;
 
-  @OneToMany(() => AbsenceEntity, (absence) => absence.employee)
+  @OneToMany(() => AbsenceEntity, (absence) => absence.employee, {
+    onDelete: 'CASCADE',
+  })
   absences: AbsenceEntity[];
 
   @ManyToOne(() => CompanyEntity, (company) => company.employees, {

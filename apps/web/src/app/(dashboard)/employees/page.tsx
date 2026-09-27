@@ -16,6 +16,7 @@ export default function EmployeesPage() {
       <Search onAddClick={handleAddEmployee} />
       <List />
       <EmployeeModal
+        mode="create"
         isOpen={isAddingEmployee}
         onClose={() => setIsAddingEmployee(false)}
       />

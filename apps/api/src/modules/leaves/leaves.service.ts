@@ -100,4 +100,26 @@ export class LeavesService {
 
     return leavesCount < fullLeaveBase;
   }
+
+  async canLeaveBeSetForEmployee(
+    employeeId: string,
+    leave: number,
+  ): Promise<boolean> {
+    const {
+      leave: { current, overdue },
+    } = await this.employeesService.findOneById(employeeId);
+
+    if (leave >= current) return true;
+
+    const currentYear: number = getYear(new Date());
+
+    const usedLeavesCount: number = await this.findLeavesCountByYear(
+      employeeId,
+      currentYear,
+    );
+
+    const newTotalAvailableLeave: number = leave + overdue;
+
+    return usedLeavesCount <= newTotalAvailableLeave;
+  }
 }

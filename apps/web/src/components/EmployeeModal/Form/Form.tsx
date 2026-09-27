@@ -1,17 +1,10 @@
-import { useImperativeHandle } from "react";
+import { useImperativeHandle, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
-import {
-  EmployeeFormValues,
-  employeeSchema,
-  getDefaultEmployeeFormValues,
-  LAST_EMPLOYEE_DEFAULTS_QUERY_KEY,
-  RememberedEmployeeFields,
-} from "../employee.schema";
+import { createEmployeeSchema, EmployeeFormValues } from "../employee.schema";
 import { NameInput } from "./Inputs/NameInput";
 import { SurnameInput } from "./Inputs/SurnameInput";
 import { PeselInput } from "./Inputs/PeselInput";
@@ -26,38 +19,50 @@ import { ContractTypeField } from "./Inputs/ContractTypeField";
 import { LeaveToggle } from "./Inputs/LeaveToggle";
 import { FormProps } from "./Form.types";
 
-export function Form({ ref, onSubmit, onCancel }: FormProps) {
-  const queryClient = useQueryClient();
-  // Podpowiadamy ostatnio używane wartości (lokalizacja, stanowisko, etat, godziny, urlop).
-  const rememberedDefaults = queryClient.getQueryData<RememberedEmployeeFields>(
-    LAST_EMPLOYEE_DEFAULTS_QUERY_KEY,
-  );
+export function Form({
+  ref,
+  initialValues,
+  edited,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}: FormProps) {
+  // Jeden schemat na czas życia formularza — trzyma też cache sprawdzeń urlopu.
+  const schema = useMemo(() => createEmployeeSchema(edited), [edited]);
 
   const methods = useForm<EmployeeFormValues>({
-    resolver: zodResolver(employeeSchema),
+    resolver: zodResolver(schema),
     mode: "onChange",
-    defaultValues: getDefaultEmployeeFormValues(rememberedDefaults),
+    defaultValues: initialValues,
   });
 
-  const { handleSubmit, reset } = methods;
+  // `dirtyFields` odczytany w renderze — react-hook-form zaczyna je śledzić.
+  const {
+    handleSubmit,
+    reset,
+    formState: { dirtyFields },
+  } = methods;
 
   useImperativeHandle(
     ref,
     () => ({
-      reset: () => reset(getDefaultEmployeeFormValues(rememberedDefaults)),
+      reset: () => reset(initialValues),
     }),
-    [reset, rememberedDefaults],
+    [reset, initialValues],
   );
 
   const handleCancel = () => {
-    reset(getDefaultEmployeeFormValues(rememberedDefaults));
+    reset(initialValues);
     onCancel();
   };
+
+  const handleValidSubmit = (values: EmployeeFormValues) =>
+    onSubmit(values, dirtyFields);
 
   return (
     <FormProvider {...methods}>
       <form
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(handleValidSubmit)}
         className="space-y-6 mt-2"
         noValidate
       >
@@ -94,7 +99,7 @@ export function Form({ ref, onSubmit, onCancel }: FormProps) {
           >
             Anuluj
           </Button>
-          <Button type="submit">Dodaj</Button>
+          <Button type="submit">{submitLabel}</Button>
         </DialogFooter>
       </form>
     </FormProvider>

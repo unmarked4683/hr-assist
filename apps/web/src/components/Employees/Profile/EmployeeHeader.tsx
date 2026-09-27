@@ -5,9 +5,10 @@ import { Card } from "@/components/ui/card";
 interface EmployeeHeaderProps {
   name: string;
   surname: string;
+  onEdit: () => void;
 }
 
-export function EmployeeHeader({ name, surname }: EmployeeHeaderProps) {
+export function EmployeeHeader({ name, surname, onEdit }: EmployeeHeaderProps) {
   const fullNameUpper = `${name} ${surname}`.toUpperCase();
 
   return (
@@ -19,7 +20,7 @@ export function EmployeeHeader({ name, surname }: EmployeeHeaderProps) {
           <Button variant="ghost" size="icon" title="Raport">
             <FileText className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" title="Edytuj">
+          <Button variant="ghost" size="icon" title="Edytuj" onClick={onEdit}>
             <Pencil className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon" title="Zwolnij">

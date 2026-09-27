@@ -65,4 +65,8 @@ export class CompaniesService {
     if (!company) throw new NotFoundException('Company not found');
     await company.remove();
   }
+
+  async exists(id: string): Promise<boolean> {
+    return await CompanyEntity.existsBy({ id });
+  }
 }

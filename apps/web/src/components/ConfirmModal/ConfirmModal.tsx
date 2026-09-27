@@ -10,12 +10,16 @@ import {
 interface ConfirmModalProps {
   isConfirmOpen: boolean;
   setIsConfirmOpen: (isOpen: boolean) => void;
-  confirmAddEmployee: () => void;
+  message: string;
+  confirmLabel: string;
+  onConfirm: () => void;
 }
 export function ConfirmModal({
   isConfirmOpen,
   setIsConfirmOpen,
-  confirmAddEmployee,
+  message,
+  confirmLabel,
+  onConfirm,
 }: ConfirmModalProps) {
   return (
     <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
@@ -23,9 +27,7 @@ export function ConfirmModal({
         <DialogHeader>
           <DialogTitle>Potwierdzenie</DialogTitle>
         </DialogHeader>
-        <p className="text-sm text-zinc-600 py-2">
-          Czy na pewno chcesz dodać tego pracownika do systemu?
-        </p>
+        <p className="text-sm text-zinc-600 py-2">{message}</p>
         <DialogFooter className="flex gap-2">
           <Button
             variant="outline"
@@ -34,7 +36,7 @@ export function ConfirmModal({
           >
             Nie
           </Button>
-          <Button onClick={confirmAddEmployee}>Tak, dodaj</Button>
+          <Button onClick={onConfirm}>{confirmLabel}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

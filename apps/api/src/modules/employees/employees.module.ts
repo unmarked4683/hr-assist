@@ -4,6 +4,7 @@ import { EmployeesController } from './employees.controller';
 import { CompaniesModule } from '../companies/companies.module';
 import { CompaniesService } from '../companies/companies.service';
 import { AttendanceModule } from '../attendance/attendance.module';
+import { IsCompanyIdConstraint } from 'src/common/validators/is-company-id.validator';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { AttendanceModule } from '../attendance/attendance.module';
     forwardRef(() => AttendanceModule),
   ],
   controllers: [EmployeesController],
-  providers: [EmployeesService, CompaniesService],
+  providers: [EmployeesService, CompaniesService, IsCompanyIdConstraint],
   exports: [forwardRef(() => EmployeesService)],
 })
 export class EmployeesModule {}

@@ -10,6 +10,7 @@ const meta: Meta<typeof EmployeeModal> = {
   },
   tags: ["autodocs"],
   args: {
+    mode: "create",
     onClose: fn(),
   },
 };

@@ -168,7 +168,11 @@ export function EmployeeDetails({ employeeId }: EmployeeDetailsProps) {
       value: getLocationName(employee.location),
       icon: MapPin,
     },
-    { label: "Firma", value: employee.company.name, icon: Building2 },
+    {
+      label: "Firma",
+      value: employee.company?.name || "Brak danych",
+      icon: Building2,
+    },
     { label: "Wymiar etatu", value: `${employee.workHours} h`, icon: Timer },
     { label: "Godziny pracy", value: workScheduleRange, icon: Clock },
     { label: "Data zatrudnienia", value: employmentDate, icon: CalendarDays },

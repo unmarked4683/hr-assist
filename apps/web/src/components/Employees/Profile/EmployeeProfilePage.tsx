@@ -14,6 +14,7 @@ import { EmployeeHeader } from "./EmployeeHeader";
 import { EmployeeInfoTab } from "./EmployeeInfoTab";
 import { EmployeeLeaveTab } from "./EmployeeLeaveTab";
 import { EmployeeCalendar } from "../Calendar/EmployeeCalendar";
+import { EmployeeModal } from "@/components/EmployeeModal/Modal/Modal";
 
 type EmployeeTab = "dane" | "urlopy";
 
@@ -24,6 +25,7 @@ export function EmployeeProfilePage() {
   const [activeTab, setActiveTab] = useState<EmployeeTab>("dane");
   const tabsContentRef = useRef<HTMLDivElement>(null);
   const [tabsContentHeight, setTabsContentHeight] = useState<number>();
+  const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
 
   useLayoutEffect(() => {
     const node = tabsContentRef.current;
@@ -91,7 +93,11 @@ export function EmployeeProfilePage() {
       </div>
 
       {/* 2. Nagłówek nawigacyjny i akcje */}
-      <EmployeeHeader name={employee.name} surname={employee.surname} />
+      <EmployeeHeader
+        name={employee.name}
+        surname={employee.surname}
+        onEdit={() => setIsEditOpen(true)}
+      />
 
       {/* 3. Główna karta */}
       <Card size="sm" className="flex shrink-0 flex-col gap-2 px-4">
@@ -135,6 +141,14 @@ export function EmployeeProfilePage() {
           />
         </CardContent>
       </Card>
+
+      {/* Edycja na danych z cache `employeeDetails` — bez dodatkowego zapytania */}
+      <EmployeeModal
+        mode="edit"
+        employee={employee}
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+      />
     </div>
   );
 }

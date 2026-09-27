@@ -8,6 +8,22 @@ import { Employee } from "@/types";
 
 export const EMPLOYEE_INFO_ITEMS_PER_PAGE = 6;
 
+const NO_DATA = "Brak danych";
+
+type CompanyAddress = Employee["company"]["address"];
+
+// Relacje firmy/adresu mogą nie przyjść z API (np. niepełna odpowiedź po zapisie) —
+// typy generowane zakładają ich obecność, więc zabezpieczamy się przy renderze.
+const formatCompanyAddress = (address: CompanyAddress | undefined): string => {
+  if (!address) return NO_DATA;
+
+  const streetLine = [address.street, address.houseNumber]
+    .filter(Boolean)
+    .join(" ");
+  const line = [streetLine, address.city].filter(Boolean).join(", ");
+  return line || NO_DATA;
+};
+
 interface EmployeeInfoTabProps {
   employee: Employee;
   currentPage: number;
@@ -27,15 +43,15 @@ export function EmployeeInfoTab({
       label: "Godziny pracy",
       value: `${employee.workSchedule.start.slice(0, 5)} - ${employee.workSchedule.end.slice(0, 5)} (${employee.workHours}h)`,
     },
-    { label: "Firma", value: employee.company.name },
+    { label: "Firma", value: employee.company?.name || NO_DATA },
     {
       label: "Typ umowy",
       value: employee.contractType === 1 ? "Umowa o pracę" : "Inna",
     },
-    { label: "NIP", value: employee.company.nip },
+    { label: "NIP", value: employee.company?.nip || NO_DATA },
     {
       label: "Adres firmy",
-      value: `${employee.company.address.street} ${employee.company.address.houseNumber}, ${employee.company.address.city}`,
+      value: formatCompanyAddress(employee.company?.address),
     },
   ];
 
