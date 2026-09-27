@@ -55,10 +55,12 @@ export function EmployeeCalendar({
   // Rok i miesiąc w jednym stanie — zmiana przez granicę roku (grudzień ↔ styczeń)
   // jest atomowa, a szybkie kliknięcia liczą się od najnowszej wartości, nie z domknięcia.
   // Miesiące w zakresie 1-12 (np. styczeń = 1, wrzesień = 9).
-  // Każda zmiana przechodzi przez `clampPeriod`, więc stan nie wyjdzie poza `bounds`.
-  const [{ year, month }, setPeriod] = useState(() =>
-    clampPeriod(toCalendarPeriod(today), bounds),
-  );
+  // The displayed month is derived: the requested month clamped to the current
+  // `bounds` on every render. When the employment date changes (e.g. moved
+  // later after an edit), the view jumps to the first allowed month at once —
+  // no effect needed to "fix" stale state.
+  const [requestedPeriod, setPeriod] = useState(() => toCalendarPeriod(today));
+  const { year, month } = clampPeriod(requestedPeriod, bounds);
   // Dzień wskazany z listy nieobecności NN (czerwony) albo przyciskiem "Dziś"
   // (zielony) — tabela przewija się do niego i chwilowo go podświetla;
   // `requestId` pozwala ponownie wskazać ten sam dzień.
@@ -144,12 +146,13 @@ export function EmployeeCalendar({
 
   const goToPrevMonth = () => {
     calendarLog("prev month clicked");
-    setPeriod((prev) => shiftPeriod(prev, -1, bounds));
+    // Shift from the displayed (clamped) month, not a stale out-of-range request.
+    setPeriod((prev) => shiftPeriod(clampPeriod(prev, bounds), -1, bounds));
   };
 
   const goToNextMonth = () => {
     calendarLog("next month clicked");
-    setPeriod((prev) => shiftPeriod(prev, 1, bounds));
+    setPeriod((prev) => shiftPeriod(clampPeriod(prev, bounds), 1, bounds));
   };
 
   // Przejście do miesiąca danego dnia, przewinięcie do wiersza i chwilowe
@@ -183,14 +186,18 @@ export function EmployeeCalendar({
 
   const handleMonthChange = (nextMonth: number) => {
     calendarLog("month selected", { month: nextMonth });
-    setPeriod((prev) => clampPeriod({ ...prev, month: nextMonth }, bounds));
+    setPeriod((prev) =>
+      clampPeriod({ ...clampPeriod(prev, bounds), month: nextMonth }, bounds),
+    );
   };
 
   // Po zmianie roku na rok zatrudnienia/zwolnienia miesiąc spoza okresu
   // zatrudnienia zostaje przesunięty na najbliższy dozwolony.
   const handleYearChange = (nextYear: number) => {
     calendarLog("year selected", { year: nextYear });
-    setPeriod((prev) => clampPeriod({ ...prev, year: nextYear }, bounds));
+    setPeriod((prev) =>
+      clampPeriod({ ...clampPeriod(prev, bounds), year: nextYear }, bounds),
+    );
   };
 
   return (
@@ -208,6 +215,7 @@ export function EmployeeCalendar({
         />
         <UnexcusedAbsencesBell
           employeeId={employeeId}
+          hireDate={hireDate}
           onSelectDate={handleSelectAbsence}
         />
       </div>

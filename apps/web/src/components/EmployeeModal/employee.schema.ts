@@ -41,6 +41,8 @@ export interface EditedEmployeeContext {
   employeeId: string;
   pesel: string;
   leave: LeaveDays;
+  /** Original employment date (yyyy-MM-dd). */
+  employmentDate: string;
 }
 
 type LeaveDays = 20 | 26;
@@ -48,32 +50,60 @@ type LeaveDays = 20 | 26;
 const LEAVE_EXCESS_MESSAGE =
   "Nadmiar urlopów — pracownik wykorzystał w tym roku więcej dni, niż pozwala nowy wymiar";
 
+const LEAVES_BEFORE_EMPLOYMENT_DATE_MESSAGE =
+  "Nie można zmienić daty zatrudnienia na późniejszą, ponieważ pracownik ma zarejestrowane urlopy przed tą datą";
+
+/**
+ * Caches async check results per key for the schema's lifetime — `onChange`
+ * mode re-validates the whole schema on every keystroke, while the answer only
+ * depends on the key. Failed requests are not cached, so they get retried.
+ */
+const memoizeAsyncCheck = <K>(check: (key: K) => Promise<boolean>) => {
+  const results = new Map<K, Promise<boolean>>();
+
+  return (key: K): Promise<boolean> => {
+    const cached = results.get(key);
+    if (cached) return cached;
+
+    const result = check(key);
+    result.catch(() => results.delete(key));
+    results.set(key, result);
+    return result;
+  };
+};
+
 /**
  * Schemat formularza pracownika. W trybie edycji (`edited`):
  * - sprawdzenie dostępności PESEL pomija obecny PESEL pracownika
  *   (backend też wyklucza bieżącego pracownika),
- * - zmiana wymiaru urlopu jest sprawdzana w API (`canLeaveBeSet`).
+ * - zmiana wymiaru urlopu jest sprawdzana w API (`canLeaveBeSet`),
+ * - moving the employment date later is checked against registered leaves
+ *   (`hasLeavesBeforeGivenDate`).
  */
 export const createEmployeeSchema = (edited?: EditedEmployeeContext) => {
-  // Wynik sprawdzenia urlopu na czas życia formularza — tryb `onChange`
-  // waliduje cały schemat przy każdej zmianie, a odpowiedź zależy tylko od wartości.
-  const leaveChecks = new Map<LeaveDays, Promise<boolean>>();
-  const canLeaveBeSet = (employeeId: string, leave: LeaveDays) => {
-    const cached = leaveChecks.get(leave);
-    if (cached) return cached;
-
-    const check = ApiService.canLeaveBeSet(employeeId, leave);
-    // Błąd sieci nie zostaje w cache — kolejna walidacja spróbuje ponownie.
-    check.catch(() => leaveChecks.delete(leave));
-    leaveChecks.set(leave, check);
-    return check;
-  };
+  const canLeaveBeSet = memoizeAsyncCheck((leave: LeaveDays) =>
+    ApiService.canLeaveBeSet(edited?.employeeId ?? "", leave),
+  );
+  const hasLeavesBefore = memoizeAsyncCheck((date: string) =>
+    ApiService.hasLeavesBeforeGivenDate(edited?.employeeId ?? "", date),
+  );
 
   // Resolved once per schema (i.e. per open form), so it follows the current year.
   const latestEmploymentDate = getLatestEmploymentDate();
   const employmentDateRangeMessage = `Data musi mieścić się w przedziale ${formatBoundDate(
     EARLIEST_EMPLOYMENT_DATE,
   )} – ${formatBoundDate(latestEmploymentDate)}`;
+
+  // Zod keeps running refinements after an earlier one fails, so the async
+  // leave check re-uses this guard to never query the API with a bad date.
+  const isWithinEmploymentRange = (value: string): boolean => {
+    const date = parseISO(value);
+    return (
+      isValid(date) &&
+      !isBefore(date, EARLIEST_EMPLOYMENT_DATE) &&
+      !isAfter(date, latestEmploymentDate)
+    );
+  };
 
   return z
     .object({
@@ -123,13 +153,32 @@ export const createEmployeeSchema = (edited?: EditedEmployeeContext) => {
         .min(1, "Data rozpoczęcia jest wymagana")
         // "yyyy-MM-dd" parsed as a local date (not UTC, unlike `new Date(...)`).
         .refine((value) => isValid(parseISO(value)), "Nieprawidłowa data")
-        .refine((value) => {
-          const date = parseISO(value);
-          return (
-            !isBefore(date, EARLIEST_EMPLOYMENT_DATE) &&
-            !isAfter(date, latestEmploymentDate)
-          );
-        }, employmentDateRangeMessage),
+        .refine(
+          (value) =>
+            !isValid(parseISO(value)) || isWithinEmploymentRange(value),
+          employmentDateRangeMessage,
+        )
+        .superRefine(async (value, ctx) => {
+          // Edit only, and only when the date moves strictly later — leaves
+          // registered before the new date would fall outside the employment.
+          if (!edited || !isWithinEmploymentRange(value)) return;
+          if (!isAfter(parseISO(value), parseISO(edited.employmentDate)))
+            return;
+
+          try {
+            if (await hasLeavesBefore(value)) {
+              ctx.addIssue({
+                code: "custom",
+                message: LEAVES_BEFORE_EMPLOYMENT_DATE_MESSAGE,
+              });
+            }
+          } catch {
+            ctx.addIssue({
+              code: "custom",
+              message: "Nie udało się sprawdzić urlopów — spróbuj ponownie",
+            });
+          }
+        }),
       contractType: z.enum(ContractType, { message: "Wybierz typ umowy" }),
       leave: z
         .union([z.literal(20), z.literal(26)], {
@@ -140,7 +189,7 @@ export const createEmployeeSchema = (edited?: EditedEmployeeContext) => {
           if (!edited || value === edited.leave) return;
 
           try {
-            if (!(await canLeaveBeSet(edited.employeeId, value))) {
+            if (!(await canLeaveBeSet(value))) {
               ctx.addIssue({ code: "custom", message: LEAVE_EXCESS_MESSAGE });
             }
           } catch {

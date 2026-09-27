@@ -14,6 +14,7 @@ import { ApiService } from "@/services/api.service";
 import { QueryKeysService } from "@/services/query-keys.service";
 import { Employee, UpdateEmployeeDto } from "@/types";
 import {
+  applyEmployeeUpdate,
   buildEmployeeUpdateDto,
   EmployeeDirtyFields,
   employeeToFormValues,
@@ -96,6 +97,7 @@ export function EmployeeModal(props: EmployeeModalProps) {
             employeeId: employee.id,
             pesel: initialValues.pesel,
             leave: initialValues.leave,
+            employmentDate: initialValues.employmentDate,
           }
         : undefined,
     [employee, initialValues],
@@ -117,14 +119,18 @@ export function EmployeeModal(props: EmployeeModalProps) {
       ];
 
       if (submission.mode === "edit") {
-        // Bez setQueryData z odpowiedzi PUT: ma ona inny kształt niż GET (brak `ok`,
-        // relacje po `merge` mogą być niepełne) — profil pobieramy ponownie przez GET.
+        const detailsKey = QueryKeysService.employeeDetails({
+          employeeId: submission.employeeId,
+        });
+        // Apply the sent changes to the cached GET object right away (not the raw
+        // PUT response — different shape: no `ok`, relations may be incomplete),
+        // so e.g. a new employment date re-bounds the calendar instantly. The GET
+        // refetch below then brings the authoritative data.
+        queryClient.setQueryData<Employee>(detailsKey, (cached) =>
+          cached ? applyEmployeeUpdate(cached, submission.dto) : cached,
+        );
         invalidations.push(
-          queryClient.invalidateQueries({
-            queryKey: QueryKeysService.employeeDetails({
-              employeeId: submission.employeeId,
-            }),
-          }),
+          queryClient.invalidateQueries({ queryKey: detailsKey }),
           // Zakładka "Urlopy" — wymiar urlopu mógł się zmienić.
           queryClient.invalidateQueries({
             queryKey: QueryKeysService.employeeLeave({

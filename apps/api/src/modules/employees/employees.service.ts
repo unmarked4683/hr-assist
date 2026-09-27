@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  UnprocessableEntityException,
   forwardRef,
 } from '@nestjs/common';
 import { UserEntity } from '../users/user.entity';
@@ -17,6 +18,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource, Not } from 'typeorm';
 import { EmployeeResponseDto } from './dto/employees-list.dto';
 import { AttendanceService } from '../attendance/attendance.service';
+import { LeavesService } from '../leaves/leaves.service';
 
 @Injectable()
 export class EmployeesService {
@@ -26,6 +28,9 @@ export class EmployeesService {
 
     @Inject(forwardRef(() => AttendanceService))
     private readonly attendanceService: AttendanceService,
+
+    @Inject(forwardRef(() => LeavesService))
+    private readonly leavesService: LeavesService,
 
     @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
@@ -111,6 +116,7 @@ export class EmployeesService {
       company: companyId,
       workSchedule,
       workHours,
+      employmentDate,
       ...restDto
     }: UpdateEmployeeDto,
   ): Promise<EmployeeEntity> {
@@ -132,6 +138,22 @@ export class EmployeesService {
 
     if (workSchedule && workHours) {
       this.validateWorkSchedule(workSchedule, workHours);
+    }
+
+    if (employmentDate && employmentDate !== employee.employmentDate) {
+      if (employmentDate > employee.employmentDate) {
+        const hasInvalidLeaves: boolean =
+          await this.leavesService.hasLeavesBeforeGivenDate(
+            employee.id,
+            employmentDate,
+          );
+        if (hasInvalidLeaves)
+          throw new UnprocessableEntityException(
+            'Employee has invalid leaves before new employment date',
+          );
+      }
+
+      employee.employmentDate = employmentDate;
     }
 
     return await employee.save();

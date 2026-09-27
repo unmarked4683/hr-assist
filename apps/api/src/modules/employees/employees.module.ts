@@ -5,14 +5,22 @@ import { CompaniesModule } from '../companies/companies.module';
 import { CompaniesService } from '../companies/companies.service';
 import { AttendanceModule } from '../attendance/attendance.module';
 import { IsCompanyIdConstraint } from 'src/common/validators/is-company-id.validator';
+import { IsNotBeforeAppStartConstraint } from 'src/common/validators/is-not-before-app-start.validator';
+import { LeavesModule } from '../leaves/leaves.module';
 
 @Module({
   imports: [
     forwardRef(() => CompaniesModule),
     forwardRef(() => AttendanceModule),
+    forwardRef(() => LeavesModule),
   ],
   controllers: [EmployeesController],
-  providers: [EmployeesService, CompaniesService, IsCompanyIdConstraint],
+  providers: [
+    EmployeesService,
+    CompaniesService,
+    IsCompanyIdConstraint,
+    IsNotBeforeAppStartConstraint,
+  ],
   exports: [forwardRef(() => EmployeesService)],
 })
 export class EmployeesModule {}

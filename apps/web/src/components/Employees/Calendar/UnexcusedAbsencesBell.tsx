@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format, getYear } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -28,6 +28,8 @@ interface UnexcusedAbsence {
 
 interface UnexcusedAbsencesBellProps {
   employeeId: string;
+  /** Employment start — absences dated before it are outside the tenure and hidden. */
+  hireDate: Date | null;
   /** Wybór dnia z listy — kalendarz przechodzi do niego i go podświetla. */
   onSelectDate: (date: Date) => void;
 }
@@ -48,6 +50,7 @@ const selectUnexcusedAbsences = (absences: Absences): UnexcusedAbsence[] =>
 
 export function UnexcusedAbsencesBell({
   employeeId,
+  hireDate,
   onSelectDate,
 }: UnexcusedAbsencesBellProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -56,13 +59,23 @@ export function UnexcusedAbsencesBell({
   // Klucz ['absences', employeeId, year] — inwalidowany przez
   // `refreshAttendanceCaches` po każdej zmianie frekwencji, więc lista
   // aktualizuje się od razu po usprawiedliwieniu dnia.
-  const { data: unexcusedAbsences = [] } = useQuery({
+  const { data: allUnexcusedAbsences } = useQuery({
     queryKey: QueryKeysService.absencesPerYear({ employeeId, year }),
     queryFn: ({ signal }) =>
       ApiService.getEmployeeAbsencesByYear(employeeId, year, signal),
     select: selectUnexcusedAbsences,
     enabled: !!employeeId,
   });
+
+  // The employment date is the tracking boundary: entries before it (e.g. left
+  // over after the date was moved later) are not listed — their calendar days
+  // are locked and could not be edited anyway.
+  const unexcusedAbsences = useMemo(() => {
+    const absences = allUnexcusedAbsences ?? [];
+    if (!hireDate) return absences;
+    const hireDateKey = format(hireDate, "yyyy-MM-dd");
+    return absences.filter(({ dateKey }) => dateKey >= hireDateKey);
+  }, [allUnexcusedAbsences, hireDate]);
 
   const hasAbsences = unexcusedAbsences.length > 0;
 

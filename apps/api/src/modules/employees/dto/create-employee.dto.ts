@@ -16,6 +16,7 @@ import { ContractType, ICreateEmployeeDto, Location } from '../employee.types';
 import { WorkScheduleDto } from './work-schedule.dto';
 import { IsPesel } from 'src/common/validators/is-pesel.validator';
 import { IsCompanyId } from 'src/common/validators/is-company-id.validator';
+import { IsNotBeforeAppStart } from 'src/common/validators/is-not-before-app-start.validator';
 
 export class CreateEmployeeDto implements ICreateEmployeeDto {
   @IsString()
@@ -55,6 +56,7 @@ export class CreateEmployeeDto implements ICreateEmployeeDto {
 
   @Type(() => Date)
   @IsDate()
+  @IsNotBeforeAppStart()
   employmentDate: Date;
 
   @IsEnum(ContractType)

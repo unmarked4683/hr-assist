@@ -3,7 +3,7 @@ import { EmployeesService } from '../employees/employees.service';
 import { LeaveDetailsDto, LeaveDto } from './dto/leave.dto';
 import { AbsenceEntity } from '../attendance/entities/absence.entity';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, LessThan } from 'typeorm';
 import { getYear } from 'date-fns';
 import { EmployeeEntity } from '../employees/entities/employee.entity';
 import { LEAVE_TYPES } from 'src/common/constants';
@@ -121,5 +121,15 @@ export class LeavesService {
     const newTotalAvailableLeave: number = leave + overdue;
 
     return usedLeavesCount <= newTotalAvailableLeave;
+  }
+
+  async hasLeavesBeforeGivenDate(
+    employeeId: string,
+    newEmploymentDate: Date,
+  ): Promise<boolean> {
+    return await AbsenceEntity.existsBy({
+      employee: { id: employeeId },
+      date: LessThan(newEmploymentDate),
+    });
   }
 }

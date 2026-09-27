@@ -11,6 +11,7 @@ import {
 } from "@/types";
 import { apiRequest } from "./api-request";
 import { UpdateEmployeeAttendanceDto } from "@/utils/calendar.types";
+import { isValid, parseISO } from "date-fns";
 
 export class ApiService {
   static async login(email: string, password: string): Promise<UserProfile> {
@@ -139,6 +140,20 @@ export class ApiService {
     const data = await apiRequest<null>(`/api/employees/${id}`, {
       method: "DELETE",
     });
+    return data;
+  }
+
+  static async hasLeavesBeforeGivenDate(
+    id: string,
+    date: string,
+  ): Promise<boolean> {
+    if (!date || !isValid(parseISO(date))) {
+      throw new Error("Invalid date format");
+    }
+
+    const data = await apiRequest<boolean>(
+      `/api/employees/${id}/leaves/has-leaves-before-given-date?date=${date}`,
+    );
     return data;
   }
 }

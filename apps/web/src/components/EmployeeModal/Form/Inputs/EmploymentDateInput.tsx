@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useController, useFormContext } from "react-hook-form";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, startOfMonth } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 
@@ -27,9 +27,11 @@ export function EmploymentDateInput() {
   const { field } = useController({ control, name: "employmentDate" });
   const error = errors.employmentDate;
 
-  // Same bounds as the Zod rule — out-of-range days are disabled and the picker
-  // cannot navigate to months outside 2026-01 … December of next year.
+  // Same bounds as the Zod rule (min: NEXT_PUBLIC_APP_START_DATE, max: end of
+  // next year). Navigation starts at the 1st of the start month, so that month
+  // renders as a full grid; days before the start date are disabled (greyed out).
   const latestEmploymentDate = useMemo(() => getLatestEmploymentDate(), []);
+  const firstSelectableMonth = startOfMonth(EARLIEST_EMPLOYMENT_DATE);
   // "yyyy-MM-dd" as a local date — `new Date(...)` would parse it as UTC.
   const selectedDate = field.value ? parseISO(field.value) : undefined;
 
@@ -64,7 +66,7 @@ export function EmploymentDateInput() {
               before: EARLIEST_EMPLOYMENT_DATE,
               after: latestEmploymentDate,
             }}
-            startMonth={EARLIEST_EMPLOYMENT_DATE}
+            startMonth={firstSelectableMonth}
             endMonth={latestEmploymentDate}
             defaultMonth={selectedDate}
             selected={selectedDate}

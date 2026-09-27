@@ -30,6 +30,21 @@ export const employeeToFormValues = (
 });
 
 /**
+ * Applies a saved update to the cached `Employee` (from GET), so every view —
+ * incl. the attendance calendar's employment bounds — re-renders immediately,
+ * before the refetch. Relations (`company`, `leave`) differ in shape between the
+ * DTO and the entity, so they are left for the refetch to fill in.
+ */
+export const applyEmployeeUpdate = (
+  employee: Employee,
+  dto: UpdateEmployeeDto,
+): Employee => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { company, leave, ...plainFieldChanges } = dto;
+  return { ...employee, ...plainFieldChanges };
+};
+
+/**
  * DTO dla `PUT /api/employees/{id}` — tylko pola zmienione w formularzu.
  * Etat i harmonogram wysyłamy razem, bo koniec pracy wynika z obu wartości.
  */
