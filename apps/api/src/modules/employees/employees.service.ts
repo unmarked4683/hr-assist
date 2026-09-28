@@ -81,6 +81,10 @@ export class EmployeesService {
     return employee;
   }
 
+  async exists(id: string): Promise<boolean> {
+    return await EmployeeEntity.exists({ where: { id }, withDeleted: true });
+  }
+
   async create({
     pesel,
     workSchedule,

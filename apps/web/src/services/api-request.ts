@@ -70,11 +70,14 @@ export const apiRequest = async <T>(
     throw error;
   }
 
-  authLog(response.status === 401 ? "request 401 UNAUTHORIZED" : "request end", {
-    method,
-    url,
-    status: response.status,
-  });
+  authLog(
+    response.status === 401 ? "request 401 UNAUTHORIZED" : "request end",
+    {
+      method,
+      url,
+      status: response.status,
+    },
+  );
 
   const { data, ok, errors }: ResponseWrapper<T> = await response.json();
 

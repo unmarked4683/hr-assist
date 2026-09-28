@@ -20,6 +20,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { typeOrmConfig } from './config/typeorm.config';
 import { AttendanceModule } from './modules/attendance/attendance.module';
 import { LeavesModule } from './modules/leaves/leaves.module';
+import { ReportsModule } from './modules/reports/reports.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { LeavesModule } from './modules/leaves/leaves.module';
     HolidaysModule,
     AttendanceModule,
     LeavesModule,
+    ReportsModule,
   ],
   controllers: [AppController],
   providers: [

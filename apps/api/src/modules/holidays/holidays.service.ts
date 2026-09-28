@@ -1,12 +1,12 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { getNagerApiUrl } from './utils/holidays.util';
+import { getNagerApiUrl, polishName } from './utils/holidays.util';
 import { IHolidayDto, NagerApiResponse } from './holiday.types';
 import * as _ from 'lodash';
 import { HolidayEntity } from './entities/holiday.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { Between, DataSource, EntityManager } from 'typeorm';
-import { isWeekend } from 'date-fns';
+import { endOfMonth, isWeekend, startOfMonth } from 'date-fns';
 
 @Injectable()
 export class HolidaysService implements OnModuleInit {
@@ -42,7 +42,9 @@ export class HolidaysService implements OnModuleInit {
     this.logger.log('Syncing holidays');
     const year: number = new Date().getFullYear();
 
-    const freshData: IHolidayDto[] = await this.fetchHolidays(year);
+    const freshData: IHolidayDto[] = (await this.fetchHolidays(year)).map(
+      ({ name, ...rest }) => ({ name: polishName(name), ...rest }),
+    );
 
     const existingData: HolidayEntity[] = await HolidayEntity.find({
       select: {
@@ -91,8 +93,29 @@ export class HolidaysService implements OnModuleInit {
     });
   }
 
+  async findHolidaysForMonth({
+    month,
+    year,
+  }: {
+    month: number;
+    year: number;
+  }): Promise<HolidayEntity[]> {
+    if (!Number.isInteger(month) || month < 1 || month > 12) {
+      throw new Error(
+        'Miesiąc musi być liczbą całkowitą z przedziału od 1 do 12.',
+      );
+    }
+
+    const baseDate = new Date(year, month - 1, 1);
+    const startDate = startOfMonth(baseDate);
+    const endDate = endOfMonth(baseDate);
+
+    return await HolidayEntity.findBy({
+      date: Between(startDate, endDate),
+    });
+  }
+
   async isDuvetDay(date: Date): Promise<boolean> {
-    console.log('CALLING isDuvetDay WITH DATE: ', date.toISOString());
     return isWeekend(date) || (await HolidayEntity.existsBy({ date }));
   }
 }

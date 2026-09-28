@@ -7,6 +7,7 @@ import { AttendanceModule } from '../attendance/attendance.module';
 import { IsCompanyIdConstraint } from 'src/common/validators/is-company-id.validator';
 import { IsNotBeforeAppStartConstraint } from 'src/common/validators/is-not-before-app-start.validator';
 import { LeavesModule } from '../leaves/leaves.module';
+import { IsEmployeeExistsConstraint } from 'src/common/validators/is-employee-exists.validator';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { LeavesModule } from '../leaves/leaves.module';
     CompaniesService,
     IsCompanyIdConstraint,
     IsNotBeforeAppStartConstraint,
+    IsEmployeeExistsConstraint,
   ],
   exports: [forwardRef(() => EmployeesService)],
 })

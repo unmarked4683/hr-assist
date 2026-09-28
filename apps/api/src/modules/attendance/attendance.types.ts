@@ -35,6 +35,7 @@ export enum AttendanceStatus {
   CIRCUMSTANTIAL_LEAVE = 'UOK',
   DAY_OFF_FOR_HOLIDAY = 'WZS',
   PARENTAL_CHILD_LEAVE = 'WYC',
+  HOLIDAY = 'ŚUW',
 }
 
 export interface IAbsenceEntity {
