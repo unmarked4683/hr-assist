@@ -6,6 +6,7 @@ import { AttendanceModule } from '../attendance/attendance.module';
 import { LeavesModule } from '../leaves/leaves.module';
 import { CompaniesModule } from '../companies/companies.module';
 import { HolidaysModule } from '../holidays/holidays.module';
+import { ReportEngine } from './report.engine';
 
 @Module({
   imports: [
@@ -16,6 +17,6 @@ import { HolidaysModule } from '../holidays/holidays.module';
     forwardRef(() => HolidaysModule),
   ],
   controllers: [ReportsController],
-  providers: [ReportsService],
+  providers: [ReportsService, ReportEngine],
 })
 export class ReportsModule {}

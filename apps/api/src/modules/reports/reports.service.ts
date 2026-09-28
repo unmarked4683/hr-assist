@@ -1,12 +1,15 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { GetMonthReportParamsDto } from './dto/get-month-report.dto';
-import { getDate, getDay, getDaysInMonth, isWeekend } from 'date-fns';
+import { getDate, getDaysInMonth, isWeekend } from 'date-fns';
 import { AbsenceEntity } from '../attendance/entities/absence.entity';
 import { AttendanceService } from '../attendance/attendance.service';
 import { AttendanceStatus } from '../attendance/attendance.types';
 import { Day } from './reports.types';
 import { HolidayEntity } from '../holidays/entities/holiday.entity';
 import { HolidaysService } from '../holidays/holidays.service';
+import { EmployeeEntity } from '../employees/entities/employee.entity';
+import { EmployeesService } from '../employees/employees.service';
+import { ReportEngine } from './report.engine';
 
 @Injectable()
 export class ReportsService {
@@ -16,12 +19,40 @@ export class ReportsService {
 
     @Inject(forwardRef(() => HolidaysService))
     private readonly holidaysService: HolidaysService,
+
+    @Inject(forwardRef(() => EmployeesService))
+    private readonly employeesService: EmployeesService,
+
+    private readonly reportEngine: ReportEngine,
   ) {}
+
   async getMonthReportForSingleEmployee({
     employeeId,
     month,
     year,
   }: GetMonthReportParamsDto) {
+    const daysInMonth: Map<number, Day> = await this.buildMonthDaysMap(
+      employeeId,
+      year,
+      month,
+    );
+
+    const employee: EmployeeEntity =
+      await this.employeesService.findOneById(employeeId);
+
+    await this.reportEngine.generateEmployeeReportFile({
+      employee,
+      year,
+      month,
+      daysInMonth,
+    });
+  }
+
+  private async buildMonthDaysMap(
+    employeeId: string,
+    year: number,
+    month: number,
+  ): Promise<Map<number, Day>> {
     const daysCount: number = getDaysInMonth(new Date(year, month - 1));
     const daysInMonth: Map<number, Day> = new Map();
 
@@ -42,29 +73,21 @@ export class ReportsService {
     );
 
     for (const { date, type } of absences) {
-      daysInMonth.set(getDay(date), { status: type });
+      daysInMonth.set(getDate(new Date(date)), { status: type });
     }
 
     const holidays: HolidayEntity[] =
-      await this.holidaysService.findHolidaysForMonth({
-        year,
-        month,
-      });
+      await this.holidaysService.findHolidaysForMonth({ year, month });
 
     if (holidays.length > 0) {
       for (const { name, date } of holidays) {
-        daysInMonth.set(getDate(date), {
+        daysInMonth.set(getDate(new Date(date)), {
           status: AttendanceStatus.HOLIDAY,
           name,
         });
       }
     }
-    console.log('DAYS IN MONTH WITH HOLIDAYS AND ABSENCES', daysInMonth);
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(undefined);
-      }, 100);
-    });
+    return daysInMonth;
   }
 }
