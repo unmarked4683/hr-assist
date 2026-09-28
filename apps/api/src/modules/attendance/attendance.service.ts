@@ -1,13 +1,14 @@
 import {
   Inject,
   Injectable,
+  InternalServerErrorException,
   UnprocessableEntityException,
   forwardRef,
 } from '@nestjs/common';
 import { DateQueryDto } from './dto/date-query.dto';
 import { AbsenceEntity } from './entities/absence.entity';
 import { EmployeesService } from '../employees/employees.service';
-import { FindOptionsWhere, Between } from 'typeorm';
+import { FindOptionsWhere, Between, MoreThan } from 'typeorm';
 import {
   startOfYear,
   endOfYear,
@@ -59,7 +60,9 @@ export class AttendanceService {
     employeeId: string,
     { date, status }: ChangeAttendanceStatusDto,
   ) {
-    await this.employeesService.findOne(employeeId);
+    const employee = await this.employeesService.findOne(employeeId);
+    if (employee.firedAt)
+      throw new UnprocessableEntityException('Employee is fired');
 
     if (status === AttendanceStatus.PRESENCE) {
       await AbsenceEntity.delete({ employee: { id: employeeId }, date });
@@ -91,5 +94,20 @@ export class AttendanceService {
       employee: { id: employeeId },
       type: AbsenceType.UNEXCUSED_ABSENCE,
     });
+  }
+
+  async countAbsencesAfter(employeeId: string, date: Date): Promise<number> {
+    await this.employeesService.findOne(employeeId);
+
+    const count: number = await AbsenceEntity.countBy({
+      employee: { id: employeeId },
+      date: MoreThan(date),
+    });
+
+    if (count < 0) {
+      throw new InternalServerErrorException('Błąd podczas liczenia braków');
+    }
+
+    return count;
   }
 }

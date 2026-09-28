@@ -3,7 +3,7 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import { EmployeeLeaveTab } from "./EmployeeLeaveTab";
 import { EmployeeCalendar } from "../Calendar/EmployeeCalendar";
 import { EmployeeModal } from "@/components/EmployeeModal/Modal/Modal";
 import { ConfirmModal } from "@/components/ConfirmModal/ConfirmModal";
-import { EmployeesList } from "@/types";
+import { Employee, EmployeesList } from "@/types";
 
 type EmployeeTab = "dane" | "urlopy";
 
@@ -31,6 +31,7 @@ export function EmployeeProfilePage() {
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [isFireModalOpen, setIsFireModalOpen] = useState<boolean>(false);
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -67,6 +68,52 @@ export function EmployeeProfilePage() {
       setIsDeleting(false);
     }
   };
+
+  // Zwolnienie (po potwierdzeniu) i przywrócenie — backend zwraca pracownika
+  // z aktualnym `firedAt`, więc od razu wpisujemy go do cache profilu.
+  const fireMutation = useMutation({
+    mutationFn: (action: "fire" | "recover") => {
+      const id = employeeId as string;
+      return action === "fire"
+        ? ApiService.fireEmployee(id)
+        : ApiService.recoverEmployee(id);
+    },
+    onSuccess: (updated, action) => {
+      const id = employeeId as string;
+      queryClient.setQueryData<Employee>(
+        QueryKeysService.employeeDetails({ employeeId: id }),
+        (previous) =>
+          previous && {
+            ...previous,
+            firedAt:
+              action === "fire"
+                ? (updated?.firedAt ?? new Date().toISOString())
+                : null,
+          },
+      );
+      void queryClient.invalidateQueries({
+        queryKey: QueryKeysService.employeeDetails({ employeeId: id }),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: QueryKeysService.employeesList(),
+      });
+
+      toast.success(
+        action === "fire"
+          ? "Pracownik został zwolniony"
+          : "Pracownik został przywrócony",
+      );
+      setIsFireModalOpen(false);
+    },
+    onError: (error, action) => {
+      toast.error(
+        error.message ||
+          (action === "fire"
+            ? "Nie udało się zwolnić pracownika"
+            : "Nie udało się przywrócić pracownika"),
+      );
+    },
+  });
 
   useLayoutEffect(() => {
     const node = tabsContentRef.current;
@@ -120,6 +167,8 @@ export function EmployeeProfilePage() {
     );
   }
 
+  const isFired = Boolean(employee.firedAt);
+
   return (
     <div className="flex h-full min-h-0 flex-col gap-3 overflow-hidden px-6 py-4">
       {/* 1. Odnośnik powrotny */}
@@ -137,7 +186,13 @@ export function EmployeeProfilePage() {
       <EmployeeHeader
         name={employee.name}
         surname={employee.surname}
-        onEdit={() => setIsEditOpen(true)}
+        isFired={isFired}
+        isFireActionPending={fireMutation.isPending}
+        onEdit={() => {
+          if (!isFired) setIsEditOpen(true);
+        }}
+        onFire={() => setIsFireModalOpen(true)}
+        onRecover={() => fireMutation.mutate("recover")}
         onDelete={() => setIsDeleteModalOpen(true)}
       />
 
@@ -190,6 +245,18 @@ export function EmployeeProfilePage() {
         employee={employee}
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
+      />
+
+      <ConfirmModal
+        isOpen={isFireModalOpen}
+        onClose={() => setIsFireModalOpen(false)}
+        onConfirm={() => fireMutation.mutate("fire")}
+        title="Zwalnianie pracownika"
+        message="Czy na pewno chcesz zwolnić tego pracownika?"
+        confirmText="Zwolnij"
+        cancelText="Anuluj"
+        variant="danger"
+        isLoading={fireMutation.isPending}
       />
 
       <ConfirmModal

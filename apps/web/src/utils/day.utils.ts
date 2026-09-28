@@ -10,6 +10,7 @@ export interface WorkScheduleInfo {
 
 export type CalendarDayKind =
   | "preEmployment"
+  | "postEmployment"
   | "weekend"
   | "holiday"
   | "workday";
@@ -19,7 +20,7 @@ export interface CalendarDayState {
   /** Dzień po dzisiejszym — można go planować, ale jeszcze się nie odbył. */
   isFuture: boolean;
   /**
-   * Weekend, święto i dni przed zatrudnieniem są zawsze zablokowane — także
+   * Weekend, święto i dni poza okresem zatrudnienia są zawsze zablokowane — także
    * w przyszłości.
    */
   isLocked: boolean;
@@ -47,6 +48,8 @@ interface DescribeCalendarDayParams {
   workHours: number;
   /** Data zatrudnienia — dni wcześniejsze nie mają statusu ani godzin. */
   hireDate: Date | null;
+  /** Moment zwolnienia — dni po nim też nie mają statusu ani godzin. */
+  firedDate: Date | null;
 }
 
 /**
@@ -70,19 +73,25 @@ export const describeCalendarDay = ({
   holidayName,
   workHours,
   hireDate,
+  firedDate,
 }: DescribeCalendarDayParams): CalendarDayState => {
   const isFuture = isAfter(startOfDay(date), startOfDay(today));
   // Dni sprzed zatrudnienia mają pierwszeństwo przed świętami i weekendami —
   // przed początkiem umowy nie pokazujemy niczego poza datą.
   const isBeforeHire =
     hireDate !== null && isBefore(startOfDay(date), startOfDay(hireDate));
+  // Tak samo dni po zwolnieniu — w wierszu zostaje tylko data i dzień tygodnia.
+  const isAfterFire =
+    firedDate !== null && isAfter(startOfDay(date), startOfDay(firedDate));
   const kind: CalendarDayKind = isBeforeHire
     ? "preEmployment"
-    : holidayName
-      ? "holiday"
-      : isWeekend(date)
-        ? "weekend"
-        : "workday";
+    : isAfterFire
+      ? "postEmployment"
+      : holidayName
+        ? "holiday"
+        : isWeekend(date)
+          ? "weekend"
+          : "workday";
 
   if (kind !== "workday") {
     return {

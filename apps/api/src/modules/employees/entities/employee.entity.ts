@@ -4,7 +4,6 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -12,7 +11,6 @@ import {
 } from 'typeorm';
 import { ContractType, IEmployeeEntity, Location } from '../employee.types';
 import { Max, Min } from 'class-validator';
-import { UserEntity } from '../../users/user.entity';
 import { CompanyEntity } from 'src/modules/companies/entities/company.entity';
 import { WorkScheduleEntity } from './work-schedule.entity';
 import { AbsenceEntity } from 'src/modules/attendance/entities/absence.entity';
@@ -60,10 +58,6 @@ export class EmployeeEntity extends BaseEntity implements IEmployeeEntity {
 
   @DeleteDateColumn({ type: 'timestamp with time zone' })
   firedAt: Date | null;
-
-  @ManyToOne(() => UserEntity, { nullable: true })
-  @JoinColumn({ name: 'fired_by_id' })
-  firedBy: UserEntity | null;
 
   @OneToMany(() => AbsenceEntity, (absence) => absence.employee, {
     onDelete: 'CASCADE',

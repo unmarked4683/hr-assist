@@ -38,6 +38,11 @@ interface CalendarRowProps {
   holidayName: string | null;
   dayState: CalendarDayState;
   schedule: WorkScheduleInfo;
+  /**
+   * Zwolniony pracownik — każdy dzień otwiera modal tylko do odczytu, a zapis
+   * frekwencji jest niedostępny.
+   */
+  isReadOnly?: boolean;
   /** Chwilowe podświetlenie (wybór z listy NN albo "Dziś"); null — brak. */
   highlightTone?: RowHighlightTone | null;
 }
@@ -55,6 +60,7 @@ export function CalendarRow({
   holidayName,
   dayState,
   schedule,
+  isReadOnly = false,
   highlightTone = null,
 }: CalendarRowProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,6 +78,8 @@ export function CalendarRow({
   } = dayState;
 
   const isUnexcused = effectiveStatus === AttendanceStatus.UNEXCUSED_ABSENCE;
+  // U zwolnionego pracownika podgląd dnia jest dostępny zawsze, edycja nigdy.
+  const canOpenModal = isReadOnly || !isLocked;
 
   const mutation = useMutation({
     mutationFn: async ({ newStatus }: AttendanceChange) => {
@@ -100,7 +108,7 @@ export function CalendarRow({
   });
 
   const handleRowClick = () => {
-    if (isLocked) return;
+    if (!canOpenModal) return;
     setIsModalOpen(true);
   };
 
@@ -118,9 +126,10 @@ export function CalendarRow({
         className={cn(
           // Tło i obramowanie (ring = box-shadow) wygasają płynnie po zdjęciu podświetlenia.
           "transition-[background-color,box-shadow] duration-500",
-          isLocked
-            ? "opacity-60 cursor-not-allowed bg-muted/20"
-            : "cursor-pointer hover:bg-muted/40",
+          isLocked && "opacity-60 bg-muted/20",
+          canOpenModal
+            ? "cursor-pointer hover:bg-muted/40"
+            : "cursor-not-allowed",
           isToday && "bg-muted/50 font-medium",
           isUnexcused && "bg-destructive/15 animate-pulse",
           highlightTone && HIGHLIGHT_CLASSES[highlightTone],
@@ -169,7 +178,7 @@ export function CalendarRow({
         )}
       </TableRow>
 
-      {!isLocked && (
+      {canOpenModal && (
         <AttendanceModal
           // Remount po zmianie statusu — wybór w modalu startuje od aktualnej wartości.
           key={effectiveStatus ?? "pause"}
@@ -181,6 +190,7 @@ export function CalendarRow({
           employeeId={employeeId}
           currentStatus={effectiveStatus}
           isFuture={isFuture}
+          isReadOnly={isReadOnly}
           onUpdate={handleUpdateStatus}
         />
       )}

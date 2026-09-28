@@ -12,8 +12,6 @@ import {
   Query,
 } from '@nestjs/common';
 import { Auth } from '../auth/decorators/auth.decorator';
-import { User } from '../auth/decorators/user.decorator';
-import { UserEntity } from '../users/user.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { EmployeeEntity } from './entities/employee.entity';
 import { EmployeesService } from './employees.service';
@@ -76,10 +74,12 @@ export class EmployeesController {
   }
 
   @Post('/:id/fire')
-  fire(
-    @Param('id', ParseUUIDPipe) id: string,
-    @User() user: UserEntity,
-  ): Promise<EmployeeEntity> {
-    return this.employeesService.fire(id, user);
+  fire(@Param('id', ParseUUIDPipe) id: string): Promise<EmployeeEntity> {
+    return this.employeesService.fire(id);
+  }
+
+  @Post('/:id/recover')
+  recover(@Param('id', ParseUUIDPipe) id: string): Promise<EmployeeEntity> {
+    return this.employeesService.recover(id);
   }
 }

@@ -53,3 +53,7 @@ export interface IChangeAttendanceStatusDto {
   status: AttendanceStatus;
   date: Date; // min. 01.01.2026, max. currentDate + 5 years
 }
+
+export interface ISpecificDateQueryDto {
+  date: Date;
+}

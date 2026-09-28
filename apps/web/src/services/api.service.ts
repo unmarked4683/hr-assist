@@ -18,7 +18,7 @@ export class ApiService {
     const data = await apiRequest<UserProfile>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify({ email, password }),
-      hideToastOnNetworkError: true,
+      skipToastOnNetworkError: true,
     });
     return data;
   }
@@ -143,6 +143,20 @@ export class ApiService {
     return data;
   }
 
+  static async fireEmployee(id: string): Promise<Employee> {
+    const data = await apiRequest<Employee>(`/api/employees/${id}/fire`, {
+      method: "POST",
+    });
+    return data;
+  }
+
+  static async recoverEmployee(id: string): Promise<Employee> {
+    const data = await apiRequest<Employee>(`/api/employees/${id}/recover`, {
+      method: "POST",
+    });
+    return data;
+  }
+
   static async hasLeavesBeforeGivenDate(
     id: string,
     date: string,
@@ -155,5 +169,15 @@ export class ApiService {
       `/api/employees/${id}/leaves/has-leaves-before-given-date?date=${date}`,
     );
     return data;
+  }
+
+  static async countAbsencesAfter(
+    employeeId: string,
+    date: string,
+  ): Promise<number> {
+    const response = await apiRequest<number>(
+      `/employees/${employeeId}/attendance/absences/count-after?date=${date}`,
+    );
+    return response;
   }
 }

@@ -36,6 +36,8 @@ interface AttendanceModalProps {
   currentStatus: AttendanceStatus | null;
   /** Dzień przyszły — planowanie zamiast ewidencji. */
   isFuture: boolean;
+  /** Zwolniony pracownik — pola są zablokowane, a przyciski zapisu ukryte. */
+  isReadOnly?: boolean;
   onUpdate: (status: AttendanceStatus) => Promise<void>;
 }
 
@@ -64,6 +66,7 @@ export function AttendanceModal({
   date,
   currentStatus,
   isFuture,
+  isReadOnly = false,
   onUpdate,
 }: AttendanceModalProps) {
   const statusOptions = isFuture
@@ -78,6 +81,7 @@ export function AttendanceModal({
   const formattedDate = format(date, "d MMMM yyyy", { locale: pl });
 
   const handleSave = async () => {
+    if (isReadOnly) return;
     setIsSaving(true);
     try {
       await onUpdate(selectedStatus);
@@ -98,7 +102,11 @@ export function AttendanceModal({
       <DialogContent className="sm:max-w-md bg-white text-zinc-900 border-zinc-200">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold tracking-wide text-center">
-            {isFuture ? "Planowanie frekwencji" : "Zmiana frekwencji"}
+            {isReadOnly
+              ? "Podgląd frekwencji"
+              : isFuture
+                ? "Planowanie frekwencji"
+                : "Zmiana frekwencji"}
           </DialogTitle>
         </DialogHeader>
 
@@ -106,6 +114,15 @@ export function AttendanceModal({
           <DialogDescription className="text-center font-medium">
             {formattedDate}
           </DialogDescription>
+
+          {isReadOnly && (
+            <p
+              role="status"
+              className="rounded-md border border-border bg-muted px-3 py-2 text-center text-sm text-muted-foreground"
+            >
+              Pracownik jest zwolniony — edycja frekwencji jest zablokowana.
+            </p>
+          )}
 
           {/* Pole wyboru i przyciski w jednej kolumnie z jednym odstępem (gap-3) —
               układ jest równy niezależnie od tego, czy "Usuń frekwencję" jest widoczne */}
@@ -121,14 +138,22 @@ export function AttendanceModal({
                 Status obecności
               </Label>
               <Select
+                disabled={isReadOnly}
                 value={selectedStatus}
                 onValueChange={(value) =>
                   setSelectedStatus(value as AttendanceStatus)
                 }
               >
-                <SelectTrigger id={STATUS_SELECT_ID} className="w-full">
+                <SelectTrigger
+                  id={STATUS_SELECT_ID}
+                  className="w-full"
+                  disabled={isReadOnly}
+                >
                   <SelectValue>
-                    {getOptionLabel(selectedStatus, isFuture)}
+                    {/* Dzień bez statusu (wolny, poza zatrudnieniem) — w podglądzie "—" */}
+                    {isReadOnly && currentStatus === null
+                      ? "—"
+                      : getOptionLabel(selectedStatus, isFuture)}
                   </SelectValue>
                 </SelectTrigger>
                 {/* Lista rozwija się pod triggerem (jego szerokość), a przy wielu
@@ -148,7 +173,8 @@ export function AttendanceModal({
             </div>
 
             {/* Tylko gdy dzień ma zapisany status inny niż obecność */}
-            {currentStatus !== null &&
+            {!isReadOnly &&
+              currentStatus !== null &&
               currentStatus !== AttendanceStatus.PRESENCE && (
                 <RemoveAttendanceButton
                   employeeId={employeeId}
@@ -158,9 +184,15 @@ export function AttendanceModal({
                   onRemoved={onClose}
                 />
               )}
-            <Button onClick={handleSave} disabled={isSaving} className="w-full">
-              {isSaving ? "Zapisywanie…" : "Zaktualizuj"}
-            </Button>
+            {!isReadOnly && (
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="w-full"
+              >
+                {isSaving ? "Zapisywanie…" : "Zaktualizuj"}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>

@@ -77,6 +77,11 @@ interface CalendarTableProps {
   /** Dni przed tą datą są zablokowane i puste ("—"). */
   hireDate: Date | null;
   /**
+   * Moment zwolnienia — dni po nim są puste ("—"), a cały kalendarz tylko do
+   * odczytu (kliknięcie dnia otwiera modal bez możliwości zapisu).
+   */
+  firedDate: Date | null;
+  /**
    * Dzień, do którego przewijamy i który chwilowo podświetlamy (wybór z listy
    * nieobecności NN albo przycisk "Dziś").
    */
@@ -123,6 +128,7 @@ export function CalendarTable({
   attendanceByDate,
   schedule,
   hireDate,
+  firedDate,
   focusedDay,
 }: CalendarTableProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -159,12 +165,13 @@ export function CalendarTable({
             holidayName,
             workHours: schedule.workHours,
             hireDate,
+            firedDate,
           });
 
           return {
             date,
             dateKey,
-            // Święto przed zatrudnieniem też jest tylko "—" — bez ŚUW i nazwy.
+            // Święto poza okresem zatrudnienia też jest tylko "—" — bez ŚUW i nazwy.
             holidayName: state.kind === "holiday" ? holidayName : null,
             state,
           };
@@ -177,6 +184,7 @@ export function CalendarTable({
       attendanceByDate,
       schedule.workHours,
       hireDate,
+      firedDate,
     ],
   );
 
@@ -260,6 +268,7 @@ export function CalendarTable({
                   holidayName={holidayName}
                   dayState={state}
                   schedule={schedule}
+                  isReadOnly={firedDate !== null}
                   highlightTone={
                     focusedDay?.dateKey === dateKey ? focusedDay.tone : null
                   }

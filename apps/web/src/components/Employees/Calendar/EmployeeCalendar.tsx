@@ -239,6 +239,7 @@ export function EmployeeCalendar({
           attendanceByDate={attendanceByDate}
           schedule={schedule}
           hireDate={hireDate}
+          firedDate={firedDate}
           focusedDay={focusedDay}
         />
       )}

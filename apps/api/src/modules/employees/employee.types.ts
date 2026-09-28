@@ -1,6 +1,5 @@
 import { IAbsenceEntity } from '../attendance/attendance.types';
 import { ICompanyEntity } from '../companies/company.types';
-import { IUserEntity } from '../users/user.types';
 
 export enum Location {
   PRODUCTION = 1,
@@ -39,7 +38,6 @@ export interface IEmployeeEntity {
   employmentDate: Date;
   contractType: ContractType;
   firedAt: Date | null;
-  firedBy: IUserEntity | null;
   absences: IAbsenceEntity[];
   leave: ILeaveEntity;
 }

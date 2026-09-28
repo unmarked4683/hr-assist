@@ -12,7 +12,7 @@ export const POST = async () => {
   try {
     await apiRequest<null>("/api/auth/logout", {
       method: "POST",
-      hideToastOnNetworkError: true,
+      skipToastOnNetworkError: true,
     });
   } catch {}
 

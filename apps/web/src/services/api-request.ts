@@ -4,14 +4,14 @@ import { toast } from "sonner";
 import { authLog } from "@/utils/debug.utils";
 
 export interface ApiRequestOptions extends RequestInit {
-  hideToastOnNetworkError?: boolean;
+  skipToastOnNetworkError?: boolean;
 }
 
 export const apiRequest = async <T>(
   endpointOrUrl: string,
   options: ApiRequestOptions = {},
 ): Promise<T> => {
-  const { hideToastOnNetworkError = false, ...fetchOptions } = options;
+  const { skipToastOnNetworkError = false, ...fetchOptions } = options;
 
   const isUrl: boolean = isValidUrl(endpointOrUrl);
   const baseUrl: string = process.env.NEXT_PUBLIC_API_URL!;
@@ -61,7 +61,7 @@ export const apiRequest = async <T>(
       const errorMessage =
         "Brak połączenia z serwerem (backend wyłączony lub zablokowany przez sieć).";
 
-      if (!hideToastOnNetworkError) {
+      if (!skipToastOnNetworkError) {
         toast.error(errorMessage);
       }
 

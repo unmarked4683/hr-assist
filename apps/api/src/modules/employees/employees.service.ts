@@ -7,7 +7,6 @@ import {
   UnprocessableEntityException,
   forwardRef,
 } from '@nestjs/common';
-import { UserEntity } from '../users/user.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeeEntity } from './entities/employee.entity';
@@ -36,6 +35,7 @@ export class EmployeesService {
   ) {}
   async findAll(): Promise<EmployeeResponseDto[]> {
     const employees = await EmployeeEntity.find({
+      withDeleted: true,
       relations: {
         absences: true,
       },
@@ -122,6 +122,9 @@ export class EmployeesService {
   ): Promise<EmployeeEntity> {
     const employee: EmployeeEntity = await this.findOneById(id);
 
+    if (employee.firedAt)
+      throw new UnprocessableEntityException('Employee is fired');
+
     if (pesel && pesel !== employee.pesel) {
       const isPeselTaken: boolean = await EmployeeEntity.existsBy({
         pesel,
@@ -161,14 +164,31 @@ export class EmployeesService {
 
   async remove(id: string): Promise<EmployeeEntity> {
     const employee = await this.findOneById(id);
+
     return await employee.remove();
   }
 
-  async fire(id: string, firedBy: UserEntity): Promise<EmployeeEntity> {
+  async fire(id: string): Promise<EmployeeEntity> {
     const employee = await this.findOneById(id);
-    employee.firedBy = firedBy;
-    await employee.softRemove();
-    return employee;
+    if (employee.firedAt)
+      throw new UnprocessableEntityException('Employee is fired');
+
+    return await employee.softRemove();
+  }
+
+  async recover(id: string): Promise<EmployeeEntity> {
+    const employee = await EmployeeEntity.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+
+    if (!employee)
+      throw new NotFoundException(`Employee with id ${id} not found`);
+
+    if (!employee.firedAt)
+      throw new UnprocessableEntityException('Employee is not fired');
+
+    return await employee.recover();
   }
 
   private validateWorkSchedule(

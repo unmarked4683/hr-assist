@@ -94,9 +94,7 @@ export class LeavesService {
       })
       .getRawOne<{ leavesCount: number }>())!;
 
-    console.log('LEAVES COUNT: ', leavesCount);
     const fullLeaveBase: number = overdue + current;
-    console.log('FULL LEAVE BASE: ', fullLeaveBase);
 
     return leavesCount < fullLeaveBase;
   }
