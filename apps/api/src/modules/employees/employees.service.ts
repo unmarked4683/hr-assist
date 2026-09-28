@@ -57,7 +57,10 @@ export class EmployeesService {
   }
 
   async findOne(id: string): Promise<EmployeeResponseDto> {
-    const employee = await EmployeeEntity.findOne({ where: { id } });
+    const employee = await EmployeeEntity.findOne({
+      where: { id },
+      withDeleted: true,
+    });
     if (!employee) {
       throw new NotFoundException(`Employee with id ${id} not found`);
     }
