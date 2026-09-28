@@ -1,6 +1,6 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { GetMonthReportParamsDto } from './dto/get-month-report.dto';
-import { getDay, getDaysInMonth } from 'date-fns';
+import { getDate, getDay, getDaysInMonth, isWeekend } from 'date-fns';
 import { AbsenceEntity } from '../attendance/entities/absence.entity';
 import { AttendanceService } from '../attendance/attendance.service';
 import { AttendanceStatus } from '../attendance/attendance.types';
@@ -26,7 +26,14 @@ export class ReportsService {
     const daysInMonth: Map<number, Day> = new Map();
 
     for (let i = 1; i <= daysCount; i++) {
-      daysInMonth.set(i, { status: AttendanceStatus.PRESENCE });
+      const currentDate = new Date(year, month - 1, i);
+
+      if (isWeekend(currentDate)) {
+        const dayName = currentDate.getDay() === 0 ? 'Niedziela' : 'Sobota';
+        daysInMonth.set(i, { status: AttendanceStatus.HOLIDAY, name: dayName });
+      } else {
+        daysInMonth.set(i, { status: AttendanceStatus.PRESENCE });
+      }
     }
 
     const absences: AbsenceEntity[] = await this.attendanceService.findAbsences(
@@ -46,13 +53,12 @@ export class ReportsService {
 
     if (holidays.length > 0) {
       for (const { name, date } of holidays) {
-        daysInMonth.set(getDay(date), {
+        daysInMonth.set(getDate(date), {
           status: AttendanceStatus.HOLIDAY,
           name,
         });
       }
     }
-
     console.log('DAYS IN MONTH WITH HOLIDAYS AND ABSENCES', daysInMonth);
 
     return new Promise((resolve) => {
