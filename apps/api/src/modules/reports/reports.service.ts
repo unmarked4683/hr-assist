@@ -10,6 +10,8 @@ import { HolidaysService } from '../holidays/holidays.service';
 import { EmployeeEntity } from '../employees/entities/employee.entity';
 import { EmployeesService } from '../employees/employees.service';
 import { ReportEngine } from './report.engine';
+import { CompanyEntity } from '../companies/entities/company.entity';
+import { CompaniesService } from '../companies/companies.service';
 
 @Injectable()
 export class ReportsService {
@@ -22,6 +24,9 @@ export class ReportsService {
 
     @Inject(forwardRef(() => EmployeesService))
     private readonly employeesService: EmployeesService,
+
+    @Inject(forwardRef(() => CompaniesService))
+    private readonly companiesService: CompaniesService,
 
     private readonly reportEngine: ReportEngine,
   ) {}
@@ -40,8 +45,13 @@ export class ReportsService {
     const employee: EmployeeEntity =
       await this.employeesService.findOneById(employeeId);
 
+    const company: CompanyEntity = await this.companiesService.findOne(
+      employee.company.id,
+    );
+
     await this.reportEngine.generateEmployeeReportFile({
       employee,
+      company,
       year,
       month,
       daysInMonth,

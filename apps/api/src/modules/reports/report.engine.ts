@@ -10,9 +10,12 @@ import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { ContractType, Location } from '../employees/employee.types';
 import { Fraction } from 'fraction.js';
+import { CompanyEntity } from '../companies/entities/company.entity';
+import { AddressEntity } from '../companies/entities/address.entity';
 
 interface GenerateReportOptions {
   employee: EmployeeEntity;
+  company: CompanyEntity;
   year: number;
   month: number;
   daysInMonth: Map<number, Day>;
@@ -22,6 +25,7 @@ interface GenerateReportOptions {
 export class ReportEngine {
   async generateEmployeeReportFile({
     employee,
+    company,
     year,
     month,
     // TODO
@@ -33,6 +37,7 @@ export class ReportEngine {
 
     this.addHeader(worksheet, year, month);
     this.addEmployeeTab(worksheet, employee);
+    this.addCompanyTab(worksheet, company);
 
     await this.saveWorkbook(employee, year, month, workbook);
   }
@@ -73,7 +78,11 @@ export class ReportEngine {
       left: { style: 'thin' },
       right: { style: 'thin' },
     };
-    worksheet.getCell('C2:I3').border = border;
+
+    worksheet.getCell('C2').border = border;
+    worksheet.getCell('C3').border = border;
+    worksheet.getCell('H3').border = border;
+    worksheet.getCell('I3').border = border;
   }
 
   private async saveWorkbook(
@@ -118,12 +127,62 @@ export class ReportEngine {
 
     addRows(worksheet, rows);
   }
+
+  private addCompanyTab(
+    worksheet: Worksheet,
+    { name, address, nip }: CompanyEntity,
+  ) {
+    //
+    const rowsLabels: string[] = [
+      name,
+      getAddressLabel(address),
+      getNipLabel(nip),
+    ];
+
+    rowsLabels.forEach((rowLabel, index) => {
+      const rowNumber = index + 5;
+      worksheet.mergeCells(`P${rowNumber}:T${rowNumber}`);
+      const cell = worksheet.getCell(`P${rowNumber}`);
+      cell.value = rowLabel;
+      cell.style = {
+        alignment: { horizontal: 'center' },
+      };
+    });
+
+    worksheet.getCell('P5').border = {
+      top: { style: 'thin' },
+      left: { style: 'thin' },
+      right: { style: 'thin' },
+    };
+    worksheet.getCell('P6').border = {
+      left: { style: 'thin' },
+      right: { style: 'thin' },
+    };
+    worksheet.getCell('P7').border = {
+      left: { style: 'thin' },
+      right: { style: 'thin' },
+      bottom: { style: 'thin' },
+    };
+  }
 }
 
 interface EmployeeRow {
   title: string;
   content: string;
 }
+
+const getAddressLabel = ({
+  street,
+  houseNumber,
+  postCode,
+  city,
+}: AddressEntity): string => {
+  return `${street} ${houseNumber}, ${postCode} ${city}`;
+};
+
+const getNipLabel = (nip: string): string => {
+  return `NIP: ${nip}`;
+};
 
 const getContractTypeLabel = ({
   contractType,
