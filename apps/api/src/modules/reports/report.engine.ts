@@ -21,6 +21,10 @@ interface GenerateReportOptions {
   daysInMonth: Map<number, Day>;
 }
 
+const GREEN_COLOR: string = '#9FCE63';
+const BLUE_COLOR: string = '#C2D6EC';
+const YELLOW_COLOR: string = '#F5C242';
+
 @Injectable()
 export class ReportEngine {
   async generateEmployeeReportFile({
@@ -168,6 +172,7 @@ export class ReportEngine {
 
   private addHoursTable(worksheet: Worksheet): void {
     this.addHoursTableHeader(worksheet);
+    this.addHoursTableBody(worksheet);
   }
 
   private addHoursTableHeader(worksheet: Worksheet): void {
@@ -282,6 +287,38 @@ export class ReportEngine {
       ...rowStyles,
       alignment: rotatedAlignment,
     };
+
+    const cellsWithColor: CellWithColor[] = [
+      {
+        id: 'M11',
+        color: GREEN_COLOR,
+      },
+      {
+        id: 'N11',
+        color: GREEN_COLOR,
+      },
+      {
+        id: 'Q11',
+        color: BLUE_COLOR,
+      },
+      {
+        id: 'R11',
+        color: YELLOW_COLOR,
+      },
+    ];
+    cellsWithColor.forEach(({ id, color }) => {
+      worksheet.getCell(id).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        bgColor: {
+          argb: color,
+        },
+      };
+    });
+  }
+
+  private addHoursTableBody(worksheet: Worksheet): void {
+    console.log(worksheet);
   }
 }
 
@@ -289,6 +326,11 @@ interface EmployeeRow {
   title: string;
   content: string;
 }
+
+type CellWithColor = {
+  id: string;
+  color: string;
+};
 
 const getAddressLabel = ({
   street,
