@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Borders, Workbook, Worksheet } from 'exceljs';
+import { Alignment, Borders, Cell, Style, Workbook, Worksheet } from 'exceljs';
 import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import { cwd } from 'process';
@@ -38,6 +38,7 @@ export class ReportEngine {
     this.addHeader(worksheet, year, month);
     this.addEmployeeTab(worksheet, employee);
     this.addCompanyTab(worksheet, company);
+    this.addHoursTable(worksheet);
 
     await this.saveWorkbook(employee, year, month, workbook);
   }
@@ -162,6 +163,124 @@ export class ReportEngine {
       left: { style: 'thin' },
       right: { style: 'thin' },
       bottom: { style: 'thin' },
+    };
+  }
+
+  private addHoursTable(worksheet: Worksheet): void {
+    this.addHoursTableHeader(worksheet);
+  }
+
+  private addHoursTableHeader(worksheet: Worksheet): void {
+    const rowStyles: Partial<Style> = {
+      font: { bold: true },
+      alignment: { horizontal: 'center', vertical: 'middle' },
+      border: {
+        top: { style: 'thin' },
+        bottom: { style: 'thin' },
+        left: { style: 'thin' },
+        right: { style: 'thin' },
+      },
+    };
+    const ranges = ['C10:F10', 'H10:L10', 'M10:W10'];
+    ranges.forEach((range) => {
+      worksheet.mergeCells(range);
+    });
+
+    const upperRowCells: Cell[] = [
+      worksheet.getCell('C10'),
+      worksheet.getCell('G10'),
+      worksheet.getCell('H10'),
+      worksheet.getCell('M10'),
+    ];
+
+    upperRowCells[0].value = 'Czas pracy do rozliczenia';
+    upperRowCells[1].value = 'Faktyczny czas pracy';
+    upperRowCells[2].value = 'Godziny przepracowane';
+    upperRowCells[3].value = 'Nieobecności w pracy określone w godzinach';
+
+    upperRowCells.forEach((cell) => {
+      cell.style = rowStyles;
+    });
+
+    const rotatedAlignment: Partial<Alignment> = {
+      vertical: 'middle',
+      horizontal: 'center',
+    };
+
+    const centerAlignment: Partial<Alignment> = {
+      vertical: 'middle',
+      horizontal: 'center',
+    };
+
+    const labels: string[] = [
+      'Dzień miesiąca',
+      'Dzień tygodnia',
+      'Godziny pracy od - do',
+      'Nominalny czas pracy',
+      'w godz.',
+      'Nadliczbowe w dzień',
+      'Nadliczbowe w nocy',
+      'Soboty',
+      'Niedziele i święta',
+      'Pora nocna',
+      'Urlop wypoczynkowy',
+      'Urlop na żądanie',
+      'Urlop macierzyński',
+      'Urlop wychowawczy',
+      'Urlop bezpłatny',
+      'Choroba',
+      'Opieka',
+    ];
+
+    let currentColumn: string = 'C';
+
+    labels.forEach((label) => {
+      worksheet.mergeCells(`${currentColumn}11:${currentColumn}12`);
+      const cell = worksheet.getCell(`${currentColumn}11`);
+      cell.value = label;
+      cell.style = {
+        ...rowStyles,
+        alignment: rotatedAlignment,
+      };
+      currentColumn = String.fromCharCode(currentColumn.charCodeAt(0) + 1);
+    });
+
+    worksheet.mergeCells('T11:U11');
+    let cell = worksheet.getCell('T11');
+    cell.value = 'Zwolnienia';
+    cell.style = {
+      ...rowStyles,
+      alignment: centerAlignment,
+    };
+
+    cell = worksheet.getCell('T12');
+    cell.value = 'Płatne';
+    cell.style = {
+      ...rowStyles,
+      alignment: centerAlignment,
+    };
+
+    cell = worksheet.getCell('U12');
+    cell.value = 'Niepłatne';
+    cell.style = {
+      ...rowStyles,
+      alignment: centerAlignment,
+    };
+
+    worksheet.mergeCells('V11:V12');
+    cell = worksheet.getCell('V11');
+    cell.value = 'Nieobecność nieusprawiedliwiona';
+    cell.style = {
+      ...rowStyles,
+      alignment: rotatedAlignment,
+    };
+
+    worksheet.mergeCells('W11:W12');
+    cell = worksheet.getCell('W11');
+    cell.value = 'Służba wojskowa';
+    cell.style = {
+      ...rowStyles,
+      alignment: rotatedAlignment,
     };
   }
 }
