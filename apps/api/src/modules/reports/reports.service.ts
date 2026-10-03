@@ -70,8 +70,7 @@ export class ReportsService {
       const currentDate = new Date(year, month - 1, i);
 
       if (isWeekend(currentDate)) {
-        const dayName = currentDate.getDay() === 0 ? 'Niedziela' : 'Sobota';
-        daysInMonth.set(i, { status: AttendanceStatus.HOLIDAY, name: dayName });
+        daysInMonth.set(i, { status: AttendanceStatus.HOLIDAY });
       } else {
         daysInMonth.set(i, { status: AttendanceStatus.PRESENCE });
       }

@@ -1,4 +1,4 @@
-import { AttendanceStatus } from '../attendance/attendance.types';
+import { AbsenceType, AttendanceStatus } from '../attendance/attendance.types';
 
 export interface IGetMonthReportParamsDto {
   employeeId: string;
@@ -7,5 +7,7 @@ export interface IGetMonthReportParamsDto {
 }
 
 export type Day =
-  | { status: Omit<AttendanceStatus, AttendanceStatus.HOLIDAY> }
-  | { status: AttendanceStatus.HOLIDAY; name: string };
+  | {
+      status: Exclude<AttendanceStatus, AttendanceStatus.HOLIDAY> | AbsenceType;
+    }
+  | { status: AttendanceStatus.HOLIDAY; name?: string };
