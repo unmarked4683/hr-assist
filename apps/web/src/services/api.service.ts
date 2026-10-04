@@ -180,4 +180,12 @@ export class ApiService {
     );
     return response;
   }
+
+  // static async getEmployeeMonthlyReport(
+  //   employeeId: string,
+  //   year: number,
+  //   month: number,
+  // ) {
+
+  // }
 }

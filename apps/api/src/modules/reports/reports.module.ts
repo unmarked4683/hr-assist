@@ -6,7 +6,7 @@ import { AttendanceModule } from '../attendance/attendance.module';
 import { LeavesModule } from '../leaves/leaves.module';
 import { CompaniesModule } from '../companies/companies.module';
 import { HolidaysModule } from '../holidays/holidays.module';
-import { ReportEngine } from './report.engine';
+import { ReportEngine } from './engine/report.engine';
 
 @Module({
   imports: [

@@ -1,6 +1,6 @@
 import { IsInt, IsUUID, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { IGetMonthReportParamsDto } from '../reports.types';
+import { IGetMonthReportParamsDto } from '../engine/reports.types';
 import { IsEmployeeExists } from 'src/common/validators/is-employee-exists.validator';
 
 export class GetMonthReportParamsDto implements IGetMonthReportParamsDto {

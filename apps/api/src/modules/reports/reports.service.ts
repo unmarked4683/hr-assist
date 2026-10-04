@@ -1,17 +1,22 @@
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { mkdir, writeFile } from 'fs/promises';
+import { basename, dirname, join } from 'path';
+import { cwd } from 'process';
 import { GetMonthReportParamsDto } from './dto/get-month-report.dto';
 import { getDate, getDaysInMonth, isWeekend } from 'date-fns';
 import { AbsenceEntity } from '../attendance/entities/absence.entity';
 import { AttendanceService } from '../attendance/attendance.service';
 import { AttendanceStatus } from '../attendance/attendance.types';
-import { Day } from './reports.types';
+import { Day, GeneratedReportFile } from './engine/reports.types';
 import { HolidayEntity } from '../holidays/entities/holiday.entity';
 import { HolidaysService } from '../holidays/holidays.service';
 import { EmployeeEntity } from '../employees/entities/employee.entity';
 import { EmployeesService } from '../employees/employees.service';
-import { ReportEngine } from './report.engine';
+import { ReportEngine } from './engine/report.engine';
 import { CompanyEntity } from '../companies/entities/company.entity';
 import { CompaniesService } from '../companies/companies.service';
+import { toMonthlyTimesheetData } from './engine/timesheet-report.mapper';
+import { getReportRelativePath } from './engine/reports.utils';
 
 @Injectable()
 export class ReportsService {
@@ -31,11 +36,15 @@ export class ReportsService {
     private readonly reportEngine: ReportEngine,
   ) {}
 
+  /**
+   * Collects the employee's attendance for the month, renders the timesheet
+   * and saves it under reports/{yyyy}/{mm}/.
+   */
   async getMonthReportForSingleEmployee({
     employeeId,
     month,
     year,
-  }: GetMonthReportParamsDto) {
+  }: GetMonthReportParamsDto): Promise<GeneratedReportFile> {
     const daysInMonth: Map<number, Day> = await this.buildMonthDaysMap(
       employeeId,
       year,
@@ -49,13 +58,38 @@ export class ReportsService {
       employee.company.id,
     );
 
-    await this.reportEngine.generateEmployeeReportFile({
+    const timesheet = toMonthlyTimesheetData({
       employee,
       company,
       year,
       month,
       daysInMonth,
     });
+    const report: Buffer = await this.reportEngine.generateReportBuffer([
+      timesheet,
+    ]);
+
+    const filePath: string = await this.saveReportFile(
+      getReportRelativePath(employee, year, month),
+      report,
+    );
+
+    return { filePath, fileName: basename(filePath) };
+  }
+
+  /**
+   * Writes the report under the working directory, creating its folders,
+   * and returns the absolute path of the file.
+   */
+  private async saveReportFile(
+    relativePath: string,
+    report: Buffer,
+  ): Promise<string> {
+    const filePath: string = join(cwd(), relativePath);
+    await mkdir(dirname(filePath), { recursive: true });
+    await writeFile(filePath, report);
+
+    return filePath;
   }
 
   private async buildMonthDaysMap(
