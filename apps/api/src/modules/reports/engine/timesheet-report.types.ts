@@ -45,7 +45,7 @@ export interface AbsenceHours {
 /** One calendar day of the timesheet, already resolved to hours. */
 export interface DailyTimesheetRow {
   date: Date;
-  /** Weekday abbreviation ('Pon.') or the holiday name. */
+  /** Full weekday name, with the holiday name if any: 'Środa (Nowy Rok)'. */
   dayLabel: string;
   /** Weekends and public holidays: no work is scheduled. */
   isDayOff: boolean;

@@ -3,6 +3,7 @@ import { Workbook, Worksheet } from 'exceljs';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Fraction } from 'fraction.js';
+import { upperFirst } from 'lodash';
 import { AbsenceType } from '../../attendance/attendance.types';
 import { ContractType, Location } from '../../employees/employee.types';
 import { AddressEntity } from '../../companies/entities/address.entity';
@@ -97,8 +98,8 @@ const REPORT_LAYOUT = {
   columnWidths: {
     [COLUMNS.date]: 12,
     [COLUMNS.dayOfMonth]: 8,
-    // exceljs skips writing width 9 (its internal default), Excel would use 8.43
-    [COLUMNS.dayLabel]: 9.14,
+    // Fits 'Poniedziałek'; longer holiday labels wrap onto a second line
+    [COLUMNS.dayLabel]: 18,
     [COLUMNS.workHoursRange]: 14,
     [COLUMNS.nominalHours]: 11,
     [COLUMNS.actualHours]: 12,
@@ -610,7 +611,10 @@ export class ReportEngine {
 
       styleHeaderCell(row.getCell(column), {
         fill: color,
-        alignment: REPORT_STYLE.alignments.center,
+        alignment:
+          column === COLUMNS.dayLabel
+            ? REPORT_STYLE.alignments.wrappedCenter
+            : REPORT_STYLE.alignments.center,
         border: REPORT_STYLE.borders.thin,
       });
     });
@@ -710,7 +714,7 @@ const getPositionLabel = ({
   }
 
   label += ' - ';
-  label += position.charAt(0).toUpperCase() + position.slice(1);
+  label += upperFirst(position);
 
   return label;
 };

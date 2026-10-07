@@ -78,14 +78,20 @@ describe('toMonthlyTimesheetData', () => {
 
     expect(day(rows, 5)).toMatchObject({
       isDayOff: true,
-      dayLabel: 'Sob.',
+      dayLabel: 'Sobota',
       nominalHours: 0,
       actualHours: 0,
       absence: null,
     });
   });
 
-  it('treats public holidays as days off labelled with their name', () => {
+  it('labels workdays with the full weekday name', () => {
+    const { rows } = buildSeptember();
+
+    expect(day(rows, 2)).toMatchObject({ dayLabel: 'Środa' });
+  });
+
+  it('treats public holidays as days off labelled with weekday and name', () => {
     const { rows } = buildSeptember({
       holidays: [{ date: utc('2026-09-03'), name: 'Święto testowe' }],
       absences: [{ date: utc('2026-09-03'), type: AbsenceType.VACATION_LEAVE }],
@@ -93,7 +99,7 @@ describe('toMonthlyTimesheetData', () => {
 
     expect(day(rows, 3)).toMatchObject({
       isDayOff: true,
-      dayLabel: 'Święto testowe',
+      dayLabel: 'Czwartek (Święto testowe)',
       actualHours: 0,
       absence: null,
     });

@@ -1,4 +1,6 @@
 import { eachDayOfInterval, endOfMonth, format, isWeekend } from 'date-fns';
+import { pl } from 'date-fns/locale';
+import { upperFirst } from 'lodash';
 import { AbsenceType } from '../../attendance/attendance.types';
 import {
   AttendanceRecord,
@@ -9,16 +11,6 @@ import {
   OvertimeHours,
   PublicHoliday,
 } from './timesheet-report.types';
-
-const WEEKDAY_LABELS: string[] = [
-  'Nd.',
-  'Pon.',
-  'Wt.',
-  'Śr.',
-  'Czw.',
-  'Pt.',
-  'Sob.',
-];
 
 // Overtime is not tracked yet, every day reports zero hours
 const NO_OVERTIME: OvertimeHours = {
@@ -58,6 +50,13 @@ const dateOnlyKey = (value: Date | string): string =>
 
 /** Day of a local date — the report's own days and the `firedAt` moment. */
 const localDayKey = (date: Date): string => format(date, 'yyyy-MM-dd');
+
+/** 'Czwartek', or 'Środa (Nowy Rok)' on a public holiday. */
+const getDayLabel = (date: Date, day: ReportDay): string => {
+  const weekday: string = upperFirst(format(date, 'EEEE', { locale: pl }));
+
+  return day.kind === 'holiday' ? `${weekday} (${day.name})` : weekday;
+};
 
 /**
  * Resolves one month of attendance into timesheet rows with hours, ready to
@@ -112,12 +111,12 @@ const toDailyRow = (
   day: ReportDay,
   { workHours, workSchedule }: Employee,
 ): DailyTimesheetRow => {
-  const weekdayLabel: string = WEEKDAY_LABELS[date.getDay()];
+  const dayLabel: string = getDayLabel(date, day);
 
   if (day.kind !== 'workday') {
     return {
       date,
-      dayLabel: day.kind === 'holiday' ? day.name : weekdayLabel,
+      dayLabel,
       isDayOff: true,
       workHoursRange: null,
       nominalHours: 0,
@@ -131,7 +130,7 @@ const toDailyRow = (
   // day in its own column instead.
   return {
     date,
-    dayLabel: weekdayLabel,
+    dayLabel,
     isDayOff: false,
     // 'HH:mm:ss' from the database -> '07:00-14:00'
     workHoursRange: `${workSchedule.start.slice(0, 5)}-${workSchedule.end.slice(0, 5)}`,
