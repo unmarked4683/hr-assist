@@ -3,7 +3,7 @@ import { Workbook, Worksheet } from 'exceljs';
 import { format } from 'date-fns';
 import { pl } from 'date-fns/locale';
 import { Fraction } from 'fraction.js';
-import { AttendanceStatus } from '../../attendance/attendance.types';
+import { AbsenceType } from '../../attendance/attendance.types';
 import { ContractType, Location } from '../../employees/employee.types';
 import { AddressEntity } from '../../companies/entities/address.entity';
 import { getEmployeeSheetName } from './reports.utils';
@@ -175,23 +175,26 @@ const REPORT_STYLE: ReportStyleConfig = {
 
 const A4_PAPER_SIZE: number = 9;
 
-/** Column that receives the hours of each absence type. */
-const ABSENCE_STATUS_COLUMNS: Record<string, string> = {
-  [AttendanceStatus.VACATION_LEAVE]: COLUMNS.vacationLeave,
-  [AttendanceStatus.ON_DEMAND_LEAVE]: COLUMNS.onDemandLeave,
-  [AttendanceStatus.MATERNITY_LEAVE]: COLUMNS.maternityLeave,
-  [AttendanceStatus.PARENTAL_LEAVE]: COLUMNS.parentalLeave,
-  [AttendanceStatus.PARENTAL_CHILD_LEAVE]: COLUMNS.parentalLeave,
-  [AttendanceStatus.PATERNITY_LEAVE]: COLUMNS.parentalLeave,
-  [AttendanceStatus.UNPAID_LEAVE]: COLUMNS.unpaidLeave,
-  [AttendanceStatus.SICK_LEAVE]: COLUMNS.sickLeave,
-  [AttendanceStatus.REHABILITATION_BENEFIT]: COLUMNS.sickLeave,
-  [AttendanceStatus.CARE]: COLUMNS.care,
-  [AttendanceStatus.PAID_EXCUSED_ABSENCE]: COLUMNS.paidExcusedAbsence,
-  [AttendanceStatus.CIRCUMSTANTIAL_LEAVE]: COLUMNS.paidExcusedAbsence,
-  [AttendanceStatus.DAY_OFF_FOR_HOLIDAY]: COLUMNS.paidExcusedAbsence,
-  [AttendanceStatus.UNPAID_EXCUSED_ABSENCE]: COLUMNS.unpaidExcusedAbsence,
-  [AttendanceStatus.UNEXCUSED_ABSENCE]: COLUMNS.unexcusedAbsence,
+/**
+ * Column that receives the hours of each absence type. Keyed by every
+ * AbsenceType, so a new type without a column fails to compile.
+ */
+const ABSENCE_STATUS_COLUMNS: Record<AbsenceType, string> = {
+  [AbsenceType.VACATION_LEAVE]: COLUMNS.vacationLeave,
+  [AbsenceType.ON_DEMAND_LEAVE]: COLUMNS.onDemandLeave,
+  [AbsenceType.MATERNITY_LEAVE]: COLUMNS.maternityLeave,
+  [AbsenceType.PARENTAL_LEAVE]: COLUMNS.parentalLeave,
+  [AbsenceType.PARENTAL_CHILD_LEAVE]: COLUMNS.parentalLeave,
+  [AbsenceType.PATERNITY_LEAVE]: COLUMNS.parentalLeave,
+  [AbsenceType.UNPAID_LEAVE]: COLUMNS.unpaidLeave,
+  [AbsenceType.SICK_LEAVE]: COLUMNS.sickLeave,
+  [AbsenceType.REHABILITATION_BENEFIT]: COLUMNS.sickLeave,
+  [AbsenceType.CARE]: COLUMNS.care,
+  [AbsenceType.PAID_EXCUSED_ABSENCE]: COLUMNS.paidExcusedAbsence,
+  [AbsenceType.CIRCUMSTANTIAL_LEAVE]: COLUMNS.paidExcusedAbsence,
+  [AbsenceType.DAY_OFF_FOR_HOLIDAY]: COLUMNS.paidExcusedAbsence,
+  [AbsenceType.UNPAID_EXCUSED_ABSENCE]: COLUMNS.unpaidExcusedAbsence,
+  [AbsenceType.UNEXCUSED_ABSENCE]: COLUMNS.unexcusedAbsence,
 };
 
 const OVERTIME_COLUMNS: Record<keyof OvertimeHours, string> = {
@@ -594,13 +597,9 @@ export class ReportEngine {
         row.getCell(column).value = day.overtime[key as keyof OvertimeHours];
       });
 
-      const absenceColumn: string | undefined = day.absence
-        ? ABSENCE_STATUS_COLUMNS[
-            day.absence.status as keyof typeof ABSENCE_STATUS_COLUMNS
-          ]
-        : undefined;
-      if (day.absence && absenceColumn) {
-        row.getCell(absenceColumn).value = day.absence.hours;
+      if (day.absence) {
+        row.getCell(ABSENCE_STATUS_COLUMNS[day.absence.status]).value =
+          day.absence.hours;
       }
     }
 

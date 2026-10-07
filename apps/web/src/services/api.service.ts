@@ -12,6 +12,12 @@ import {
 import { apiRequest } from "./api-request";
 import { UpdateEmployeeAttendanceDto } from "@/utils/calendar.types";
 import { isValid, parseISO } from "date-fns";
+import { ErrorResponse } from "@/types/response-wrapper.types";
+
+export interface ReportFile {
+  blob: Blob;
+  fileName: string;
+}
 
 export class ApiService {
   static async login(email: string, password: string): Promise<UserProfile> {
@@ -181,11 +187,45 @@ export class ApiService {
     return response;
   }
 
-  // static async getEmployeeMonthlyReport(
-  //   employeeId: string,
-  //   year: number,
-  //   month: number,
-  // ) {
+  /**
+   * Monthly timesheet as an .xlsx file. Bypasses `apiRequest`, which always
+   * parses JSON — on success the backend streams the raw file, and only errors
+   * come wrapped in `ResponseWrapper`.
+   */
+  static async getEmployeeMonthlyReport(
+    employeeId: string,
+    year: number,
+    month: number, // 1-12
+  ): Promise<ReportFile> {
+    const url = new URL(
+      `/api/reports/${employeeId}/${year}/${month}`,
+      process.env.NEXT_PUBLIC_API_URL!,
+    );
 
-  // }
+    let response: Response;
+    try {
+      response = await fetch(url, { credentials: "include" });
+    } catch {
+      throw new Error(
+        "Brak połączenia z serwerem (backend wyłączony lub zablokowany przez sieć).",
+      );
+    }
+
+    if (!response.ok) {
+      const body: ErrorResponse | null = await response
+        .json()
+        .catch(() => null);
+      throw new Error(
+        body?.errors?.join(", ") || "Nie udało się wygenerować raportu",
+      );
+    }
+
+    // Backend sends: attachment; filename="<pesel>-<name>-<surname>-MM-YYYY.xlsx"
+    const fileName =
+      response.headers
+        .get("Content-Disposition")
+        ?.match(/filename="(.+)"/)?.[1] ?? "raport.xlsx";
+
+    return { blob: await response.blob(), fileName };
+  }
 }

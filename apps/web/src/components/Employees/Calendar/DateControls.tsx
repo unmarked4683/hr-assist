@@ -32,7 +32,9 @@ interface DateControlsProps {
   onYearChange: (year: number) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
-  onToday: () => void;
+  onToday?: () => void;
+  /** Przycisk "Dziś" — zbędny np. w raporcie, gdzie bieżący miesiąc jest niedostępny. */
+  showTodayButton?: boolean;
 }
 
 export function DateControls({
@@ -44,6 +46,7 @@ export function DateControls({
   onPrevMonth,
   onNextMonth,
   onToday,
+  showTodayButton = true,
 }: DateControlsProps) {
   const yearOptions = getAvailableYears(bounds);
   const monthOptions = getAvailableMonths(year, bounds);
@@ -115,13 +118,15 @@ export function DateControls({
         <ChevronRight />
       </Button>
 
-      <Button
-        variant="outline-primary"
-        onClick={onToday}
-        className={STABLE_BUTTON_CLASS}
-      >
-        Dziś
-      </Button>
+      {showTodayButton && (
+        <Button
+          variant="outline-primary"
+          onClick={onToday}
+          className={STABLE_BUTTON_CLASS}
+        >
+          Dziś
+        </Button>
+      )}
     </div>
   );
 }

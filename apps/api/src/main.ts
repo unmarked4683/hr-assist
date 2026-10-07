@@ -16,6 +16,9 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    // Report downloads read the backend-provided file name from this header —
+    // without exposing it, cross-origin JS sees only CORS-safelisted headers.
+    exposedHeaders: ['Content-Disposition'],
   });
 
   useContainer(app.select(AppModule), { fallbackOnErrors: true });

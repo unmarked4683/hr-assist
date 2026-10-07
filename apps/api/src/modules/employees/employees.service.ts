@@ -73,8 +73,15 @@ export class EmployeesService {
     };
   }
 
-  async findOneById(id: string): Promise<EmployeeEntity> {
-    const employee = await EmployeeEntity.findOne({ where: { id } });
+  /** `withDeleted` includes fired employees (`firedAt` is the soft-delete column). */
+  async findOneById(
+    id: string,
+    { withDeleted = false }: { withDeleted?: boolean } = {},
+  ): Promise<EmployeeEntity> {
+    const employee = await EmployeeEntity.findOne({
+      where: { id },
+      withDeleted,
+    });
     if (!employee) {
       throw new NotFoundException(`Employee with id ${id} not found`);
     }

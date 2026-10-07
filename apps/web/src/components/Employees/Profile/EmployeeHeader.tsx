@@ -9,6 +9,7 @@ interface EmployeeHeaderProps {
   isFired: boolean;
   /** Trwa zwalnianie/przywracanie — przycisk jest nieaktywny. */
   isFireActionPending?: boolean;
+  onReport: () => void;
   onEdit: () => void;
   onFire: () => void;
   onRecover: () => void;
@@ -20,6 +21,7 @@ export function EmployeeHeader({
   surname,
   isFired,
   isFireActionPending = false,
+  onReport,
   onEdit,
   onFire,
   onRecover,
@@ -33,7 +35,7 @@ export function EmployeeHeader({
 
       <Card className="p-1">
         <div className="flex space-x-1">
-          <Button variant="ghost" size="icon" title="Raport">
+          <Button variant="ghost" size="icon" title="Raport" onClick={onReport}>
             <FileText className="h-4 w-4" />
           </Button>
           <Button

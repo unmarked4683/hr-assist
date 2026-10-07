@@ -1,10 +1,11 @@
 import { Alignment, Borders, Font } from 'exceljs';
 import { EmployeeEntity } from '../../employees/entities/employee.entity';
 import { CompanyEntity } from '../../companies/entities/company.entity';
-import { AttendanceStatus } from '../../attendance/attendance.types';
-import { Day } from './reports.types';
+import { AbsenceType } from '../../attendance/attendance.types';
+import { AbsenceEntity } from '../../attendance/entities/absence.entity';
+import { HolidayEntity } from '../../holidays/entities/holiday.entity';
 
-/** Employee fields printed in the report header. */
+/** Employee fields printed in the report header and used to compute hours. */
 export type Employee = Pick<
   EmployeeEntity,
   | 'id'
@@ -15,16 +16,18 @@ export type Employee = Pick<
   | 'location'
   | 'contractType'
   | 'workHours'
+  | 'workSchedule'
+  | 'employmentDate'
+  | 'firedAt'
 >;
 
 /** Company fields printed in the report header. */
 export type Company = Pick<CompanyEntity, 'name' | 'nip' | 'address'>;
 
-/** Any non-holiday status other than presence, i.e. a type of absence. */
-export type AbsenceStatus = Exclude<
-  Day['status'],
-  AttendanceStatus.HOLIDAY | AttendanceStatus.PRESENCE
->;
+/** Absence recorded for one day. */
+export type AttendanceRecord = Pick<AbsenceEntity, 'date' | 'type'>;
+
+export type PublicHoliday = Pick<HolidayEntity, 'date' | 'name'>;
 
 export interface OvertimeHours {
   day: number;
@@ -35,7 +38,7 @@ export interface OvertimeHours {
 }
 
 export interface AbsenceHours {
-  status: AbsenceStatus;
+  status: AbsenceType;
   hours: number;
 }
 

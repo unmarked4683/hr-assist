@@ -82,6 +82,30 @@ export const getEmploymentBounds = (
   return { min, max: isBeforeMinPeriod(max, min) ? min : max };
 };
 
+/**
+ * Zakres miesięcy, za które można wygenerować raport:
+ * - od: miesiąc zatrudnienia (nie wcześniej niż start aplikacji),
+ * - do: ostatni zamknięty miesiąc (poprzedni względem `today`), a przy
+ *   zwolnieniu — najpóźniej miesiąc zwolnienia.
+ * Zwraca null, gdy żaden miesiąc nie jest jeszcze zamknięty (np. zatrudnienie
+ * w bieżącym miesiącu).
+ */
+export const getReportBounds = (
+  hireDate: Date | null,
+  firedDate: Date | null,
+  today: Date = new Date(),
+): CalendarBounds | null => {
+  const min = getMinCalendarPeriod(hireDate);
+  const lastClosed = toCalendarPeriod(addMonths(startOfMonth(today), -1));
+  const firedPeriod = firedDate ? toCalendarPeriod(firedDate) : null;
+  const max =
+    firedPeriod && isAfterPeriod(lastClosed, firedPeriod)
+      ? firedPeriod
+      : lastClosed;
+
+  return isBeforeMinPeriod(max, min) ? null : { min, max };
+};
+
 /** Zwraca okres mieszczący się w `bounds` (domyślnie: limity aplikacji). */
 export const clampPeriod = (
   period: CalendarPeriod,

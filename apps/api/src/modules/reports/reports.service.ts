@@ -3,17 +3,12 @@ import { mkdir, writeFile } from 'fs/promises';
 import { basename, dirname, join } from 'path';
 import { cwd } from 'process';
 import { GetMonthReportParamsDto } from './dto/get-month-report.dto';
-import { getDate, getDaysInMonth, isWeekend } from 'date-fns';
-import { AbsenceEntity } from '../attendance/entities/absence.entity';
 import { AttendanceService } from '../attendance/attendance.service';
-import { AttendanceStatus } from '../attendance/attendance.types';
-import { Day, GeneratedReportFile } from './engine/reports.types';
-import { HolidayEntity } from '../holidays/entities/holiday.entity';
+import { GeneratedReportFile } from './engine/reports.types';
 import { HolidaysService } from '../holidays/holidays.service';
 import { EmployeeEntity } from '../employees/entities/employee.entity';
 import { EmployeesService } from '../employees/employees.service';
 import { ReportEngine } from './engine/report.engine';
-import { CompanyEntity } from '../companies/entities/company.entity';
 import { CompaniesService } from '../companies/companies.service';
 import { toMonthlyTimesheetData } from './engine/timesheet-report.mapper';
 import { getReportRelativePath } from './engine/reports.utils';
@@ -45,25 +40,25 @@ export class ReportsService {
     month,
     year,
   }: GetMonthReportParamsDto): Promise<GeneratedReportFile> {
-    const daysInMonth: Map<number, Day> = await this.buildMonthDaysMap(
+    // Fired employees are soft-deleted, but their past months stay reportable.
+    const employee: EmployeeEntity = await this.employeesService.findOneById(
       employeeId,
-      year,
-      month,
+      { withDeleted: true },
     );
 
-    const employee: EmployeeEntity =
-      await this.employeesService.findOneById(employeeId);
-
-    const company: CompanyEntity = await this.companiesService.findOne(
-      employee.company.id,
-    );
+    const [company, absences, holidays] = await Promise.all([
+      this.companiesService.findOne(employee.company.id),
+      this.attendanceService.findAbsences(employeeId, { year, month }),
+      this.holidaysService.findHolidaysForMonth({ year, month }),
+    ]);
 
     const timesheet = toMonthlyTimesheetData({
       employee,
       company,
       year,
       month,
-      daysInMonth,
+      absences,
+      holidays,
     });
     const report: Buffer = await this.reportEngine.generateReportBuffer([
       timesheet,
@@ -90,47 +85,5 @@ export class ReportsService {
     await writeFile(filePath, report);
 
     return filePath;
-  }
-
-  private async buildMonthDaysMap(
-    employeeId: string,
-    year: number,
-    month: number,
-  ): Promise<Map<number, Day>> {
-    const daysCount: number = getDaysInMonth(new Date(year, month - 1));
-    const daysInMonth: Map<number, Day> = new Map();
-
-    for (let i = 1; i <= daysCount; i++) {
-      const currentDate = new Date(year, month - 1, i);
-
-      if (isWeekend(currentDate)) {
-        daysInMonth.set(i, { status: AttendanceStatus.HOLIDAY });
-      } else {
-        daysInMonth.set(i, { status: AttendanceStatus.PRESENCE });
-      }
-    }
-
-    const absences: AbsenceEntity[] = await this.attendanceService.findAbsences(
-      employeeId,
-      { year, month },
-    );
-
-    for (const { date, type } of absences) {
-      daysInMonth.set(getDate(new Date(date)), { status: type });
-    }
-
-    const holidays: HolidayEntity[] =
-      await this.holidaysService.findHolidaysForMonth({ year, month });
-
-    if (holidays.length > 0) {
-      for (const { name, date } of holidays) {
-        daysInMonth.set(getDate(new Date(date)), {
-          status: AttendanceStatus.HOLIDAY,
-          name,
-        });
-      }
-    }
-
-    return daysInMonth;
   }
 }

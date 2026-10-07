@@ -14,6 +14,7 @@ import { QueryKeysService } from "@/services/query-keys.service";
 import { EmployeeHeader } from "./EmployeeHeader";
 import { EmployeeInfoTab } from "./EmployeeInfoTab";
 import { EmployeeLeaveTab } from "./EmployeeLeaveTab";
+import { ReportModal } from "./ReportModal";
 import { EmployeeCalendar } from "../Calendar/EmployeeCalendar";
 import { EmployeeModal } from "@/components/EmployeeModal/Modal/Modal";
 import { ConfirmModal } from "@/components/ConfirmModal/ConfirmModal";
@@ -29,6 +30,7 @@ export function EmployeeProfilePage() {
   const tabsContentRef = useRef<HTMLDivElement>(null);
   const [tabsContentHeight, setTabsContentHeight] = useState<number>();
   const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
+  const [isReportOpen, setIsReportOpen] = useState<boolean>(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [isFireModalOpen, setIsFireModalOpen] = useState<boolean>(false);
@@ -188,6 +190,7 @@ export function EmployeeProfilePage() {
         surname={employee.surname}
         isFired={isFired}
         isFireActionPending={fireMutation.isPending}
+        onReport={() => setIsReportOpen(true)}
         onEdit={() => {
           if (!isFired) setIsEditOpen(true);
         }}
@@ -245,6 +248,14 @@ export function EmployeeProfilePage() {
         employee={employee}
         isOpen={isEditOpen}
         onClose={() => setIsEditOpen(false)}
+      />
+
+      <ReportModal
+        employeeId={employeeId as string}
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        employmentDate={employee.employmentDate}
+        firedAt={employee.firedAt}
       />
 
       <ConfirmModal
